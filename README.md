@@ -1,12 +1,12 @@
 # 快速上手
 
-> 构建图片标记
+> 构建图片标注
 
 
 ## CDN 引入 inmark
 ``` bash
 
-<script type="text/javascript" src="http://www.wulihub.com.cn/go/JPVkkW/inmap_grey.min.js"></script>
+<script type="text/javascript" src="http://unpkg.com/inmark/dist/inmark.min.js"></script>
 ```
 
 
@@ -16,6 +16,3 @@
 ``` bash
 $ npm install inmark --save
 ```
-
-## 文档
-https://s-inmap.github.io/inmap-team-doc/#/
