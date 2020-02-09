@@ -1,0 +1,60 @@
+{
+    "root": true,
+    "parserOptions": {
+        "ecmaFeatures": {
+            "experimentalObjectRestSpread": true
+        },
+        "ecmaVersion": 6,
+        "sourceType": "module"
+    },
+    "globals": {
+        "VERSION":true,
+        "BMap": true,
+        "Point": true,
+        "expect":true
+    },
+    "env": {
+        "node": true,
+        "browser": true,
+        "es6": true,
+        "commonjs": true,
+        "mocha": true
+    },
+    "extends": "eslint:recommended",
+    "rules": {
+        "strict": 0,
+        "no-control-regex": "off",
+        "callback-return": "off",
+        "no-console": "off",
+        "no-alert": 0,
+        "no-class-assign": 2,
+        "no-delete-var": 2,
+        "no-empty": 2,
+        "no-debugger": 2,
+        "no-lone-blocks": 2,
+        "block-scoped-var": 2,
+        "no-var": 2,
+        "no-undef": 2,
+        "no-sync": 2,
+        "global-require": 2,
+        "handle-callback-err": [2, "^(err|error)$"],
+        "no-mixed-requires": 2,
+        "no-new-require": 2,
+        "indent": [
+            "off",
+            4
+        ],
+        "linebreak-style": [
+            2,
+            "unix"
+        ],
+        "quotes": [
+            2,
+            "single"
+        ],
+        "semi": [
+            2,
+            "always"
+        ]
+    }
+}
