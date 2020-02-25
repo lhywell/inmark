@@ -11791,6 +11791,10 @@ var BImage = function (_Init) {
         value: function renderImg(url) {
             var _this2 = this;
 
+            if (!url) {
+                return;
+            }
+
             group = new _zrender2.default.Group();
             this.group = group;
 
@@ -17171,7 +17175,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.0";
+var version = "1.0.1";
 console.log('inMark v' + version);
 var inMark = {
     version: version,

@@ -66,10 +66,10 @@ export default class BImage extends Init {
      * @params {Array} url 支持http,https图片路径
      */
     renderImg(url) {
-        if (url.length === 0) {
-            new Error('请填入图片url');
+        if (!url) {
             return;
         }
+
         //加载图片
         group = new zrender.Group();
         this.group = group;
