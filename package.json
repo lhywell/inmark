@@ -5,8 +5,10 @@
   "main": "dist/inmark.min.js",
   "scripts": {
     "start": "node openServer.js",
-    "dev": "webpack --watch --config  webpack.inmark.js & npm run start",
-    "build": "webpack --config webpack.inmark.pro.js",
+    "dev": "webpack --watch --config  webpack.inmark.dev.js & npm run start",
+    "dist:dev": "webpack --watch --config  webpack.inmark.js & npm run start",
+    "dist:prod": "webpack --watch --config  webpack.inmark.pro.js & npm run start",
+    "build": "rimraf dist && npm run dist:dev && npm run dist:prod",
     "lint": "eslint --fix --ext .js src",
     "test": "npm run lint",
     "karma": "npm run lint && karma start karma.inmark.test.js",
