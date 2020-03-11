@@ -92,7 +92,7 @@
         position: relative;
     }
     </style>
-    <script src="./data/markjson.js"></script>
+    <script src="./data/poly.js"></script>
     <!-- 引入样式 -->
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
     <link rel="stylesheet" href="./lib/styles/icons.css">
@@ -197,15 +197,17 @@ let inMapVue = new Vue({
         },
         initImage() {
             let val = data.data;
-            const resPath = val.resPath;
-            const markInfo = val.markInfo;
+            console.log(val)
+            const resPath = 'https://ocr-data.cdn.bailian-ai.com/test/sdfsdf/20200307/origin/download.png';
+            const markInfo = data.data;
 
-            this.markNoteList = JSON.parse(markInfo);
-            this.imgId = window.btoa(val.id + '2020');
+            this.markNoteList = markInfo;
+
+            this.imgId = window.btoa(new Date().getTime() + '2020');
 
             this.loading = true;
 
-
+            console.log(this.imgId)
             this.$nextTick(() => {
                 let image = new inMark.Image({
                     id: this.imgId,
@@ -223,7 +225,7 @@ let inMapVue = new Vue({
             });
         },
         initPolygon(data) {
-            let polygon = new inMark.Rect(this.image, {
+            let polygon = new inMark.Polygon(this.image, {
                 data: data,
                 isOpen: false,
                 event: {
