@@ -32,7 +32,7 @@ export default class RectOverlay extends Image {
 
         this.data = opts.data;
 
-        this._createLimit = 10 //创建的图形宽高最小限制
+        this._createLimit = 6 //创建的图形宽高最小限制
         this._editWidth = EditPolygon.shape.width //拖拽按钮的宽高限制
         this._styleConfig = PolygonConfig.style;
 
@@ -188,8 +188,8 @@ export default class RectOverlay extends Image {
     }
     _zrMouseMove(e) {
         if (this._isMouseDown) {
-            let zoom = this.group.scale[0];
-            let p = this._getDrawPoint(e)
+            let p = this._getDrawPoint(e);
+
             const xLong = Math.abs(this._startPoint[0] - p[0]);
             const yLong = Math.abs(this._startPoint[1] - p[1]);
             
@@ -232,7 +232,7 @@ export default class RectOverlay extends Image {
     }
     _zrMouseUp(e) {
         //新增图形回调函数
-        if (this._isMouseDown && this._canDrawShape && this.currShape) {
+        if (this._isMouseDown && this.currShape) {
             const index = this._areaShape.length - 1
             const shapePoints = this.currShape.shape.points
             // console.log(e, this.currShape)
