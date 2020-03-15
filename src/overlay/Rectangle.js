@@ -188,9 +188,11 @@ export default class RectOverlay extends Image {
     }
     _zrMouseMove(e) {
         if (this._isMouseDown) {
-            const xLong = Math.abs(this._startPoint[0] - e.event.offsetX)
-            const yLong = Math.abs(this._startPoint[1] - e.event.offsetY)
-
+            let zoom = this.group.scale[0];
+            let p = this._getDrawPoint(e)
+            const xLong = Math.abs(this._startPoint[0] - p[0]);
+            const yLong = Math.abs(this._startPoint[1] - p[1]);
+            
             if (xLong < this._createLimit && yLong < this._createLimit) {
                 this._canDrawShape = false;
                 return;
