@@ -91,6 +91,18 @@
         height: 100%;
         position: relative;
     }
+
+    .list {
+        position: absolute;
+        right: 0;
+        top: 0
+    }
+
+    .list .item {
+        font-size: 13px;
+        cursor: pointer;
+        color: blue;
+    }
     </style>
     <script src="./data/markjson.js"></script>
     <!-- 引入样式 -->
@@ -126,6 +138,12 @@
             </el-tooltip>
         </div>
         <div class="imageAnnotate" :id="imgId" v-loading="loading"></div>
+        <div class="list" style="position: absolute;right: 0;top:0">
+            <div v-for="item in markNoteList">
+                {{item.notes}}
+                <span class="item" @click="deleteSub(item)">删除</span>
+            </div>
+        </div>
     </div>
 </body>
 <!-- 引入Vue -->
@@ -310,6 +328,9 @@ let inMapVue = new Vue({
             this.markNoteList.splice(0);
             this.polygon && this.polygon.removeAll();
         },
+        deleteSub(item) {
+            this.polygon && this.polygon.removeSub(item);
+        }
     },
 })
 </script>
