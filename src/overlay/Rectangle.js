@@ -192,7 +192,7 @@ export default class RectOverlay extends Image {
 
             const xLong = Math.abs(this._startPoint[0] - p[0]);
             const yLong = Math.abs(this._startPoint[1] - p[1]);
-            
+
             if (xLong < this._createLimit && yLong < this._createLimit) {
                 this._canDrawShape = false;
                 return;
@@ -431,6 +431,8 @@ export default class RectOverlay extends Image {
         let oldGroup = [];
         shape.on('click', (e) => {
             // console.log('click', e.target)
+            //点击清空坐标点
+            this.currPoint = [];
         })
         shape.on('dragstart', (e) => {
             // console.log('start', e.target.position, JSON.stringify(e.target.shape.points));
@@ -446,7 +448,6 @@ export default class RectOverlay extends Image {
                 item.hide();
             })
 
-
             // shape.bound && shape.bound.eachChild(item => {
             //     item.attr({
             //         // origin: [e.offsetX, e.offsetY],
@@ -455,6 +456,8 @@ export default class RectOverlay extends Image {
             //     });
             //     item.show();
             // })
+            //移动过程中，重新记录坐标点
+            this.currPoint = this._toShapeDragEnd(e, e.target);
 
             this.currShape = e.target;
             // console.log('guocheng',JSON.stringify(e.target.shape.points));
@@ -475,10 +478,9 @@ export default class RectOverlay extends Image {
             this.position = zrender.util.clone(shape.position);
             //拖动后点坐标
             let shapePoints = this._toShapeDragEnd(e, shape);
-            this.currPoint = shapePoints;
-            // console.log('endstart', shapePoints);
-            // e.target.shape.points = shapePoints;
+
             this.currShape = shape;
+
             // console.log('end', this.position, JSON.stringify(e.target.shape.points), JSON.stringify(shapePoints));
 
             const rPoints = this._changeToPoints(shapePoints);
@@ -588,7 +590,7 @@ export default class RectOverlay extends Image {
             let m = this.currShape.transform;
             let point = this.currShape.shape.points;
             const oldPoints = zrender.util.clone(point);
-            // console.log(this.currShape, oldPoints)
+            // console.log(this.currShape, JSON.stringify(oldPoints))
 
             this.oldPoint = oldPoints
             let width = oldPoints[1][0] - oldPoints[0][0];
@@ -602,13 +604,17 @@ export default class RectOverlay extends Image {
         })
 
         editNode.on("drag", (e) => {
-            // console.log(JSON.stringify(this.currPoint));
+
+            //框拖拽移动之后，取记录点坐标
             let oldPoints = this.currPoint;
+
+            //框非移动，取拖拽坐标
             if (oldPoints.length === 0) {
                 oldPoints = zrender.util.clone(this.currShape.shape.points);
             }
+            this.currPoint = [];
+            // console.log('old', JSON.stringify(this.currPoint), JSON.stringify(this.currShape.shape.points))
 
-            // console.log('old', oldPoints)
             // this.currShape.attr({
             //     shape: {
             //         points: oldPoints,
@@ -897,20 +903,6 @@ export default class RectOverlay extends Image {
             })
         }
         this._areaShape = [];
-
-        this.deleteEdgePoint();
-    }
-    /**
-     * @删除编辑标记
-     */
-    deleteEdgePoint() {
-        if (this._edgePoint.length > 0) {
-            // debugger;
-            this._edgePoint.forEach(item => {
-                this.graphic.remove(item)
-            })
-        }
-        this._edgePoint = [];
     }
 
     /**

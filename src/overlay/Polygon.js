@@ -895,19 +895,6 @@ export default class RectOverlay extends Image {
         }
         this._areaShape = [];
 
-        this.deleteEdgePoint();
-    }
-    /**
-     * @删除编辑标记
-     */
-    deleteEdgePoint() {
-        if (this._edgePoint.length > 0) {
-            // debugger;
-            this._edgePoint.forEach(item => {
-                this.graphic.remove(item)
-            })
-        }
-        this._edgePoint = [];
     }
 
     /**
