@@ -17349,7 +17349,7 @@ var RectOverlay = function (_Image) {
     }, {
         key: '_zrMouseMove',
         value: function _zrMouseMove(e) {
-            if (this._isMouseDown) {
+            if (this._isMouseDown && this._startPoint) {
                 var p = this._getDrawPoint(e);
 
                 var xLong = Math.abs(this._startPoint[0] - p[0]);
@@ -17357,6 +17357,8 @@ var RectOverlay = function (_Image) {
 
                 if (xLong < this._createLimit && yLong < this._createLimit) {
                     this._canDrawShape = false;
+                    this.selectedSub = null;
+
                     return;
                 }
                 this._canDrawShape = true;
@@ -17629,10 +17631,6 @@ var RectOverlay = function (_Image) {
                     shape.attr({
                         cursor: 'default'
                     });
-
-                    if (_this5._canDrawShape === false) {
-                        _this5.dispose();
-                    }
                 }
             });
             shape.on('mouseover', function (e) {
@@ -17640,7 +17638,7 @@ var RectOverlay = function (_Image) {
                     shape.attr({
                         cursor: 'default'
                     });
-                    if (_this5._canDrawShape === false) {
+                    if (_this5._canDrawShape === false && _this5._isMouseDown === false) {
                         _this5.dispose();
                     }
                 }
@@ -17663,7 +17661,8 @@ var RectOverlay = function (_Image) {
             });
 
             shape.on('mouseup', function (e) {
-                if (_this5.isOpen) {
+                if (_this5.isOpen && _this5.selectedSub) {
+                    _this5._startPoint = [];
                     shape.bound && shape.bound.eachChild(function (item) {
                         item.show();
                     });
@@ -17918,11 +17917,13 @@ var RectOverlay = function (_Image) {
                 }
             });
             var sub = this._areaShape[index];
-            this._areaShape.splice(index, 1);
+            if (sub) {
+                this._areaShape.splice(index, 1);
 
-            sub && this.graphic.remove(sub.bound);
-            sub.bound = null;
-            sub && this.graphic.remove(sub);
+                this.graphic.remove(sub.bound);
+                sub.bound = null;
+                this.graphic.remove(sub);
+            }
         }
     }, {
         key: 'removeAll',
@@ -18094,7 +18095,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.4";
+var version = "1.0.5";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
