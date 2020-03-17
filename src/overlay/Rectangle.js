@@ -884,11 +884,13 @@ export default class RectOverlay extends Image {
             }
         });
         const sub = this._areaShape[index];
-        this._areaShape.splice(index, 1);
+        if (sub) {
+            this._areaShape.splice(index, 1);
 
-        sub && this.graphic.remove(sub.bound);
-        sub.bound = null;
-        sub && this.graphic.remove(sub);
+            this.graphic.remove(sub.bound);
+            sub.bound = null;
+            this.graphic.remove(sub);
+        }
     }
     /**
      * @删除所有标记
