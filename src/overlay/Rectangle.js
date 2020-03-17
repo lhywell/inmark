@@ -159,7 +159,6 @@ export default class RectOverlay extends Image {
             this._startPoint = this.origin;
             this._isMouseDown = true
             this.currShape = null
-
         }
     }
     _getDrawPoint(e) {
@@ -187,7 +186,7 @@ export default class RectOverlay extends Image {
         return [x, y]
     }
     _zrMouseMove(e) {
-        if (this._isMouseDown) {
+        if (this._isMouseDown && this._startPoint) {
             let p = this._getDrawPoint(e);
 
             const xLong = Math.abs(this._startPoint[0] - p[0]);
@@ -195,6 +194,8 @@ export default class RectOverlay extends Image {
 
             if (xLong < this._createLimit && yLong < this._createLimit) {
                 this._canDrawShape = false;
+                this.selectedSub = null;
+
                 return;
             }
             this._canDrawShape = true
@@ -228,6 +229,7 @@ export default class RectOverlay extends Image {
                 })
                 // console.log('mosemove', this.currShape)
             }
+
         }
     }
     _zrMouseUp(e) {
@@ -496,9 +498,9 @@ export default class RectOverlay extends Image {
                     cursor: 'default',
                 });
 
-                if (this._canDrawShape === false) {
-                    this.dispose();
-                }
+                // if (this._canDrawShape === false) {
+                //     this.dispose();
+                // }
             }
 
         })
@@ -507,7 +509,7 @@ export default class RectOverlay extends Image {
                 shape.attr({
                     cursor: 'default',
                 });
-                if (this._canDrawShape === false) {
+                if (this._canDrawShape === false && this._isMouseDown === false) {
                     this.dispose();
                 }
             }
@@ -535,7 +537,8 @@ export default class RectOverlay extends Image {
 
         shape.on('mouseup', (e) => {
             //开启编辑，选中某个框
-            if (this.isOpen) {
+            if (this.isOpen && this.selectedSub) {
+                this._startPoint = [];
                 shape.bound && shape.bound.eachChild(item => {
                     item.show();
                 })
