@@ -51,6 +51,7 @@ export default class RectOverlay extends Image {
         this.bgDrag = [];
         this.graphic = this._createGraphicGroup();
         this.currShape = {};
+        this.tempShape = {};
         this.currPoint = [];
         if (this.image) {
             this.image.on('drag', (e) => {
@@ -437,6 +438,10 @@ export default class RectOverlay extends Image {
             this.currPoint = [];
         })
         shape.on('dragstart', (e) => {
+            this.currShape = shape;
+
+            this.tempShape = e.target;
+
             // console.log('start', e.target.position, JSON.stringify(e.target.shape.points));
         })
         shape.on('drag', (e) => {
@@ -462,6 +467,7 @@ export default class RectOverlay extends Image {
             this.currPoint = this._toShapeDragEnd(e, e.target);
 
             this.currShape = e.target;
+
             // console.log('guocheng',JSON.stringify(e.target.shape.points));
             // console.log('drag', this.currShape)
             let shapePoints = this._toGlobal(e.target.shape.points, shape);
@@ -498,9 +504,11 @@ export default class RectOverlay extends Image {
                     cursor: 'default',
                 });
 
+                this.tempShape = e.target;
                 // if (this._canDrawShape === false) {
                 //     this.dispose();
                 // }
+
             }
 
         })
@@ -509,7 +517,10 @@ export default class RectOverlay extends Image {
                 shape.attr({
                     cursor: 'default',
                 });
+
                 if (this._canDrawShape === false && this._isMouseDown === false) {
+                    this.tempShape = e.target;
+
                     this.dispose();
                 }
             }
@@ -522,6 +533,9 @@ export default class RectOverlay extends Image {
         shape.on('mousedown', (e) => {
             //选中某个框
             // this.currShape = e.target;
+            this.currShape = e.target;
+            this.tempShape = e.target;
+
             this.selectedSub = shape;
             this.resetShapeStyle();
 
@@ -537,29 +551,31 @@ export default class RectOverlay extends Image {
 
         shape.on('mouseup', (e) => {
             //开启编辑，选中某个框
+            // console.log('shap-mouseup', this.tempShape.id, this.currShape.id)
             if (this.isOpen && this.selectedSub) {
                 this._startPoint = [];
-                shape.bound && shape.bound.eachChild(item => {
+
+                this.currShape.bound && this.currShape.bound.eachChild(item => {
                     item.show();
                 })
-                this.temp = zrender.util.clone(e.target.shape.points);
+                this.temp = zrender.util.clone(this.currShape.shape.points);
 
-                this.currShape = e.target;
+                // this.currShape = e.target;
 
                 // this.temp = e.target;
                 // console.log('mouseup', this.currShape)
-                if (!this.currShape) {
-                    if (oldGroup.length > 0) {
-                        oldGroup.forEach(item => {
-                            item.removeAll();
-                            this.graphic.remove(item)
-                        })
-                        oldGroup.shift();
-                    }
-                    //注释可以打开
-                    let group = this._createEditGroup(shape.shape.points, shape);
-                    oldGroup.push(group);
-                }
+                // if (!this.currShape) {
+                //     if (oldGroup.length > 0) {
+                //         oldGroup.forEach(item => {
+                //             item.removeAll();
+                //             this.graphic.remove(item)
+                //         })
+                //         oldGroup.shift();
+                //     }
+                //     //注释可以打开
+                //     let group = this._createEditGroup(shape.shape.points, shape);
+                //     oldGroup.push(group);
+                // }
                 this._bindEvent();
             }
         })
