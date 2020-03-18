@@ -17204,6 +17204,7 @@ var RectOverlay = function (_Image) {
         _this.bgDrag = [];
         _this.graphic = _this._createGraphicGroup();
         _this.currShape = {};
+        _this.tempShape = {};
         _this.currPoint = [];
         if (_this.image) {
             _this.image.on('drag', function (e) {
@@ -17590,7 +17591,11 @@ var RectOverlay = function (_Image) {
             shape.on('click', function (e) {
                 _this5.currPoint = [];
             });
-            shape.on('dragstart', function (e) {});
+            shape.on('dragstart', function (e) {
+                _this5.currShape = shape;
+
+                _this5.tempShape = e.target;
+            });
             shape.on('drag', function (e) {
                 var group = shape.bound;
                 group.attr({
@@ -17631,6 +17636,8 @@ var RectOverlay = function (_Image) {
                     shape.attr({
                         cursor: 'default'
                     });
+
+                    _this5.tempShape = e.target;
                 }
             });
             shape.on('mouseover', function (e) {
@@ -17638,7 +17645,10 @@ var RectOverlay = function (_Image) {
                     shape.attr({
                         cursor: 'default'
                     });
+
                     if (_this5._canDrawShape === false && _this5._isMouseDown === false) {
+                        _this5.tempShape = e.target;
+
                         _this5.dispose();
                     }
                 }
@@ -17649,6 +17659,9 @@ var RectOverlay = function (_Image) {
                 }
             });
             shape.on('mousedown', function (e) {
+                _this5.currShape = e.target;
+                _this5.tempShape = e.target;
+
                 _this5.selectedSub = shape;
                 _this5.resetShapeStyle();
 
@@ -17663,25 +17676,12 @@ var RectOverlay = function (_Image) {
             shape.on('mouseup', function (e) {
                 if (_this5.isOpen && _this5.selectedSub) {
                     _this5._startPoint = [];
-                    shape.bound && shape.bound.eachChild(function (item) {
+
+                    _this5.currShape.bound && _this5.currShape.bound.eachChild(function (item) {
                         item.show();
                     });
-                    _this5.temp = _zrender2.default.util.clone(e.target.shape.points);
+                    _this5.temp = _zrender2.default.util.clone(_this5.currShape.shape.points);
 
-                    _this5.currShape = e.target;
-
-                    if (!_this5.currShape) {
-                        if (oldGroup.length > 0) {
-                            oldGroup.forEach(function (item) {
-                                item.removeAll();
-                                _this5.graphic.remove(item);
-                            });
-                            oldGroup.shift();
-                        }
-
-                        var group = _this5._createEditGroup(shape.shape.points, shape);
-                        oldGroup.push(group);
-                    }
                     _this5._bindEvent();
                 }
             });
@@ -18095,7 +18095,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.5";
+var version = "1.0.6";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
