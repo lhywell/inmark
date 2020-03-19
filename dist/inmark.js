@@ -17480,7 +17480,6 @@ var RectOverlay = function (_Image) {
                 });
 
                 var w = this._editWidth / this.group.scale[0];
-
                 shape.bound && shape.bound.eachChild(function (x, i) {
                     x.show();
                     x.attr({
@@ -17698,7 +17697,6 @@ var RectOverlay = function (_Image) {
 
             editNode.on('mouseup', function (e) {});
             editNode.on("dragstart", function (e) {
-                group.removeAll();
                 var m = _this6.currShape.transform;
                 var point = _this6.currShape.shape.points;
                 var oldPoints = _zrender2.default.util.clone(point);
@@ -17716,6 +17714,8 @@ var RectOverlay = function (_Image) {
             });
 
             editNode.on("drag", function (e) {
+                group.removeAll();
+
                 var oldPoints = _this6.currPoint;
 
                 if (oldPoints.length === 0) {
@@ -18095,7 +18095,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.6";
+var version = "1.0.7";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
