@@ -332,7 +332,6 @@ export default class RectOverlay extends Image {
 
             //选中某个框，编辑框设置样式,放大缩小后编辑框大小， 位置调整ß
             let w = this._editWidth / this.group.scale[0];
-
             shape.bound && shape.bound.eachChild((x, i) => {
                 x.show();
                 x.attr({
@@ -551,7 +550,7 @@ export default class RectOverlay extends Image {
 
         shape.on('mouseup', (e) => {
             //开启编辑，选中某个框
-            // console.log('shap-mouseup', this.tempShape.id, this.currShape.id)
+            // console.log('shap-mouseup', this.currShape, this.isOpen, this.selectedSub, this.tempShape.id, this.currShape.id)
             if (this.isOpen && this.selectedSub) {
                 this._startPoint = [];
 
@@ -605,7 +604,6 @@ export default class RectOverlay extends Image {
             // console.log(JSON.stringify(this.currShape.shape.points));
             // let shape = group.bound;
             // this.currShape = shape;
-            group.removeAll();
             let m = this.currShape.transform;
             let point = this.currShape.shape.points;
             const oldPoints = zrender.util.clone(point);
@@ -623,7 +621,7 @@ export default class RectOverlay extends Image {
         })
 
         editNode.on("drag", (e) => {
-
+            group.removeAll();
             //框拖拽移动之后，取记录点坐标
             let oldPoints = this.currPoint;
 
