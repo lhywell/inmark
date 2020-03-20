@@ -152,7 +152,8 @@ export default class RectOverlay extends Image {
     }
     _zrMouseDown(e) {
         // debugger;
-        if (e.target && e.target.data.type === "IMAGE") {
+        //e.which鼠标左键，禁止鼠标右键创建框
+        if (e.which === 1 && e.target && e.target.data.type === "IMAGE") {
 
             //图形左上角坐标
             this.resetShapeStyle()
