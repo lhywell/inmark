@@ -140,7 +140,7 @@
         <div class="imageAnnotate" :id="imgId" v-loading="loading"></div>
         <div class="list" style="position: absolute;right: 0;top:0">
             <div v-for="item in markNoteList">
-                {{item.notes}}
+                <span class="item" @click="seletedSub(item)">{{item.notes}}</span>
                 <span class="item" @click="deleteSub(item)">删除</span>
             </div>
         </div>
@@ -330,6 +330,9 @@ let inMapVue = new Vue({
         },
         deleteSub(item) {
             this.polygon && this.polygon.removeSub(item);
+        },
+        seletedSub(item) {
+            this.polygon && this.polygon.selected(item);
         }
     },
 })
