@@ -351,6 +351,7 @@ export default class RectOverlay extends Image {
         this.resetShapeStyle();
         this._areaShape.forEach(x => {
             if (x.data.id === item.id) {
+                this.currShape = x;
                 this.setSelectedStyle(x, options);
             }
         })
@@ -625,7 +626,7 @@ export default class RectOverlay extends Image {
             group.removeAll();
             //框拖拽移动之后，取记录点坐标
             let oldPoints = this.currPoint;
-
+            
             //框非移动，取拖拽坐标
             if (oldPoints.length === 0) {
                 oldPoints = zrender.util.clone(this.currShape.shape.points);
