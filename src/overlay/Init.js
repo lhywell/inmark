@@ -23,6 +23,10 @@ export default class Init {
             this.zr = zr;
             this.group = group;
         }
+        //屏蔽浏览器的右击事件
+        this.zr.dom.oncontextmenu = function() {
+            return false
+        };
         this.ctx = {};
         this.ctx.canvasWidth = this.zr.getWidth()
         this.ctx.canvasHeight = this.zr.getHeight()
