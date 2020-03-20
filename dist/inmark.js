@@ -17508,6 +17508,7 @@ var RectOverlay = function (_Image) {
             this.resetShapeStyle();
             this._areaShape.forEach(function (x) {
                 if (x.data.id === item.id) {
+                    _this3.currShape = x;
                     _this3.setSelectedStyle(x, options);
                 }
             });
@@ -18099,7 +18100,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.9";
+var version = "1.0.10";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
