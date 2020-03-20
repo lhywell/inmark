@@ -12094,6 +12094,10 @@ var Init = function () {
             this.zr = zr;
             this.group = group;
         }
+
+        this.zr.dom.oncontextmenu = function () {
+            return false;
+        };
         this.ctx = {};
         this.ctx.canvasWidth = this.zr.getWidth();
         this.ctx.canvasHeight = this.zr.getHeight();
@@ -18095,7 +18099,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.8";
+var version = "1.0.9";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
