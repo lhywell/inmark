@@ -141,6 +141,9 @@
             <el-tooltip class="item" effect="dark" content="逆时针旋转0.2" placement="bottom">
                 <i class="iconfont icon-rotate icon-rotate-anti" @click="openTools('rotateLeft',6)"></i>
             </el-tooltip>
+            <el-tooltip class="item" effect="dark" content="重置旋转" placement="bottom">
+                <i class="el-icon-refresh" @click="openTools('resetRotate',6)"></i>
+            </el-tooltip>
             <span></span>
             <el-tooltip class="item" effect="dark" content="删除标记" placement="bottom">
                 <i class="iconfont icon-delete" @click="openTools('delete',7)"></i>
@@ -219,6 +222,9 @@ let inMapVue = new Vue({
             }
             if (x === 'rotateRight') {
                 this.rotateRight();
+            }
+            if (x === 'resetRotate') {
+                this.resetRotate();
             }
             if (x === 'delete') {
                 this.startDeleteCurrent();
@@ -326,6 +332,11 @@ let inMapVue = new Vue({
         },
         rotateLeft() {
             this.image.rotate('anticlockwise', -0.2);
+            let x = this.image.getRotate();
+            console.log(x)
+        },
+        resetRotate() {
+            this.image.rotate(0);
             let x = this.image.getRotate();
             console.log(x)
         },

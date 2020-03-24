@@ -123,10 +123,24 @@ export default class BImage extends Init {
         return this._option.rotate;
     }
     rotate(direction = 'clockwise', degree) {
+
         //正值代表逆时针旋转，负值代表顺时针旋转
         const oldScale = this.group.scale[0];
 
         let center = this._option.center;
+
+        if (direction === 0) {
+            this._option.rotateTime = 0;
+            this.group.attr({
+                rotation: 0,
+                origin: center
+            })
+            this._option.rotate = {
+                radians: 0,
+                degrees: 0
+            }
+            return;
+        }
 
         let degreePi = Math.PI / (180 / degree);
 
