@@ -105,6 +105,10 @@
         cursor: pointer;
         color: blue;
     }
+
+    .icon-rotate-anti {
+        transform: scaleX(-1);
+    }
     </style>
     <script src="./data/markjson.js"></script>
     <!-- 引入样式 -->
@@ -121,7 +125,7 @@
             <el-tooltip class="item" effect="dark" content="矩形标注" placement="bottom">
                 <i class="iconfont icon-act" @click="openTools('act',1)"></i>
             </el-tooltip>
-            <el-tooltip class="item" effect="dark" content="旋 转" placement="bottom">
+            <el-tooltip class="item" effect="dark" content="顺时针旋转90" placement="bottom">
                 <i class="iconfont icon-rotate" @click="openTools('rotate',2)"></i>
             </el-tooltip>
             <el-tooltip class="item" effect="dark" content="放 大" placement="bottom">
@@ -131,12 +135,19 @@
                 <i class="iconfont icon-zoomout" @click="openTools('zoomout',4)"></i>
             </el-tooltip>
             <span></span>
+            <el-tooltip class="item" effect="dark" content="顺时针旋转0.2" placement="bottom">
+                <i class="iconfont icon-rotate" @click="openTools('rotateRight',5)"></i>
+            </el-tooltip>
+            <el-tooltip class="item" effect="dark" content="逆时针旋转0.2" placement="bottom">
+                <i class="iconfont icon-rotate icon-rotate-anti" @click="openTools('rotateLeft',6)"></i>
+            </el-tooltip>
+            <span></span>
             <el-tooltip class="item" effect="dark" content="删除标记" placement="bottom">
-                <i class="iconfont icon-delete" @click="openTools('delete',5)"></i>
+                <i class="iconfont icon-delete" @click="openTools('delete',7)"></i>
             </el-tooltip>
             <span></span>
             <el-tooltip class="item" effect="dark" content="清空所有标注" placement="bottom">
-                <i class="iconfont icon-clear" @click="openTools('clear',6)"></i>
+                <i class="iconfont icon-clear" @click="openTools('clear',8)"></i>
             </el-tooltip>
         </div>
         <div class="imageAnnotate" :id="imgId" v-loading="loading"></div>
@@ -202,6 +213,12 @@ let inMapVue = new Vue({
             }
             if (x === 'zoomout') {
                 this.startZoomOut();
+            }
+            if (x === 'rotateLeft') {
+                this.rotateLeft();
+            }
+            if (x === 'rotateRight') {
+                this.rotateRight();
             }
             if (x === 'delete') {
                 this.startDeleteCurrent();
@@ -300,7 +317,17 @@ let inMapVue = new Vue({
             }
         },
         startRotate() {
-            this.image.rotate();
+            this.image.rotate('clockwise', 90);
+        },
+        rotateRight() {
+            this.image.rotate('clockwise', 0.2);
+            let x = this.image.getRotate();
+            console.log(x)
+        },
+        rotateLeft() {
+            this.image.rotate('anticlockwise', -0.2);
+            let x = this.image.getRotate();
+            console.log(x)
         },
         startZoomIn() {
             this.polygon && this.polygon.close();

@@ -26,8 +26,9 @@ export default class BImage extends Init {
         this._option.x = 0;
         this._option.y = 0;
         this._option.draggable = false;
-        this._option.rotation = 0;
-        this._option.rotateTime = 1;
+        this._option.rotateTime = 0;
+        this._option.center = [];
+        this._option.rotate = {};
         this.type = 'IMAGE'
         this._editWidth = EditPolygon.shape.width
         this._onComplete = opts && opts.event.onLoadComplete;
@@ -101,6 +102,7 @@ export default class BImage extends Init {
                 data: { type: 'IMAGE' },
                 zlevel: 1
             })
+            this._option.center = [this._option.offsetX + (this._option.widthImg / 2), this._option.offsetY + this._option.heightImg / 2];
 
             this.image = image;
 
@@ -116,16 +118,41 @@ export default class BImage extends Init {
     _zrMouseMove() {}
     _zrMouseDown() {}
     _zrMouseUp() {}
-    rotate(direction = 'clockwise') {
+    getRotate() {
+        //返回弧度制，角度制
+        return this._option.rotate;
+    }
+    rotate(direction = 'clockwise', degree) {
         //正值代表逆时针旋转，负值代表顺时针旋转
-        let center = [this._option.widthImg / 2, this._option.heightImg / 2];
-        let nine = Math.PI / 2;
+        const oldScale = this.group.scale[0];
 
-        this.group.attr({
-            rotation: -nine * this._option.rotateTime,
-            origin: center
-        })
-        this._option.rotateTime++;
+        let center = this._option.center;
+
+        let degreePi = Math.PI / (180 / degree);
+
+        if (direction === 'clockwise') {
+            this._option.rotateTime++;
+
+            this.group.attr({
+                rotation: -degreePi * this._option.rotateTime,
+                origin: center
+            })
+            this._option.rotate = {
+                radians: -degreePi * this._option.rotateTime,
+                degrees: -degree * this._option.rotateTime
+            }
+        } else {
+            this._option.rotateTime--;
+
+            this.group.attr({
+                rotation: degreePi * this._option.rotateTime,
+                origin: center
+            })
+            this._option.rotate = {
+                radians: degreePi * this._option.rotateTime,
+                degrees: degree * this._option.rotateTime
+            }
+        }
     }
     _limitAttributes(newAttrs) {
         const box = this.image.getBoundingRect();
@@ -172,6 +199,7 @@ export default class BImage extends Init {
             position: [newPos.x, newPos.y],
             scale: [newAttrs.scale, newAttrs.scale]
         })
+
         this._option.scale = newAttrs.scale;
         this._option.x = newPos.x;
         this._option.y = newPos.y;

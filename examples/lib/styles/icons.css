@@ -31,6 +31,10 @@
   content: "\e60d";
 }
 
+.icon-rotate-anti:before {
+  content: "\e60d";
+}
+
 .icon-drag:before {
   content: "\e60e";
 }
