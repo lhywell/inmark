@@ -8679,6 +8679,19 @@ var BImage = function (_Init) {
 
             var center = this._option.center;
 
+            if (direction === 0) {
+                this._option.rotateTime = 0;
+                this.group.attr({
+                    rotation: 0,
+                    origin: center
+                });
+                this._option.rotate = {
+                    radians: 0,
+                    degrees: 0
+                };
+                return;
+            }
+
             var degreePi = Math.PI / (180 / degree);
 
             if (direction === 'clockwise') {
@@ -18141,7 +18154,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.11";
+var version = "1.0.12";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
