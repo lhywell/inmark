@@ -10,6 +10,7 @@
         width: 100%;
         height: 100%;
         margin: 0;
+        overflow: hidden;
     }
 
     #app {
@@ -95,7 +96,8 @@
     .list {
         position: absolute;
         right: 0;
-        top: 0
+        top: 0;
+        overflow-y: scroll;
     }
 
     .list .item {
@@ -138,7 +140,7 @@
             </el-tooltip>
         </div>
         <div class="imageAnnotate" :id="imgId" v-loading="loading"></div>
-        <div class="list" style="position: absolute;right: 0;top:0">
+        <div class="list" style="">
             <div v-for="item in markNoteList">
                 <span class="item" @click="seletedSub(item)">{{item.notes}}</span>
                 <span class="item" @click="deleteSub(item)">删除</span>
@@ -169,6 +171,8 @@ let inMapVue = new Vue({
     created() {},
     mounted() {
         this.initImage();
+        let h = document.documentElement.clientHeight;
+        document.querySelector('.list').style.height = h + 'px'
     },
     destroyed() {},
     watch: {},
@@ -332,6 +336,8 @@ let inMapVue = new Vue({
             this.polygon && this.polygon.removeSub(item);
         },
         seletedSub(item) {
+            this.polygon && this.polygon.setPosition(item);
+
             this.polygon && this.polygon.selected(item);
         }
     },

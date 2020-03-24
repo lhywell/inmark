@@ -155,23 +155,23 @@ export default class BImage extends Init {
             x: this.ctx.canvasWidth / 2,
             y: this.ctx.canvasHeight / 2
         };
+
         const mousePointTo = {
             x: pos.x / oldScale - this.group.position[0] / oldScale,
             y: pos.y / oldScale - this.group.position[1] / oldScale
         };
-
         const newScale = Math.max(0.05, oldScale * scaleBy);
 
         const newPos = {
             x: -(mousePointTo.x - pos.x / newScale) * newScale,
             y: -(mousePointTo.y - pos.y / newScale) * newScale
         };
+
         const newAttrs = this._limitAttributes({ ...newPos, scale: newScale });
         this.group.attr({
             position: [newPos.x, newPos.y],
             scale: [newAttrs.scale, newAttrs.scale]
         })
-
         this._option.scale = newAttrs.scale;
         this._option.x = newPos.x;
         this._option.y = newPos.y;

@@ -58,6 +58,7 @@ export default class RectOverlay extends Image {
                 //拖动图片与多边形同步
                 if (this.getDrag() === true) {
                     let array = e.target.position;
+
                     this.graphic.attr({
                         position: array
                     });
@@ -356,6 +357,14 @@ export default class RectOverlay extends Image {
             }
         })
     }
+    setPosition(item) {
+        let point = this._calculateToRelationpix(item.coordinates)
+
+        this.group.attr({
+            position: [0, 0],
+            origin: point[0]
+        });
+    }
     _createEditGroup(points, shape) {
         //创建编辑图形
         // if (shape.bound) {
@@ -626,7 +635,7 @@ export default class RectOverlay extends Image {
             group.removeAll();
             //框拖拽移动之后，取记录点坐标
             let oldPoints = this.currPoint;
-            
+
             //框非移动，取拖拽坐标
             if (oldPoints.length === 0) {
                 oldPoints = zrender.util.clone(this.currShape.shape.points);
