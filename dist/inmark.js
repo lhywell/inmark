@@ -8553,8 +8553,9 @@ var BImage = function (_Init) {
         _this._option.x = 0;
         _this._option.y = 0;
         _this._option.draggable = false;
-        _this._option.rotation = 0;
-        _this._option.rotateTime = 1;
+        _this._option.rotateTime = 0;
+        _this._option.center = [];
+        _this._option.rotate = {};
         _this.type = 'IMAGE';
         _this._editWidth = _EditPolygon2.default.shape.width;
         _this._onComplete = opts && opts.event.onLoadComplete;
@@ -8639,6 +8640,7 @@ var BImage = function (_Init) {
                     data: { type: 'IMAGE' },
                     zlevel: 1
                 });
+                _this2._option.center = [_this2._option.offsetX + _this2._option.widthImg / 2, _this2._option.offsetY + _this2._option.heightImg / 2];
 
                 _this2.image = image;
 
@@ -8663,18 +8665,45 @@ var BImage = function (_Init) {
         key: '_zrMouseUp',
         value: function _zrMouseUp() {}
     }, {
+        key: 'getRotate',
+        value: function getRotate() {
+            return this._option.rotate;
+        }
+    }, {
         key: 'rotate',
         value: function rotate() {
             var direction = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'clockwise';
+            var degree = arguments[1];
 
-            var center = [this._option.widthImg / 2, this._option.heightImg / 2];
-            var nine = Math.PI / 2;
+            var oldScale = this.group.scale[0];
 
-            this.group.attr({
-                rotation: -nine * this._option.rotateTime,
-                origin: center
-            });
-            this._option.rotateTime++;
+            var center = this._option.center;
+
+            var degreePi = Math.PI / (180 / degree);
+
+            if (direction === 'clockwise') {
+                this._option.rotateTime++;
+
+                this.group.attr({
+                    rotation: -degreePi * this._option.rotateTime,
+                    origin: center
+                });
+                this._option.rotate = {
+                    radians: -degreePi * this._option.rotateTime,
+                    degrees: -degree * this._option.rotateTime
+                };
+            } else {
+                this._option.rotateTime--;
+
+                this.group.attr({
+                    rotation: degreePi * this._option.rotateTime,
+                    origin: center
+                });
+                this._option.rotate = {
+                    radians: degreePi * this._option.rotateTime,
+                    degrees: degree * this._option.rotateTime
+                };
+            }
         }
     }, {
         key: '_limitAttributes',
@@ -8716,17 +8745,18 @@ var BImage = function (_Init) {
                 x: this.ctx.canvasWidth / 2,
                 y: this.ctx.canvasHeight / 2
             };
+
             var mousePointTo = {
                 x: pos.x / oldScale - this.group.position[0] / oldScale,
                 y: pos.y / oldScale - this.group.position[1] / oldScale
             };
-
             var newScale = Math.max(0.05, oldScale * scaleBy);
 
             var newPos = {
                 x: -(mousePointTo.x - pos.x / newScale) * newScale,
                 y: -(mousePointTo.y - pos.y / newScale) * newScale
             };
+
             var newAttrs = this._limitAttributes(_extends({}, newPos, { scale: newScale }));
             this.group.attr({
                 position: [newPos.x, newPos.y],
@@ -17214,6 +17244,7 @@ var RectOverlay = function (_Image) {
             _this.image.on('drag', function (e) {
                 if (_this.getDrag() === true) {
                     var array = e.target.position;
+
                     _this.graphic.attr({
                         position: array
                     });
@@ -17511,6 +17542,16 @@ var RectOverlay = function (_Image) {
                     _this3.currShape = x;
                     _this3.setSelectedStyle(x, options);
                 }
+            });
+        }
+    }, {
+        key: 'setPosition',
+        value: function setPosition(item) {
+            var point = this._calculateToRelationpix(item.coordinates);
+
+            this.group.attr({
+                position: [0, 0],
+                origin: point[0]
             });
         }
     }, {
@@ -18100,7 +18141,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.10";
+var version = "1.0.11";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
