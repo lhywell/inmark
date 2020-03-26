@@ -152,6 +152,9 @@
             <el-tooltip class="item" effect="dark" content="清空所有标注" placement="bottom">
                 <i class="iconfont icon-clear" @click="openTools('clear',8)"></i>
             </el-tooltip>
+            <el-tooltip class="item" effect="dark" content="导出图片" placement="bottom">
+                <i class="iconfont el-icon-download" @click="openTools('export',9)"></i>
+            </el-tooltip>
         </div>
         <div class="imageAnnotate" :id="imgId" v-loading="loading"></div>
         <div class="list" style="">
@@ -179,7 +182,8 @@ let inMapVue = new Vue({
             markNoteList: [],
             image: null,
             percentage: 0,
-            time: 0
+            time: 0,
+            // ZImage:null
         }
     },
     created() {},
@@ -232,10 +236,16 @@ let inMapVue = new Vue({
             if (x === 'clear') {
                 this.startDeleteAll();
             }
+            if (x === 'export') {
+                this.polygon && this.polygon.export();
+            }
             let ary = this.$refs.tools.getElementsByClassName('iconfont');
             Array.from(ary)[index].className += ' active';
         },
         loadComplete() {
+            //获得ZImage实例
+            this.ZImage = this.image.getImage();
+
             this.initPolygon(this.markNoteList);
 
             this.loading = false;
@@ -262,6 +272,7 @@ let inMapVue = new Vue({
 
                 this.image = image;
                 this.zr = image.getZrender();
+                this.group = image.getGroup();
 
                 this.init = false;
 

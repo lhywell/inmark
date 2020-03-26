@@ -30,6 +30,7 @@ export default class BImage extends Init {
         this._option.center = [];
         this._option.rotate = {};
         this.type = 'IMAGE'
+        this.image = null;
         this._editWidth = EditPolygon.shape.width
         this._onComplete = opts && opts.event.onLoadComplete;
         // console.log(this)
@@ -76,6 +77,7 @@ export default class BImage extends Init {
         this.group = group;
 
         let img = new Image();
+        img.setAttribute('crossorigin', 'anonymous');
         img.src = url;
         img.onload = () => {
             const xRate = this.ctx.canvasWidth / img.width;
@@ -99,13 +101,18 @@ export default class BImage extends Init {
                     height: this._option.heightImg
                 },
                 cursor: 'default',
-                data: { type: 'IMAGE' },
+                data: {
+                    type: 'IMAGE',
+                    origin_width: img.width,
+                    origin_height: img.height,
+                    rate_width: this._option.widthImg,
+                    rate_height: this._option.heightImg
+                },
                 zlevel: 1
             })
             this._option.center = [this._option.offsetX + (this._option.widthImg / 2), this._option.offsetY + this._option.heightImg / 2];
 
             this.image = image;
-
             group.add(image);
             this.zr.add(group);
 
@@ -284,5 +291,40 @@ export default class BImage extends Init {
         this.zr.off('mousemove', this._zrMouseMove);
         this.zr.off('mousedown', this._zrMouseDown);
         this.zr.off('mouseup', this._zrMouseUp);
+    }
+    exportSimple() {
+        this.zr.painter.getRenderedCanvas({
+            backgroundColor: "#fff"
+        }).toBlob((blob) => {
+            var url = window.URL.createObjectURL(blob);
+            window.open(url);
+        }, 'image/png');
+    }
+    export () {
+        //离屏渲染导出
+        //https://github.com/ecomfe/zrender/issues/363
+        var { x, y, width, height } = this.group.getBoundingRect();
+        var zr = zrender.init(document.createElement('div'), {
+            width,
+            height
+        });
+        var group = new zrender.Group();
+        group.position = [0 - x, 0 - y];
+
+        this.group.eachChild((child) => {
+            // 此处会堆栈溢出, 目前解决办法是用原始数据重新创建新的shape, 再加入到新group中
+            // var _child = zrender.util.clone(child);
+            group.add(child);
+        });
+
+        zr.add(group);
+        zr.refreshImmediately();
+
+        return zr.painter.getRenderedCanvas({
+            backgroundColor: "#fff"
+        }).toBlob((blob) => {
+            var url = window.URL.createObjectURL(blob);
+            window.open(url);
+        }, 'image/png');
     }
 }
