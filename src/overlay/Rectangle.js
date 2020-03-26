@@ -104,6 +104,10 @@ export default class RectOverlay extends Image {
                 });
             }
         })
+        
+        if (this.currShape) {
+            this.setSelectedStyle(this.currShape);
+        }
     }
     close() {
         //关闭绘制模式
