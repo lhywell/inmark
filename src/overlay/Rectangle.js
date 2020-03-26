@@ -58,7 +58,6 @@ export default class RectOverlay extends Image {
                 //拖动图片与多边形同步
                 if (this.getDrag() === true) {
                     let array = e.target.position;
-
                     this.graphic.attr({
                         position: array
                     });
@@ -86,6 +85,9 @@ export default class RectOverlay extends Image {
         }
 
         return group;
+    }
+    setDrag(bol) {
+        super.setDrag(bol);
     }
     open() {
         //开启绘制模式
@@ -359,11 +361,16 @@ export default class RectOverlay extends Image {
     }
     setPosition(item) {
         let point = this._calculateToRelationpix(item.coordinates)
+        // 如果 origin 发生变化，需要重新分解矩阵更新 position 和 scale
 
         this.group.attr({
             position: [0, 0],
             origin: point[0]
         });
+
+        this.group.update();
+        this.group.decomposeTransform();
+        this.group.dirty();
     }
     _createEditGroup(points, shape) {
         //创建编辑图形

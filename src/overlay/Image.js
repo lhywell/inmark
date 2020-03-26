@@ -59,6 +59,14 @@ export default class BImage extends Init {
                 'cursor': 'pointer'
             });
         })
+
+        if (this.image) {
+            this.image.on('drag', (e) => {
+                if (this.getDrag() === true) {
+                    this.dragE = e;
+                }
+            });
+        }
     }
     getDrag() {
         return this._option.draggable;
@@ -113,12 +121,15 @@ export default class BImage extends Init {
             this._option.center = [this._option.offsetX + (this._option.widthImg / 2), this._option.offsetY + this._option.heightImg / 2];
 
             this.image = image;
+
             group.add(image);
             this.zr.add(group);
 
             this._onComplete && this._onComplete();
 
             this._bindEvent();
+
+
         }
     }
     _zrClick() {}
@@ -216,6 +227,7 @@ export default class BImage extends Init {
         };
 
         const newAttrs = this._limitAttributes({ ...newPos, scale: newScale });
+
         this.group.attr({
             position: [newPos.x, newPos.y],
             scale: [newAttrs.scale, newAttrs.scale]
