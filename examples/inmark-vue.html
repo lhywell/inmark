@@ -217,9 +217,11 @@ let inMapVue = new Vue({
             }
             if (x === 'zoomin') {
                 this.startZoomIn();
+                this.startDrag();
             }
             if (x === 'zoomout') {
                 this.startZoomOut();
+                this.startDrag();
             }
             if (x === 'rotateLeft') {
                 this.rotateLeft();
@@ -237,7 +239,8 @@ let inMapVue = new Vue({
                 this.startDeleteAll();
             }
             if (x === 'export') {
-                this.polygon && this.polygon.export();
+                // this.polygon && this.polygon.export();
+                console.log(this.ZImage.getBoundingRect())
             }
             let ary = this.$refs.tools.getElementsByClassName('iconfont');
             Array.from(ary)[index].className += ' active';

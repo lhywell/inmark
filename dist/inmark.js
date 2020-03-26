@@ -8557,6 +8557,7 @@ var BImage = function (_Init) {
         _this._option.center = [];
         _this._option.rotate = {};
         _this.type = 'IMAGE';
+        _this.image = null;
         _this._editWidth = _EditPolygon2.default.shape.width;
         _this._onComplete = opts && opts.event.onLoadComplete;
 
@@ -8587,6 +8588,8 @@ var BImage = function (_Init) {
     }, {
         key: 'setDrag',
         value: function setDrag(bol) {
+            var _this2 = this;
+
             this._option.draggable = bol;
 
             this.group && this.group.eachChild(function (item) {
@@ -8595,6 +8598,14 @@ var BImage = function (_Init) {
                     'cursor': 'pointer'
                 });
             });
+
+            if (this.image) {
+                this.image.on('drag', function (e) {
+                    if (_this2.getDrag() === true) {
+                        _this2.dragE = e;
+                    }
+                });
+            }
         }
     }, {
         key: 'getDrag',
@@ -8604,7 +8615,7 @@ var BImage = function (_Init) {
     }, {
         key: 'renderImg',
         value: function renderImg(url) {
-            var _this2 = this;
+            var _this3 = this;
 
             if (!url) {
                 return;
@@ -8614,42 +8625,49 @@ var BImage = function (_Init) {
             this.group = group;
 
             var img = new Image();
+            img.setAttribute('crossorigin', 'anonymous');
             img.src = url;
             img.onload = function () {
-                var xRate = _this2.ctx.canvasWidth / img.width;
-                var yRate = _this2.ctx.canvasHeight / img.height;
-                _this2._option.setRate = xRate < yRate ? xRate : yRate;
+                var xRate = _this3.ctx.canvasWidth / img.width;
+                var yRate = _this3.ctx.canvasHeight / img.height;
+                _this3._option.setRate = xRate < yRate ? xRate : yRate;
 
-                if (_this2._option.setRate > _this2._option.imgZoom) {
-                    _this2._option.setRate = _this2._option.imgZoom;
+                if (_this3._option.setRate > _this3._option.imgZoom) {
+                    _this3._option.setRate = _this3._option.imgZoom;
                 }
-                _this2._option.widthImg = img.width * _this2._option.setRate;
-                _this2._option.heightImg = img.height * _this2._option.setRate;
-                _this2._option.offsetX = (_this2.ctx.canvasWidth - _this2._option.widthImg) / 2;
-                _this2._option.offsetY = (_this2.ctx.canvasHeight - _this2._option.heightImg) / 2;
+                _this3._option.widthImg = img.width * _this3._option.setRate;
+                _this3._option.heightImg = img.height * _this3._option.setRate;
+                _this3._option.offsetX = (_this3.ctx.canvasWidth - _this3._option.widthImg) / 2;
+                _this3._option.offsetY = (_this3.ctx.canvasHeight - _this3._option.heightImg) / 2;
 
                 image = new _zrender2.default.Image({
                     style: {
-                        image: url,
-                        x: _this2._option.offsetX,
-                        y: _this2._option.offsetY,
-                        width: _this2._option.widthImg,
-                        height: _this2._option.heightImg
+                        image: url + '?' + Date.now(),
+                        x: _this3._option.offsetX,
+                        y: _this3._option.offsetY,
+                        width: _this3._option.widthImg,
+                        height: _this3._option.heightImg
                     },
                     cursor: 'default',
-                    data: { type: 'IMAGE' },
+                    data: {
+                        type: 'IMAGE',
+                        origin_width: img.width,
+                        origin_height: img.height,
+                        rate_width: _this3._option.widthImg,
+                        rate_height: _this3._option.heightImg
+                    },
                     zlevel: 1
                 });
-                _this2._option.center = [_this2._option.offsetX + _this2._option.widthImg / 2, _this2._option.offsetY + _this2._option.heightImg / 2];
+                _this3._option.center = [_this3._option.offsetX + _this3._option.widthImg / 2, _this3._option.offsetY + _this3._option.heightImg / 2];
 
-                _this2.image = image;
+                _this3.image = image;
 
                 group.add(image);
-                _this2.zr.add(group);
+                _this3.zr.add(group);
 
-                _this2._onComplete && _this2._onComplete();
+                _this3._onComplete && _this3._onComplete();
 
-                _this2._bindEvent();
+                _this3._bindEvent();
             };
         }
     }, {
@@ -8771,6 +8789,7 @@ var BImage = function (_Init) {
             };
 
             var newAttrs = this._limitAttributes(_extends({}, newPos, { scale: newScale }));
+
             this.group.attr({
                 position: [newPos.x, newPos.y],
                 scale: [newAttrs.scale, newAttrs.scale]
@@ -8799,13 +8818,13 @@ var BImage = function (_Init) {
     }, {
         key: '_toGlobalSave',
         value: function _toGlobalSave(points, shape) {
-            var _this3 = this;
+            var _this4 = this;
 
             var newPoints = _zrender2.default.util.clone(points);
             var array = [];
             newPoints.forEach(function (item) {
                 var x = void 0,
-                    scale = _this3.group.scale[0];
+                    scale = _this4.group.scale[0];
                 if (scale === 1) {
                     x = shape.transformCoordToGlobal(item[0], item[1]);
                 } else {
@@ -8819,13 +8838,13 @@ var BImage = function (_Init) {
     }, {
         key: '_toLocal',
         value: function _toLocal(points, shape) {
-            var _this4 = this;
+            var _this5 = this;
 
             var newPoints = _zrender2.default.util.clone(points);
             var array = [];
             newPoints.forEach(function (item) {
                 var x = void 0,
-                    scale = _this4.group.scale[0];
+                    scale = _this5.group.scale[0];
                 x = shape.transformCoordToLocal(item[0], item[1]);
                 array.push(x);
             });
@@ -8864,6 +8883,46 @@ var BImage = function (_Init) {
             this.zr.off('mousemove', this._zrMouseMove);
             this.zr.off('mousedown', this._zrMouseDown);
             this.zr.off('mouseup', this._zrMouseUp);
+        }
+    }, {
+        key: 'exportSimple',
+        value: function exportSimple() {
+            this.zr.painter.getRenderedCanvas({
+                backgroundColor: "#fff"
+            }).toBlob(function (blob) {
+                var url = window.URL.createObjectURL(blob);
+                window.open(url);
+            }, 'image/png');
+        }
+    }, {
+        key: 'export',
+        value: function _export() {
+            var _group$getBoundingRec = this.group.getBoundingRect(),
+                x = _group$getBoundingRec.x,
+                y = _group$getBoundingRec.y,
+                width = _group$getBoundingRec.width,
+                height = _group$getBoundingRec.height;
+
+            var zr = _zrender2.default.init(document.createElement('div'), {
+                width: width,
+                height: height
+            });
+            var group = new _zrender2.default.Group();
+            group.position = [0 - x, 0 - y];
+
+            this.group.eachChild(function (child) {
+                group.add(child);
+            });
+
+            zr.add(group);
+            zr.refreshImmediately();
+
+            return zr.painter.getRenderedCanvas({
+                backgroundColor: "#fff"
+            }).toBlob(function (blob) {
+                var url = window.URL.createObjectURL(blob);
+                window.open(url);
+            }, 'image/png');
         }
     }]);
 
@@ -17178,6 +17237,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
 var _zrender = __webpack_require__(79);
 
 var _zrender2 = _interopRequireDefault(_zrender);
@@ -17257,7 +17318,6 @@ var RectOverlay = function (_Image) {
             _this.image.on('drag', function (e) {
                 if (_this.getDrag() === true) {
                     var array = e.target.position;
-
                     _this.graphic.attr({
                         position: array
                     });
@@ -17290,6 +17350,11 @@ var RectOverlay = function (_Image) {
             return group;
         }
     }, {
+        key: 'setDrag',
+        value: function setDrag(bol) {
+            _get(RectOverlay.prototype.__proto__ || Object.getPrototypeOf(RectOverlay.prototype), 'setDrag', this).call(this, bol);
+        }
+    }, {
         key: 'open',
         value: function open() {
             this.isOpen = true;
@@ -17305,6 +17370,10 @@ var RectOverlay = function (_Image) {
                     });
                 }
             });
+
+            if (this.currShape) {
+                this.setSelectedStyle(this.currShape);
+            }
         }
     }, {
         key: 'close',
@@ -17562,10 +17631,15 @@ var RectOverlay = function (_Image) {
         value: function setPosition(item) {
             var point = this._calculateToRelationpix(item.coordinates);
 
+
             this.group.attr({
                 position: [0, 0],
                 origin: point[0]
             });
+
+            this.group.update();
+            this.group.decomposeTransform();
+            this.group.dirty();
         }
     }, {
         key: '_createEditGroup',
@@ -18154,7 +18228,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.12";
+var version = "1.0.13";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
