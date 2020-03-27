@@ -267,6 +267,7 @@ let inMapVue = new Vue({
             this.$nextTick(() => {
                 let image = new inMark.Image({
                     id: this.imgId,
+                    mode: 'original',//original or auto
                     imgUrl: resPath,
                     event: {
                         onLoadComplete: this.loadComplete

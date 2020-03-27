@@ -29,6 +29,8 @@ export default class BImage extends Init {
         this._option.rotateTime = 0;
         this._option.center = [];
         this._option.rotate = {};
+        this._option.mode = opts && opts.mode || 'auto';
+
         this.type = 'IMAGE'
         this.image = null;
         this._editWidth = EditPolygon.shape.width
@@ -88,17 +90,28 @@ export default class BImage extends Init {
         img.setAttribute('crossorigin', 'anonymous');
         img.src = url;
         img.onload = () => {
-            const xRate = this.ctx.canvasWidth / img.width;
-            const yRate = this.ctx.canvasHeight / img.height;
-            this._option.setRate = xRate < yRate ? xRate : yRate;
+            if (this._option.mode === 'auto') {
+                //图片自动适应屏幕大小
+                const xRate = this.ctx.canvasWidth / img.width;
+                const yRate = this.ctx.canvasHeight / img.height;
+                this._option.setRate = xRate < yRate ? xRate : yRate;
 
-            if (this._option.setRate > this._option.imgZoom) {
-                this._option.setRate = this._option.imgZoom;
+                if (this._option.setRate > this._option.imgZoom) {
+                    this._option.setRate = this._option.imgZoom;
+                }
+                this._option.widthImg = img.width * this._option.setRate;
+                this._option.heightImg = img.height * this._option.setRate;
+                this._option.offsetX = (this.ctx.canvasWidth - this._option.widthImg) / 2;
+                this._option.offsetY = (this.ctx.canvasHeight - this._option.heightImg) / 2;
+            } else {
+                //1:1展示图片
+                this._option.setRate = 1;
+                this._option.widthImg = img.width;
+                this._option.heightImg = img.height;
+                this._option.offsetX = 0;
+                this._option.offsetY = 0;
             }
-            this._option.widthImg = img.width * this._option.setRate;
-            this._option.heightImg = img.height * this._option.setRate;
-            this._option.offsetX = (this.ctx.canvasWidth - this._option.widthImg) / 2;
-            this._option.offsetY = (this.ctx.canvasHeight - this._option.heightImg) / 2;
+
             // this._option.offsetY = 0
             image = new zrender.Image({
                 style: {
