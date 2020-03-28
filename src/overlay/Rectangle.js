@@ -363,14 +363,28 @@ export default class RectOverlay extends Image {
         })
     }
     setPosition(item) {
-        let point = this._calculateToRelationpix(item.coordinates)
-        // 如果 origin 发生变化，需要重新分解矩阵更新 position 和 scale
+        let point = this._calculateToRelationpix(item.coordinates);
+        let point_center = [(point[0][0] + point[1][0]) / 2, (point[0][1] + point[3][1]) / 2];
+
+        let scale = this.group.scale[0];
+        let canvas_width = this.zr.painter._width;
+        let canvas_height = this.zr.painter._height;
+
+        let bgDragX;
+        let bgDragY
+        if (this.bgDrag.length === 0) {
+            bgDragX = 0;
+            bgDragY = 0;
+        } else {
+            bgDragX = this.bgDrag[0];
+            bgDragY = this.bgDrag[1];
+        }
 
         this.group.attr({
-            position: [0, 0],
-            origin: point[0]
+            position: [(-point_center[0] - bgDragX) * scale + canvas_width / 2, (-point_center[1] - bgDragY) * scale + canvas_height / 2]
         });
 
+        // 如果 origin 发生变化，需要重新分解矩阵更新 position 和 scale
         this.group.update();
         this.group.decomposeTransform();
         this.group.dirty();
@@ -589,7 +603,7 @@ export default class RectOverlay extends Image {
             //         zlevel: 3
             //     })
             //     this.zr.add(this.cover);
-                
+
             //     this.cover.on('drag', (e) => {
             //         let array = e.target.position;
 
