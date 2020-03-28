@@ -17639,11 +17639,24 @@ var RectOverlay = function (_Image) {
         key: 'setPosition',
         value: function setPosition(item) {
             var point = this._calculateToRelationpix(item.coordinates);
+            var point_center = [(point[0][0] + point[1][0]) / 2, (point[0][1] + point[3][1]) / 2];
 
+            var scale = this.group.scale[0];
+            var canvas_width = this.zr.painter._width;
+            var canvas_height = this.zr.painter._height;
+
+            var bgDragX = void 0;
+            var bgDragY = void 0;
+            if (this.bgDrag.length === 0) {
+                bgDragX = 0;
+                bgDragY = 0;
+            } else {
+                bgDragX = this.bgDrag[0];
+                bgDragY = this.bgDrag[1];
+            }
 
             this.group.attr({
-                position: [0, 0],
-                origin: point[0]
+                position: [(-point_center[0] - bgDragX) * scale + canvas_width / 2, (-point_center[1] - bgDragY) * scale + canvas_height / 2]
             });
 
             this.group.update();
@@ -18238,7 +18251,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.15";
+var version = "1.0.16";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
