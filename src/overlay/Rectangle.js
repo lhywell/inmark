@@ -542,12 +542,12 @@ export default class RectOverlay extends Image {
                     this.dispose();
                 }
             }
-            if (this.getDrag() === true) {
-                shape.attr({
-                    cursor: 'pointer',
-                });
-                return;
-            }
+            // if (this.getDrag() === true) {
+            //     shape.attr({
+            //         cursor: 'pointer',
+            //     });
+            //     return;
+            // }
         })
         shape.on('mouseout', (e) => {
             if (this.isOpen) {
@@ -564,43 +564,43 @@ export default class RectOverlay extends Image {
             this.resetShapeStyle();
 
             this.setSelectedStyle(e.target);
-            if (this.getDrag() === true) {
-                shape.attr({
-                    draggable: false
-                })
+            // if (this.getDrag() === true) {
+            //     shape.attr({
+            //         draggable: false
+            //     })
 
-                this.cover = new zrender.Polygon({
-                    shape: {
-                        points: [
-                            [0, 0],
-                            [0, 2000],
-                            [2000, 9000],
-                            [9000, 0]
-                        ],
-                        smooth: 0,
-                    },
-                    cursor: 'pointer',
-                    draggable: true,
-                    style: {
-                        fill: 'rgba(24,151,117,0)',
-                        lineWidth: 0,
-                        lineDash: [0, 0],
-                    },
-                    zlevel: 3
-                })
-                this.zr.add(this.cover);
+            //     this.cover = new zrender.Polygon({
+            //         shape: {
+            //             points: [
+            //                 [0, 0],
+            //                 [0, 2000],
+            //                 [2000, 9000],
+            //                 [9000, 0]
+            //             ],
+            //             smooth: 0,
+            //         },
+            //         cursor: 'pointer',
+            //         draggable: true,
+            //         style: {
+            //             fill: 'rgba(24,151,117,0)',
+            //             lineWidth: 0,
+            //             lineDash: [0, 0],
+            //         },
+            //         zlevel: 3
+            //     })
+            //     this.zr.add(this.cover);
                 
-                this.cover.on('drag', (e) => {
-                    let array = e.target.position;
+            //     this.cover.on('drag', (e) => {
+            //         let array = e.target.position;
 
-                    this.group.attr({
-                        position: array
-                    });
-                })
-                this.cover.on('dragend', (e) => {
-                    this.zr.remove(this.cover);
-                })
-            }
+            //         this.group.attr({
+            //             position: array
+            //         });
+            //     })
+            //     this.cover.on('dragend', (e) => {
+            //         this.zr.remove(this.cover);
+            //     })
+            // }
             let shapePoints = this._toGlobal(e.target.shape.points, shape);
             const rPoints = this._changeToPoints(shapePoints);
             this._onSelected(e, {
