@@ -159,11 +159,13 @@ export default class BImage extends Init {
         const oldScale = this.group.scale[0];
 
         let center = this._option.center;
+        //等于0拖拽会发生飘移，所以设定0.003度，无限接近于0
+        const zero = 0.003 / 180 * Math.PI;
 
         if (direction === 0) {
             this._option.rotateTime = 0;
             this.group.attr({
-                rotation: 0,
+                rotation: zero,
                 origin: center
             })
             this._option.rotate = {
@@ -173,13 +175,20 @@ export default class BImage extends Init {
             return;
         }
 
-        let degreePi = Math.PI / (180 / degree);
+        let degreePi = degree / 180 * Math.PI;
 
         if (direction === 'clockwise') {
             this._option.rotateTime++;
 
+            let result;
+            if (this._option.rotateTime === 0) {
+                result = zero;
+            } else {
+                result = -degreePi * this._option.rotateTime;
+            }
+
             this.group.attr({
-                rotation: -degreePi * this._option.rotateTime,
+                rotation: result,
                 origin: center
             })
             this._option.rotate = {
@@ -189,8 +198,15 @@ export default class BImage extends Init {
         } else {
             this._option.rotateTime--;
 
+            let result;
+            if (this._option.rotateTime === 0) {
+                result = zero;
+            } else {
+                result = degreePi * this._option.rotateTime;
+            }
+
             this.group.attr({
-                rotation: degreePi * this._option.rotateTime,
+                rotation: result,
                 origin: center
             })
             this._option.rotate = {
