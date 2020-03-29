@@ -8707,10 +8707,12 @@ var BImage = function (_Init) {
 
             var center = this._option.center;
 
+            var zero = 0.003 / 180 * Math.PI;
+
             if (direction === 0) {
                 this._option.rotateTime = 0;
                 this.group.attr({
-                    rotation: 0,
+                    rotation: zero,
                     origin: center
                 });
                 this._option.rotate = {
@@ -8720,13 +8722,20 @@ var BImage = function (_Init) {
                 return;
             }
 
-            var degreePi = Math.PI / (180 / degree);
+            var degreePi = degree / 180 * Math.PI;
 
             if (direction === 'clockwise') {
                 this._option.rotateTime++;
 
+                var result = void 0;
+                if (this._option.rotateTime === 0) {
+                    result = zero;
+                } else {
+                    result = -degreePi * this._option.rotateTime;
+                }
+
                 this.group.attr({
-                    rotation: -degreePi * this._option.rotateTime,
+                    rotation: result,
                     origin: center
                 });
                 this._option.rotate = {
@@ -8736,8 +8745,15 @@ var BImage = function (_Init) {
             } else {
                 this._option.rotateTime--;
 
+                var _result = void 0;
+                if (this._option.rotateTime === 0) {
+                    _result = zero;
+                } else {
+                    _result = degreePi * this._option.rotateTime;
+                }
+
                 this.group.attr({
-                    rotation: degreePi * this._option.rotateTime,
+                    rotation: _result,
                     origin: center
                 });
                 this._option.rotate = {
@@ -18251,7 +18267,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.16";
+var version = "1.0.17";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
