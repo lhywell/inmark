@@ -55,20 +55,16 @@ export default class BImage extends Init {
     setDrag(bol) {
         this._option.draggable = bol;
         // console.log(this.group, this.group.children())
-        this.group && this.group.eachChild(item => {
-            item.attr({
-                'draggable': bol,
-                'cursor': 'pointer'
-            });
-        })
 
-        if (this.image) {
-            this.image.on('drag', (e) => {
-                if (this.getDrag() === true) {
-                    this.dragE = e;
-                }
-            });
-        }
+        //解决window平台下，设置false,框还可以移动bug
+        this.group && this.group.eachChild(item => {
+            if (item.data.type === 'IMAGE') {
+                item.attr({
+                    'draggable': bol,
+                    'cursor': 'pointer'
+                });
+            }
+        })
     }
     getDrag() {
         return this._option.draggable;
