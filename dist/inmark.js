@@ -8590,24 +8590,16 @@ var BImage = function (_Init) {
     }, {
         key: 'setDrag',
         value: function setDrag(bol) {
-            var _this2 = this;
-
             this._option.draggable = bol;
 
             this.group && this.group.eachChild(function (item) {
-                item.attr({
-                    'draggable': bol,
-                    'cursor': 'pointer'
-                });
+                if (item.data.type === 'IMAGE') {
+                    item.attr({
+                        'draggable': bol,
+                        'cursor': 'pointer'
+                    });
+                }
             });
-
-            if (this.image) {
-                this.image.on('drag', function (e) {
-                    if (_this2.getDrag() === true) {
-                        _this2.dragE = e;
-                    }
-                });
-            }
         }
     }, {
         key: 'getDrag',
@@ -8617,7 +8609,7 @@ var BImage = function (_Init) {
     }, {
         key: 'renderImg',
         value: function renderImg(url) {
-            var _this3 = this;
+            var _this2 = this;
 
             if (!url) {
                 return;
@@ -8630,54 +8622,54 @@ var BImage = function (_Init) {
             img.setAttribute('crossorigin', 'anonymous');
             img.src = url;
             img.onload = function () {
-                if (_this3._option.mode === 'auto') {
-                    var xRate = _this3.ctx.canvasWidth / img.width;
-                    var yRate = _this3.ctx.canvasHeight / img.height;
-                    _this3._option.setRate = xRate < yRate ? xRate : yRate;
+                if (_this2._option.mode === 'auto') {
+                    var xRate = _this2.ctx.canvasWidth / img.width;
+                    var yRate = _this2.ctx.canvasHeight / img.height;
+                    _this2._option.setRate = xRate < yRate ? xRate : yRate;
 
-                    if (_this3._option.setRate > _this3._option.imgZoom) {
-                        _this3._option.setRate = _this3._option.imgZoom;
+                    if (_this2._option.setRate > _this2._option.imgZoom) {
+                        _this2._option.setRate = _this2._option.imgZoom;
                     }
-                    _this3._option.widthImg = img.width * _this3._option.setRate;
-                    _this3._option.heightImg = img.height * _this3._option.setRate;
-                    _this3._option.offsetX = (_this3.ctx.canvasWidth - _this3._option.widthImg) / 2;
-                    _this3._option.offsetY = (_this3.ctx.canvasHeight - _this3._option.heightImg) / 2;
+                    _this2._option.widthImg = img.width * _this2._option.setRate;
+                    _this2._option.heightImg = img.height * _this2._option.setRate;
+                    _this2._option.offsetX = (_this2.ctx.canvasWidth - _this2._option.widthImg) / 2;
+                    _this2._option.offsetY = (_this2.ctx.canvasHeight - _this2._option.heightImg) / 2;
                 } else {
-                    _this3._option.setRate = 1;
-                    _this3._option.widthImg = img.width;
-                    _this3._option.heightImg = img.height;
-                    _this3._option.offsetX = 0;
-                    _this3._option.offsetY = 0;
+                    _this2._option.setRate = 1;
+                    _this2._option.widthImg = img.width;
+                    _this2._option.heightImg = img.height;
+                    _this2._option.offsetX = 0;
+                    _this2._option.offsetY = 0;
                 }
 
                 image = new _zrender2.default.Image({
                     style: {
                         image: url + '?' + Date.now(),
-                        x: _this3._option.offsetX,
-                        y: _this3._option.offsetY,
-                        width: _this3._option.widthImg,
-                        height: _this3._option.heightImg
+                        x: _this2._option.offsetX,
+                        y: _this2._option.offsetY,
+                        width: _this2._option.widthImg,
+                        height: _this2._option.heightImg
                     },
                     cursor: 'default',
                     data: {
                         type: 'IMAGE',
                         origin_width: img.width,
                         origin_height: img.height,
-                        rate_width: _this3._option.widthImg,
-                        rate_height: _this3._option.heightImg
+                        rate_width: _this2._option.widthImg,
+                        rate_height: _this2._option.heightImg
                     },
                     zlevel: 1
                 });
-                _this3._option.center = [_this3._option.offsetX + _this3._option.widthImg / 2, _this3._option.offsetY + _this3._option.heightImg / 2];
+                _this2._option.center = [_this2._option.offsetX + _this2._option.widthImg / 2, _this2._option.offsetY + _this2._option.heightImg / 2];
 
-                _this3.image = image;
+                _this2.image = image;
 
                 group.add(image);
-                _this3.zr.add(group);
+                _this2.zr.add(group);
 
-                _this3._onComplete && _this3._onComplete();
+                _this2._onComplete && _this2._onComplete();
 
-                _this3._bindEvent();
+                _this2._bindEvent();
             };
         }
     }, {
@@ -8844,13 +8836,13 @@ var BImage = function (_Init) {
     }, {
         key: '_toGlobalSave',
         value: function _toGlobalSave(points, shape) {
-            var _this4 = this;
+            var _this3 = this;
 
             var newPoints = _zrender2.default.util.clone(points);
             var array = [];
             newPoints.forEach(function (item) {
                 var x = void 0,
-                    scale = _this4.group.scale[0];
+                    scale = _this3.group.scale[0];
                 if (scale === 1) {
                     x = shape.transformCoordToGlobal(item[0], item[1]);
                 } else {
@@ -8864,13 +8856,13 @@ var BImage = function (_Init) {
     }, {
         key: '_toLocal',
         value: function _toLocal(points, shape) {
-            var _this5 = this;
+            var _this4 = this;
 
             var newPoints = _zrender2.default.util.clone(points);
             var array = [];
             newPoints.forEach(function (item) {
                 var x = void 0,
-                    scale = _this5.group.scale[0];
+                    scale = _this4.group.scale[0];
                 x = shape.transformCoordToLocal(item[0], item[1]);
                 array.push(x);
             });
@@ -17263,8 +17255,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
-
 var _zrender = __webpack_require__(79);
 
 var _zrender2 = _interopRequireDefault(_zrender);
@@ -17374,11 +17364,6 @@ var RectOverlay = function (_Image) {
             };
 
             return group;
-        }
-    }, {
-        key: 'setDrag',
-        value: function setDrag(bol) {
-            _get(RectOverlay.prototype.__proto__ || Object.getPrototypeOf(RectOverlay.prototype), 'setDrag', this).call(this, bol);
         }
     }, {
         key: 'open',
@@ -17886,14 +17871,13 @@ var RectOverlay = function (_Image) {
             });
 
             editNode.on("drag", function (e) {
-                group.removeAll();
-
-                var oldPoints = _this6.currPoint;
+                var oldPoints = _zrender2.default.util.clone(_this6.currPoint);
 
                 if (oldPoints.length === 0) {
                     oldPoints = _zrender2.default.util.clone(_this6.currShape.shape.points);
                 }
                 _this6.currPoint = [];
+
 
                 var m = _this6.m;
                 var _side = e.target.data._side;
@@ -17956,7 +17940,6 @@ var RectOverlay = function (_Image) {
                     scale: [1, 1]
                 });
 
-
                 _this6.currShape.attr({
                     scale: [1, 1],
                     shape: {
@@ -17976,7 +17959,26 @@ var RectOverlay = function (_Image) {
                 _this6._createEditPoint(newPoints, group);
             });
             editNode.on("dragend", function (e) {
-                var shape = group.bound;
+                _this6._startPoint = [];
+
+                var shape = _this6._createShape(_this6._editNode, _this6.currShape.data);
+                _this6.graphic.remove(_this6.currShape.bound);
+                _this6.graphic.remove(_this6.currShape);
+                _this6._areaShape.forEach(function (item, index) {
+                    if (item.data.id === _this6.currShape.data.id) {
+                        _this6._areaShape.splice(index, 1);
+                    }
+                });
+                _this6.currShape = shape;
+
+                if (_this6._editNode.length > 0) {
+                    _this6._createEditGroup(_this6._editNode, shape);
+
+                    _this6._areaShape.push(shape);
+                    _this6.graphic.add(shape);
+
+                    _this6.setSelectedStyle(shape);
+                }
 
                 var rPoints = _this6._changeToPoints(_this6._editNode);
 
@@ -18267,7 +18269,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.17";
+var version = "1.0.18";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
