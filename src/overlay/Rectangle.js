@@ -86,9 +86,6 @@ export default class RectOverlay extends Image {
 
         return group;
     }
-    setDrag(bol) {
-        super.setDrag(bol);
-    }
     open() {
         //开启绘制模式
         this.isOpen = true;
@@ -500,7 +497,7 @@ export default class RectOverlay extends Image {
 
             this.currShape = e.target;
 
-            // console.log('guocheng',JSON.stringify(e.target.shape.points));
+            // console.log('guocheng', JSON.stringify(this.currPoint));
             // console.log('drag', this.currShape)
             let shapePoints = this._toGlobal(e.target.shape.points, shape);
             const rPoints = this._changeToPoints(shapePoints);
@@ -697,22 +694,17 @@ export default class RectOverlay extends Image {
         })
 
         editNode.on("drag", (e) => {
-            group.removeAll();
+
             //框拖拽移动之后，取记录点坐标
-            let oldPoints = this.currPoint;
+            let oldPoints = zrender.util.clone(this.currPoint);
 
             //框非移动，取拖拽坐标
             if (oldPoints.length === 0) {
                 oldPoints = zrender.util.clone(this.currShape.shape.points);
             }
             this.currPoint = [];
-            // console.log('old', JSON.stringify(this.currPoint), JSON.stringify(this.currShape.shape.points))
+            // console.log('old', JSON.stringify(oldPoints), JSON.stringify(this.currShape.shape.points))
 
-            // this.currShape.attr({
-            //     shape: {
-            //         points: oldPoints,
-            //     }
-            // })
             let m = this.m;
             const _side = e.target.data._side;
 
@@ -828,15 +820,14 @@ export default class RectOverlay extends Image {
                     //     break
             }
             group.removeAll();
-            // group.dirty()
             // console.log(this.group.scale)
             group.attr({
                 position: [0, 0],
                 scale: [1, 1]
             })
-            // let x = this._toLocal(newPoints, group.bound)
-            // console.log('new', JSON.stringify(newPoints))
 
+            // let x = this._toLocal(newPoints, group.bound)
+            // console.log('new', JSON.stringify(newPoints), this.zr)
             this.currShape.attr({
                 scale: [1, 1],
                 shape: {
@@ -858,7 +849,29 @@ export default class RectOverlay extends Image {
 
         })
         editNode.on("dragend", (e) => {
-            let shape = group.bound;
+            // let shape = group.bound;
+            this._startPoint = [];
+
+            //拖拽完之后，重新创建一个框，删除原有框，原有框在拖拽完之后拖拽事件没有同步
+            const shape = this._createShape(this._editNode, this.currShape.data);
+            this.graphic.remove(this.currShape.bound);
+            this.graphic.remove(this.currShape);
+            this._areaShape.forEach((item, index) => {
+                if (item.data.id === this.currShape.data.id) {
+                    this._areaShape.splice(index, 1);
+                }
+            })
+            this.currShape = shape;
+
+            if (this._editNode.length > 0) {
+                this._createEditGroup(this._editNode, shape);
+
+                this._areaShape.push(shape);
+                this.graphic.add(shape);
+
+                this.setSelectedStyle(shape);
+            }
+
             // let shapePoints = this._toGlobal(this._editNode, this.currShape);
             const rPoints = this._changeToPoints(this._editNode);
 
