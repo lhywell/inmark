@@ -17299,6 +17299,7 @@ var RectOverlay = function (_Image) {
 
         _this._mousemove = opts.event.mousemove;
         _this._mouseout = opts.event.mouseout;
+        _this._onCreate = opts.event.onCreate;
         _this._onCreateComplete = opts.event.onCreateComplete;
         _this._onRectDrag = opts.event.onRectDrag;
         _this._onRectDragComplete = opts.event.onRectDragComplete;
@@ -17329,7 +17330,6 @@ var RectOverlay = function (_Image) {
         _this.graphic = _this._createGraphicGroup();
         _this.currShape = {};
         _this.tempShape = {};
-        _this.currPoint = [];
         if (_this.image) {
             _this.image.on('drag', function (e) {
                 if (_this.getDrag() === true) {
@@ -17511,6 +17511,11 @@ var RectOverlay = function (_Image) {
                         }
                     });
                 }
+                var rPoints = this._changeToPoints(points);
+                this._onCreate(e, {
+                    notes: '-1',
+                    coordinates: rPoints
+                });
             }
         }
     }, {
@@ -17529,6 +17534,8 @@ var RectOverlay = function (_Image) {
                     style: this._styleConfig.selected,
                     data: _extends({}, data)
                 });
+                this._editNode = points;
+
                 if (typeof this._onCreateComplete === 'function') {
                     if (points.length > 0) {
                         this._createEditGroup(shapePoints, this.currShape);
@@ -17744,7 +17751,7 @@ var RectOverlay = function (_Image) {
 
             var oldGroup = [];
             shape.on('click', function (e) {
-                _this5.currPoint = [];
+                _this5._editNode = _this5._toShapeDragEnd(e, e.target);
             });
             shape.on('dragstart', function (e) {
                 _this5.currShape = shape;
@@ -17760,7 +17767,7 @@ var RectOverlay = function (_Image) {
                     item.hide();
                 });
 
-                _this5.currPoint = _this5._toShapeDragEnd(e, e.target);
+                _this5._editNode = _this5._toShapeDragEnd(e, e.target);
 
                 _this5.currShape = e.target;
 
@@ -17871,12 +17878,11 @@ var RectOverlay = function (_Image) {
             });
 
             editNode.on("drag", function (e) {
-                var oldPoints = _zrender2.default.util.clone(_this6.currPoint);
+                var oldPoints = _zrender2.default.util.clone(_this6._editNode);
 
                 if (oldPoints.length === 0) {
                     oldPoints = _zrender2.default.util.clone(_this6.currShape.shape.points);
                 }
-                _this6.currPoint = [];
 
 
                 var m = _this6.m;
@@ -17959,32 +17965,32 @@ var RectOverlay = function (_Image) {
                 _this6._createEditPoint(newPoints, group);
             });
             editNode.on("dragend", function (e) {
-                _this6._startPoint = [];
-
-                var shape = _this6._createShape(_this6._editNode, _this6.currShape.data);
-                _this6.graphic.remove(_this6.currShape.bound);
-                _this6.graphic.remove(_this6.currShape);
-                _this6._areaShape.forEach(function (item, index) {
-                    if (item.data.id === _this6.currShape.data.id) {
-                        _this6._areaShape.splice(index, 1);
-                    }
-                });
-                _this6.currShape = shape;
-
                 if (_this6._editNode.length > 0) {
+                    var shape = _this6._createShape(_this6._editNode, _this6.currShape.data);
+                    _this6.graphic.remove(_this6.currShape.bound);
+                    _this6.graphic.remove(_this6.currShape);
+                    _this6._areaShape.forEach(function (item, index) {
+                        if (item.data.id === _this6.currShape.data.id) {
+                            _this6._areaShape.splice(index, 1);
+                        }
+                    });
+                    _this6.currShape = shape;
+
                     _this6._createEditGroup(_this6._editNode, shape);
 
                     _this6._areaShape.push(shape);
                     _this6.graphic.add(shape);
 
                     _this6.setSelectedStyle(shape);
+
+                    _this6._startPoint = [];
+
+                    var rPoints = _this6._changeToPoints(_this6._editNode);
+
+                    _this6._onEditNodeDragComplete(e, _extends({}, group.bound.data, {
+                        coordinates: rPoints
+                    }));
                 }
-
-                var rPoints = _this6._changeToPoints(_this6._editNode);
-
-                _this6._onEditNodeDragComplete(e, _extends({}, group.bound.data, {
-                    coordinates: rPoints
-                }));
             });
         }
     }, {
@@ -18062,7 +18068,6 @@ var RectOverlay = function (_Image) {
             var _this9 = this;
 
             if (this.selectedSub) {
-
                 var obj = void 0;
                 this._areaShape.forEach(function (item, index) {
                     if (item.data.id === _this9.selectedSub.data.id) {
@@ -18269,7 +18274,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.18";
+var version = "1.0.19";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
