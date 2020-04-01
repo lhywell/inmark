@@ -287,6 +287,7 @@ let inMapVue = new Vue({
                 data: data,
                 isOpen: false,
                 event: {
+                    onCreate: this.onCreate,
                     onCreateComplete: this.onCreateComplete,
                     onRectDrag: this.onRectDrag,
                     onRectDragComplete: this.onRectDragComplete,
@@ -299,6 +300,9 @@ let inMapVue = new Vue({
             // polygon.setData(s);
             this.polygon = polygon;
             this.init = false;
+        },
+        onCreate(e, obj) {
+            console.log('create', e, obj)
         },
         onCreateComplete(e, obj) {},
         onRectDrag(e, obj) {

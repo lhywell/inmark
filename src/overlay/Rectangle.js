@@ -22,6 +22,7 @@ export default class RectOverlay extends Image {
 
         this._mousemove = opts.event.mousemove
         this._mouseout = opts.event.mouseout
+        this._onCreate = opts.event.onCreate
         this._onCreateComplete = opts.event.onCreateComplete
         this._onRectDrag = opts.event.onRectDrag
         this._onRectDragComplete = opts.event.onRectDragComplete
@@ -234,6 +235,11 @@ export default class RectOverlay extends Image {
                 })
                 // console.log('mosemove', this.currShape)
             }
+            const rPoints = this._changeToPoints(points);
+            this._onCreate(e, {
+                notes: '-1',
+                coordinates: rPoints
+            })
 
         }
     }
