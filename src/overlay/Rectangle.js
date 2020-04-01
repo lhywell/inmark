@@ -1,5 +1,7 @@
 import zrender from 'zrender'
-import { merge } from '../common/utils.js'
+import {
+    merge
+} from '../common/utils.js'
 import PolygonConfig from '../config/PolygonConfig.js'
 import EditPolygon from '../config/EditPolygon.js'
 import Image from './Image.js'
@@ -53,7 +55,6 @@ export default class RectOverlay extends Image {
         this.graphic = this._createGraphicGroup();
         this.currShape = {};
         this.tempShape = {};
-        this.currPoint = [];
         if (this.image) {
             this.image.on('drag', (e) => {
                 //拖动图片与多边形同步
@@ -261,6 +262,8 @@ export default class RectOverlay extends Image {
                     ...data
                 }
             })
+            this._editNode = points;
+
             if (typeof this._onCreateComplete === 'function') {
                 if (points.length > 0) {
                     this._createEditGroup(shapePoints, this.currShape);
@@ -471,8 +474,8 @@ export default class RectOverlay extends Image {
         let oldGroup = [];
         shape.on('click', (e) => {
             // console.log('click', e.target)
-            //点击清空坐标点
-            this.currPoint = [];
+            //点击重新设置坐标点
+            this._editNode = this._toShapeDragEnd(e, e.target);
         })
         shape.on('dragstart', (e) => {
             this.currShape = shape;
@@ -499,10 +502,9 @@ export default class RectOverlay extends Image {
             //     item.show();
             // })
             //移动过程中，重新记录坐标点
-            this.currPoint = this._toShapeDragEnd(e, e.target);
+            this._editNode = this._toShapeDragEnd(e, e.target);
 
             this.currShape = e.target;
-
             // console.log('guocheng', JSON.stringify(this.currPoint));
             // console.log('drag', this.currShape)
             let shapePoints = this._toGlobal(e.target.shape.points, shape);
@@ -702,13 +704,12 @@ export default class RectOverlay extends Image {
         editNode.on("drag", (e) => {
 
             //框拖拽移动之后，取记录点坐标
-            let oldPoints = zrender.util.clone(this.currPoint);
+            let oldPoints = zrender.util.clone(this._editNode);
 
             //框非移动，取拖拽坐标
             if (oldPoints.length === 0) {
                 oldPoints = zrender.util.clone(this.currShape.shape.points);
             }
-            this.currPoint = [];
             // console.log('old', JSON.stringify(oldPoints), JSON.stringify(this.currShape.shape.points))
 
             let m = this.m;
@@ -856,35 +857,37 @@ export default class RectOverlay extends Image {
         })
         editNode.on("dragend", (e) => {
             // let shape = group.bound;
-            this._startPoint = [];
-
-            //拖拽完之后，重新创建一个框，删除原有框，原有框在拖拽完之后拖拽事件没有同步
-            const shape = this._createShape(this._editNode, this.currShape.data);
-            this.graphic.remove(this.currShape.bound);
-            this.graphic.remove(this.currShape);
-            this._areaShape.forEach((item, index) => {
-                if (item.data.id === this.currShape.data.id) {
-                    this._areaShape.splice(index, 1);
-                }
-            })
-            this.currShape = shape;
-
+            //双击框会消失
             if (this._editNode.length > 0) {
+
+                //拖拽完之后，重新创建一个框，删除原有框，原有框在拖拽完之后拖拽事件没有同步
+                const shape = this._createShape(this._editNode, this.currShape.data);
+                this.graphic.remove(this.currShape.bound);
+                this.graphic.remove(this.currShape);
+                this._areaShape.forEach((item, index) => {
+                    if (item.data.id === this.currShape.data.id) {
+                        this._areaShape.splice(index, 1);
+                    }
+                })
+                this.currShape = shape;
+
                 this._createEditGroup(this._editNode, shape);
 
                 this._areaShape.push(shape);
                 this.graphic.add(shape);
 
                 this.setSelectedStyle(shape);
+
+                this._startPoint = [];
+                // let shapePoints = this._toGlobal(this._editNode, this.currShape);
+                const rPoints = this._changeToPoints(this._editNode);
+
+                this._onEditNodeDragComplete(e, {
+                    ...group.bound.data,
+                    coordinates: rPoints
+                })
             }
 
-            // let shapePoints = this._toGlobal(this._editNode, this.currShape);
-            const rPoints = this._changeToPoints(this._editNode);
-
-            this._onEditNodeDragComplete(e, {
-                ...group.bound.data,
-                coordinates: rPoints
-            })
         })
     }
     /**
@@ -963,7 +966,6 @@ export default class RectOverlay extends Image {
      */
     removeAnnotation() {
         if (this.selectedSub) {
-
             let obj;
             this._areaShape.forEach((item, index) => {
                 if (item.data.id === this.selectedSub.data.id) {
