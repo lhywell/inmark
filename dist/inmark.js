@@ -17576,7 +17576,7 @@ var RectOverlay = function (_Image) {
         value: function showMarkers(data) {
             var _this2 = this;
 
-            this._filterImage();
+            this.removeAll();
             if (data.length > 0) {
                 data.forEach(function (item) {
                     if (item.type === 'Rectangle') {
@@ -17599,6 +17599,7 @@ var RectOverlay = function (_Image) {
                 });
             }
             this.group.add(this.graphic);
+            this.setEdit(false);
         }
     }, {
         key: 'setSelectedStyle',
@@ -18274,7 +18275,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.19";
+var version = "1.0.20";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
