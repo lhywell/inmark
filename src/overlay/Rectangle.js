@@ -307,7 +307,7 @@ export default class RectOverlay extends Image {
      * @description 遍历数据，用边框标记主体内容
      */
     showMarkers(data) {
-        this._filterImage();
+        this.removeAll();
         if (data.length > 0) {
             data.forEach((item) => {
                 //矩形
@@ -331,7 +331,8 @@ export default class RectOverlay extends Image {
                 }
             })
         }
-        this.group.add(this.graphic)
+        this.group.add(this.graphic);
+        this.setEdit(false);
     }
     setSelectedStyle(shape, options = {}) {
         //选中某个框设置样式

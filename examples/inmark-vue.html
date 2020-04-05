@@ -111,6 +111,7 @@
     }
     </style>
     <script src="./data/markjson.js"></script>
+    <script src="./data/markjson2.js"></script>
     <!-- 引入样式 -->
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
     <link rel="stylesheet" href="./lib/styles/icons.css">
@@ -155,6 +156,7 @@
             <el-tooltip class="item" effect="dark" content="导出图片" placement="bottom">
                 <i class="iconfont el-icon-download" @click="openTools('export',9)"></i>
             </el-tooltip>
+            <span @click="setData">setData</span>
         </div>
         <div class="imageAnnotate" :id="imgId" v-loading="loading"></div>
         <div class="list" style="">
@@ -300,6 +302,14 @@ let inMapVue = new Vue({
             // polygon.setData(s);
             this.polygon = polygon;
             this.init = false;
+        },
+        setData() {
+            let data = data2.data;
+            console.log(data)
+            const markInfo = data.markInfo;
+
+            this.markNoteList = JSON.parse(markInfo);
+            this.polygon && this.polygon.setData(this.markNoteList);
         },
         onCreate(e, obj) {
             // console.log('create', e, obj)
