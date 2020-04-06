@@ -305,10 +305,10 @@ let inMapVue = new Vue({
         },
         setData() {
             let data = data2.data;
-            console.log(data)
             const markInfo = data.markInfo;
 
             this.markNoteList = JSON.parse(markInfo);
+
             this.polygon && this.polygon.setData(this.markNoteList);
         },
         onCreate(e, obj) {
