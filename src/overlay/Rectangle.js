@@ -33,6 +33,7 @@ export default class RectOverlay extends Image {
         this._onSelected = opts.event.onSelected
         this._unSelect = opts.event.unSelect
         this._imageDrag = opts.event.onImageDrag
+        this._imageDragEnd = opts.event.onImageDragEnd
 
         this.data = opts.data;
 
@@ -67,6 +68,10 @@ export default class RectOverlay extends Image {
                     });
                     this.bgDrag = array;
                 }
+            });
+            this.image.on('dragend', (e) => {
+                //拖动图片与多边形同步
+                this._imageDragEnd(e);
             });
         }
         if (typeof this.data === 'object') {
