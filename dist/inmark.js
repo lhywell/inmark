@@ -8619,8 +8619,8 @@ var BImage = function (_Init) {
             this.group = group;
 
             var img = new Image();
-            img.setAttribute('crossorigin', 'anonymous');
             img.src = url;
+            img.setAttribute('crossorigin', 'anonymous');
             img.onload = function () {
                 if (_this2._option.mode === 'auto') {
                     var xRate = _this2.ctx.canvasWidth / img.width;
@@ -18275,7 +18275,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.21";
+var version = "1.0.22";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
