@@ -111,7 +111,7 @@ export default class BImage extends Init {
             // this._option.offsetY = 0
             image = new zrender.Image({
                 style: {
-                    image: url + '?' + Date.now(),
+                    image: url,
                     x: this._option.offsetX,
                     y: this._option.offsetY,
                     width: this._option.widthImg,
