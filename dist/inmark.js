@@ -8561,6 +8561,7 @@ var BImage = function (_Init) {
         _this.type = 'IMAGE';
         _this.image = null;
         _this._editWidth = _EditPolygon2.default.shape.width;
+        _this._imageDrag = opts && opts.event.onImageDrag;
         _this._onComplete = opts && opts.event.onLoadComplete;
 
         _this.initialize();
@@ -8666,6 +8667,10 @@ var BImage = function (_Init) {
 
                 group.add(image);
                 _this2.zr.add(group);
+
+                _this2.image.on('drag', function (e) {
+                    _this2._imageDrag && _this2._imageDrag(e);
+                });
 
                 _this2._onComplete && _this2._onComplete();
 
@@ -17307,6 +17312,7 @@ var RectOverlay = function (_Image) {
         _this._onEditNodeDragComplete = opts.event.onEditNodeDragComplete;
         _this._onSelected = opts.event.onSelected;
         _this._unSelect = opts.event.unSelect;
+        _this._imageDrag = opts.event.onImageDrag;
 
         _this.data = opts.data;
 
@@ -17332,6 +17338,7 @@ var RectOverlay = function (_Image) {
         _this.tempShape = {};
         if (_this.image) {
             _this.image.on('drag', function (e) {
+                _this._imageDrag(e);
                 if (_this.getDrag() === true) {
                     var array = e.target.position;
                     _this.graphic.attr({
@@ -18275,7 +18282,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.23";
+var version = "1.0.24";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
