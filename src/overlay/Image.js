@@ -77,14 +77,13 @@ export default class BImage extends Init {
         if (!url) {
             return;
         }
-
         //加载图片
         group = new zrender.Group();
         this.group = group;
 
         let img = new Image();
-        img.setAttribute('crossorigin', 'anonymous');
         img.src = url;
+        img.setAttribute('crossorigin', 'anonymous');
         img.onload = () => {
             if (this._option.mode === 'auto') {
                 //图片自动适应屏幕大小
