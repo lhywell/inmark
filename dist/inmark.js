@@ -8644,7 +8644,7 @@ var BImage = function (_Init) {
 
                 image = new _zrender2.default.Image({
                     style: {
-                        image: url + '?' + Date.now(),
+                        image: url,
                         x: _this2._option.offsetX,
                         y: _this2._option.offsetY,
                         width: _this2._option.widthImg,
@@ -18275,7 +18275,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.20";
+var version = "1.0.21";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
