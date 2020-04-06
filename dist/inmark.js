@@ -17477,7 +17477,7 @@ var RectOverlay = function (_Image) {
     }, {
         key: '_zrMouseMove',
         value: function _zrMouseMove(e) {
-            if (this._isMouseDown && this._startPoint) {
+            if (this._isMouseDown && this._startPoint && e.target) {
                 var p = this._getDrawPoint(e);
 
                 var xLong = Math.abs(this._startPoint[0] - p[0]);
@@ -18275,7 +18275,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.22";
+var version = "1.0.23";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
