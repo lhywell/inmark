@@ -193,7 +193,8 @@ export default class RectOverlay extends Image {
         return [x, y]
     }
     _zrMouseMove(e) {
-        if (this._isMouseDown && this._startPoint) {
+        //e.target=undefined 禁止拖动到浏览器外边
+        if (this._isMouseDown && this._startPoint && e.target) {
             let p = this._getDrawPoint(e);
 
             const xLong = Math.abs(this._startPoint[0] - p[0]);
