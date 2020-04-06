@@ -272,7 +272,8 @@ let inMapVue = new Vue({
                     mode: 'original', //original or auto
                     imgUrl: resPath,
                     event: {
-                        onLoadComplete: this.loadComplete
+                        onLoadComplete: this.loadComplete,
+                        onImageDrag: this.imageDrag,
                     }
                 });
 
@@ -290,6 +291,7 @@ let inMapVue = new Vue({
                 isOpen: false,
                 event: {
                     onCreate: this.onCreate,
+                    onImageDrag: this.onImageDrag,
                     onCreateComplete: this.onCreateComplete,
                     onRectDrag: this.onRectDrag,
                     onRectDragComplete: this.onRectDragComplete,
@@ -310,6 +312,12 @@ let inMapVue = new Vue({
             this.markNoteList = JSON.parse(markInfo);
 
             this.polygon && this.polygon.setData(this.markNoteList);
+        },
+        imageDrag(e){
+            // console.log(e)
+        },
+        onImageDrag(e) {
+            // console.log(e)
         },
         onCreate(e, obj) {
             // console.log('create', e, obj)

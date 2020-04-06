@@ -34,6 +34,7 @@ export default class BImage extends Init {
         this.type = 'IMAGE'
         this.image = null;
         this._editWidth = EditPolygon.shape.width
+        this._imageDrag = opts && opts.event.onImageDrag;
         this._onComplete = opts && opts.event.onLoadComplete;
         // console.log(this)
         this.initialize();
@@ -130,8 +131,14 @@ export default class BImage extends Init {
 
             this.image = image;
 
+
+
             group.add(image);
             this.zr.add(group);
+
+            this.image.on('drag', (e) => {
+                this._imageDrag && this._imageDrag(e);
+            });
 
             this._onComplete && this._onComplete();
 

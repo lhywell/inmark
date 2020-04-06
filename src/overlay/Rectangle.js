@@ -32,6 +32,7 @@ export default class RectOverlay extends Image {
         this._onEditNodeDragComplete = opts.event.onEditNodeDragComplete
         this._onSelected = opts.event.onSelected
         this._unSelect = opts.event.unSelect
+        this._imageDrag = opts.event.onImageDrag
 
         this.data = opts.data;
 
@@ -58,6 +59,7 @@ export default class RectOverlay extends Image {
         if (this.image) {
             this.image.on('drag', (e) => {
                 //拖动图片与多边形同步
+                this._imageDrag(e);
                 if (this.getDrag() === true) {
                     let array = e.target.position;
                     this.graphic.attr({
