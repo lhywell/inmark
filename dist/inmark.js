@@ -8562,6 +8562,7 @@ var BImage = function (_Init) {
         _this.image = null;
         _this._editWidth = _EditPolygon2.default.shape.width;
         _this._imageDrag = opts && opts.event.onImageDrag;
+        _this._imageDragEnd = opts && opts.event.onImageDragEnd;
         _this._onComplete = opts && opts.event.onLoadComplete;
 
         _this.initialize();
@@ -8670,6 +8671,9 @@ var BImage = function (_Init) {
 
                 _this2.image.on('drag', function (e) {
                     _this2._imageDrag && _this2._imageDrag(e);
+                });
+                _this2.image.on('dragend', function (e) {
+                    _this2._imageDrag && _this2._imageDragEnd(e);
                 });
 
                 _this2._onComplete && _this2._onComplete();
@@ -17313,6 +17317,7 @@ var RectOverlay = function (_Image) {
         _this._onSelected = opts.event.onSelected;
         _this._unSelect = opts.event.unSelect;
         _this._imageDrag = opts.event.onImageDrag;
+        _this._imageDragEnd = opts.event.onImageDragEnd;
 
         _this.data = opts.data;
 
@@ -17346,6 +17351,9 @@ var RectOverlay = function (_Image) {
                     });
                     _this.bgDrag = array;
                 }
+            });
+            _this.image.on('dragend', function (e) {
+                _this._imageDragEnd(e);
             });
         }
         if (_typeof(_this.data) === 'object') {
@@ -18282,7 +18290,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.24";
+var version = "1.0.25";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
