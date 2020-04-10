@@ -709,158 +709,159 @@ export default class RectOverlay extends Image {
         })
 
         editNode.on("drag", (e) => {
+            //禁止编辑画框到canvas外
+            if (e.event.target.tagName === 'CANVAS') {
+                //框拖拽移动之后，取记录点坐标
+                let oldPoints = zrender.util.clone(this._editNode);
 
-            //框拖拽移动之后，取记录点坐标
-            let oldPoints = zrender.util.clone(this._editNode);
+                //框非移动，取拖拽坐标
+                if (oldPoints.length === 0) {
+                    oldPoints = zrender.util.clone(this.currShape.shape.points);
+                }
+                // console.log('old', JSON.stringify(oldPoints), JSON.stringify(this.currShape.shape.points))
 
-            //框非移动，取拖拽坐标
-            if (oldPoints.length === 0) {
-                oldPoints = zrender.util.clone(this.currShape.shape.points);
+                let m = this.m;
+                const _side = e.target.data._side;
+
+                if (!m[0]) {
+                    m[0] = 1;
+                    m[4] = 0;
+                    m[5] = 0;
+                }
+                if (m[4] === this.position[0]) {
+
+                }
+
+                let bgDragX, bgDragY;
+                if (this.bgDrag.length === 0) {
+                    bgDragX = 0;
+                    bgDragY = 0;
+                } else {
+                    bgDragX = this.bgDrag[0];
+                    bgDragY = this.bgDrag[1];
+                }
+
+                let newPoints = [];
+                let offsetX = 0;
+                let offsetY = 0;
+                let width = this.obj.width;
+                let height = this.obj.height;
+
+                switch (_side) {
+                    case 'tl':
+                        offsetX = e.event.offsetX
+                        offsetY = e.event.offsetY
+                        newPoints = [
+                            [(offsetX - this._option.x) / m[0] - bgDragX, (offsetY - this._option.y) / m[0] - bgDragY],
+                            [oldPoints[1][0], (offsetY - this._option.y) / m[0] - bgDragY],
+                            oldPoints[2],
+                            [(offsetX - this._option.x) / m[0] - bgDragX, oldPoints[3][1]],
+                        ]
+                        break
+                        // case 't':
+                        //     offsetY = e.event.offsetY
+                        //     newPoints = [
+                        //         [oldPoints[0][0], offsetY],
+                        //         [oldPoints[1][0], offsetY],
+                        //         oldPoints[2],
+                        //         oldPoints[3]
+                        //     ]
+                        //     break
+                    case 'tr':
+                        offsetX = e.event.offsetX
+                        offsetY = e.event.offsetY
+
+                        newPoints = [
+                            [oldPoints[0][0], (offsetY - this._option.y) / m[0] - bgDragY],
+                            [(offsetX - this._option.x) / m[0] - bgDragX, (offsetY - this._option.y) / m[0] - bgDragY],
+                            [(offsetX - this._option.x) / m[0] - bgDragX, oldPoints[3][1]],
+                            oldPoints[3]
+                        ]
+                        break
+                        // case 'r':
+                        //     offsetX = e.event.offsetX
+                        //     newPoints = [
+                        //         oldPoints[0],
+                        //         [offsetX, oldPoints[1][1]],
+                        //         [offsetX, oldPoints[2][1]],
+                        //         oldPoints[3]
+                        //     ]
+                        //     break
+                    case 'br':
+                        offsetX = e.event.offsetX;
+                        offsetY = e.event.offsetY;
+
+                        // newPoints = [
+                        //     oldPoints[0],
+                        //     [offsetX, oldPoints[1][1]],
+                        //     [offsetX, offsetY],
+                        //     [oldPoints[3][0], offsetY/m[0]]
+                        // ]
+                        newPoints = [
+                            oldPoints[0],
+                            [(offsetX - this._option.x) / m[0] - bgDragX, oldPoints[0][1]],
+                            [(offsetX - this._option.x) / m[0] - bgDragX, (offsetY - this._option.y) / m[0] - bgDragY],
+                            [oldPoints[0][0], (offsetY - this._option.y) / m[0] - bgDragY]
+                        ];
+                        break
+                        // case 'b':
+                        //     offsetY = e.event.offsetY
+                        //     newPoints = [
+                        //         oldPoints[0],
+                        //         oldPoints[1],
+                        //         [oldPoints[2][0], offsetY],
+                        //         [oldPoints[3][0], offsetY]
+                        //     ]
+                        //     break
+                    case 'bl':
+                        offsetX = e.event.offsetX
+                        offsetY = e.event.offsetY
+
+                        newPoints = [
+                            [(offsetX - this._option.x) / m[0] - bgDragX, oldPoints[0][1]],
+                            oldPoints[1],
+                            [oldPoints[2][0], (offsetY - this._option.y) / m[0] - bgDragY],
+                            [(offsetX - this._option.x) / m[0] - bgDragX, (offsetY - this._option.y) / m[0] - bgDragY]
+                        ]
+                        break
+                        // case 'l':
+                        //     offsetX = e.event.offsetX
+                        //     newPoints = [
+                        //         [offsetX, oldPoints[0][1]],
+                        //         oldPoints[1],
+                        //         oldPoints[2],
+                        //         [offsetX, oldPoints[3][1]]
+                        //     ]
+                        //     break
+                }
+                group.removeAll();
+                // console.log(this.group.scale)
+                group.attr({
+                    position: [0, 0],
+                    scale: [1, 1]
+                })
+
+                // let x = this._toLocal(newPoints, group.bound)
+                // console.log('new', JSON.stringify(newPoints), this.zr)
+                this.currShape.attr({
+                    scale: [1, 1],
+                    shape: {
+                        points: newPoints,
+                    },
+                    position: [0, 0]
+                })
+
+                this._editNode = newPoints;
+                // this._array = x;
+                const rPoints = this._changeToPoints(newPoints);
+
+                this._onEditNodeDrag && this._onEditNodeDrag(e, {
+                    ...group.bound.data,
+                    coordinates: rPoints
+                })
+
+                this._createEditPoint(newPoints, group);
             }
-            // console.log('old', JSON.stringify(oldPoints), JSON.stringify(this.currShape.shape.points))
-
-            let m = this.m;
-            const _side = e.target.data._side;
-
-            if (!m[0]) {
-                m[0] = 1;
-                m[4] = 0;
-                m[5] = 0;
-            }
-            if (m[4] === this.position[0]) {
-
-            }
-
-            let bgDragX, bgDragY;
-            if (this.bgDrag.length === 0) {
-                bgDragX = 0;
-                bgDragY = 0;
-            } else {
-                bgDragX = this.bgDrag[0];
-                bgDragY = this.bgDrag[1];
-            }
-
-            let newPoints = [];
-            let offsetX = 0;
-            let offsetY = 0;
-            let width = this.obj.width;
-            let height = this.obj.height;
-
-            switch (_side) {
-                case 'tl':
-                    offsetX = e.event.offsetX
-                    offsetY = e.event.offsetY
-                    newPoints = [
-                        [(offsetX - this._option.x) / m[0] - bgDragX, (offsetY - this._option.y) / m[0] - bgDragY],
-                        [oldPoints[1][0], (offsetY - this._option.y) / m[0] - bgDragY],
-                        oldPoints[2],
-                        [(offsetX - this._option.x) / m[0] - bgDragX, oldPoints[3][1]],
-                    ]
-                    break
-                    // case 't':
-                    //     offsetY = e.event.offsetY
-                    //     newPoints = [
-                    //         [oldPoints[0][0], offsetY],
-                    //         [oldPoints[1][0], offsetY],
-                    //         oldPoints[2],
-                    //         oldPoints[3]
-                    //     ]
-                    //     break
-                case 'tr':
-                    offsetX = e.event.offsetX
-                    offsetY = e.event.offsetY
-
-                    newPoints = [
-                        [oldPoints[0][0], (offsetY - this._option.y) / m[0] - bgDragY],
-                        [(offsetX - this._option.x) / m[0] - bgDragX, (offsetY - this._option.y) / m[0] - bgDragY],
-                        [(offsetX - this._option.x) / m[0] - bgDragX, oldPoints[3][1]],
-                        oldPoints[3]
-                    ]
-                    break
-                    // case 'r':
-                    //     offsetX = e.event.offsetX
-                    //     newPoints = [
-                    //         oldPoints[0],
-                    //         [offsetX, oldPoints[1][1]],
-                    //         [offsetX, oldPoints[2][1]],
-                    //         oldPoints[3]
-                    //     ]
-                    //     break
-                case 'br':
-                    offsetX = e.event.offsetX;
-                    offsetY = e.event.offsetY;
-
-                    // newPoints = [
-                    //     oldPoints[0],
-                    //     [offsetX, oldPoints[1][1]],
-                    //     [offsetX, offsetY],
-                    //     [oldPoints[3][0], offsetY/m[0]]
-                    // ]
-                    newPoints = [
-                        oldPoints[0],
-                        [(offsetX - this._option.x) / m[0] - bgDragX, oldPoints[0][1]],
-                        [(offsetX - this._option.x) / m[0] - bgDragX, (offsetY - this._option.y) / m[0] - bgDragY],
-                        [oldPoints[0][0], (offsetY - this._option.y) / m[0] - bgDragY]
-                    ];
-                    break
-                    // case 'b':
-                    //     offsetY = e.event.offsetY
-                    //     newPoints = [
-                    //         oldPoints[0],
-                    //         oldPoints[1],
-                    //         [oldPoints[2][0], offsetY],
-                    //         [oldPoints[3][0], offsetY]
-                    //     ]
-                    //     break
-                case 'bl':
-                    offsetX = e.event.offsetX
-                    offsetY = e.event.offsetY
-
-                    newPoints = [
-                        [(offsetX - this._option.x) / m[0] - bgDragX, oldPoints[0][1]],
-                        oldPoints[1],
-                        [oldPoints[2][0], (offsetY - this._option.y) / m[0] - bgDragY],
-                        [(offsetX - this._option.x) / m[0] - bgDragX, (offsetY - this._option.y) / m[0] - bgDragY]
-                    ]
-                    break
-                    // case 'l':
-                    //     offsetX = e.event.offsetX
-                    //     newPoints = [
-                    //         [offsetX, oldPoints[0][1]],
-                    //         oldPoints[1],
-                    //         oldPoints[2],
-                    //         [offsetX, oldPoints[3][1]]
-                    //     ]
-                    //     break
-            }
-            group.removeAll();
-            // console.log(this.group.scale)
-            group.attr({
-                position: [0, 0],
-                scale: [1, 1]
-            })
-
-            // let x = this._toLocal(newPoints, group.bound)
-            // console.log('new', JSON.stringify(newPoints), this.zr)
-            this.currShape.attr({
-                scale: [1, 1],
-                shape: {
-                    points: newPoints,
-                },
-                position: [0, 0]
-            })
-
-            this._editNode = newPoints;
-            // this._array = x;
-            const rPoints = this._changeToPoints(newPoints);
-
-            this._onEditNodeDrag && this._onEditNodeDrag(e, {
-                ...group.bound.data,
-                coordinates: rPoints
-            })
-
-            this._createEditPoint(newPoints, group);
-
         })
         editNode.on("dragend", (e) => {
             // let shape = group.bound;
