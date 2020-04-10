@@ -8673,7 +8673,7 @@ var BImage = function (_Init) {
                     _this2._imageDrag && _this2._imageDrag(e);
                 });
                 _this2.image.on('dragend', function (e) {
-                    _this2._imageDrag && _this2._imageDragEnd(e);
+                    _this2._imageDragEnd && _this2._imageDragEnd(e);
                 });
 
                 _this2._onComplete && _this2._onComplete();
@@ -17343,7 +17343,7 @@ var RectOverlay = function (_Image) {
         _this.tempShape = {};
         if (_this.image) {
             _this.image.on('drag', function (e) {
-                _this._imageDrag(e);
+                _this._imageDrag && _this._imageDrag(e);
                 if (_this.getDrag() === true) {
                     var array = e.target.position;
                     _this.graphic.attr({
@@ -17353,7 +17353,7 @@ var RectOverlay = function (_Image) {
                 }
             });
             _this.image.on('dragend', function (e) {
-                _this._imageDragEnd(e);
+                _this._imageDragEnd && _this._imageDragEnd(e);
             });
         }
         if (_typeof(_this.data) === 'object') {
@@ -17527,7 +17527,7 @@ var RectOverlay = function (_Image) {
                     });
                 }
                 var rPoints = this._changeToPoints(points);
-                this._onCreate(e, {
+                this._onCreate && this._onCreate(e, {
                     notes: '-1',
                     coordinates: rPoints
                 });
@@ -17551,15 +17551,13 @@ var RectOverlay = function (_Image) {
                 });
                 this._editNode = points;
 
-                if (typeof this._onCreateComplete === 'function') {
-                    if (points.length > 0) {
-                        this._createEditGroup(shapePoints, this.currShape);
+                if (points.length > 0) {
+                    this._createEditGroup(shapePoints, this.currShape);
 
-                        this._onCreateComplete(e, _extends({}, data, {
-                            coordinates: points
-                        }));
-                        this.selectedSub = e.target;
-                    }
+                    this._onCreateComplete && this._onCreateComplete(e, _extends({}, data, {
+                        coordinates: points
+                    }));
+                    this.selectedSub = e.target;
                 }
             }
             this._isMouseDown = false;
@@ -17789,7 +17787,7 @@ var RectOverlay = function (_Image) {
 
                 var shapePoints = _this5._toGlobal(e.target.shape.points, shape);
                 var rPoints = _this5._changeToPoints(shapePoints);
-                _this5._onRectDrag(e, _extends({}, e.target.data, {
+                _this5._onRectDrag && _this5._onRectDrag(e, _extends({}, e.target.data, {
                     coordinates: rPoints
                 }));
             });
@@ -17804,7 +17802,7 @@ var RectOverlay = function (_Image) {
                 _this5.currShape = shape;
 
                 var rPoints = _this5._changeToPoints(shapePoints);
-                _this5._onRectDragComplete(e, _extends({}, e.target.data, {
+                _this5._onRectDragComplete && _this5._onRectDragComplete(e, _extends({}, e.target.data, {
                     coordinates: rPoints
                 }));
             });
@@ -17847,7 +17845,7 @@ var RectOverlay = function (_Image) {
 
                 var shapePoints = _this5._toGlobal(e.target.shape.points, shape);
                 var rPoints = _this5._changeToPoints(shapePoints);
-                _this5._onSelected(e, _extends({}, e.target.data, {
+                _this5._onSelected && _this5._onSelected(e, _extends({}, e.target.data, {
                     coordinates: rPoints
                 }));
             });
@@ -17974,7 +17972,7 @@ var RectOverlay = function (_Image) {
 
                 var rPoints = _this6._changeToPoints(newPoints);
 
-                _this6._onEditNodeDrag(e, _extends({}, group.bound.data, {
+                _this6._onEditNodeDrag && _this6._onEditNodeDrag(e, _extends({}, group.bound.data, {
                     coordinates: rPoints
                 }));
 
@@ -18003,7 +18001,7 @@ var RectOverlay = function (_Image) {
 
                     var rPoints = _this6._changeToPoints(_this6._editNode);
 
-                    _this6._onEditNodeDragComplete(e, _extends({}, group.bound.data, {
+                    _this6._onEditNodeDragComplete && _this6._onEditNodeDragComplete(e, _extends({}, group.bound.data, {
                         coordinates: rPoints
                     }));
                 }
@@ -18290,7 +18288,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.25";
+var version = "1.0.26";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
