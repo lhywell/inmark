@@ -141,7 +141,7 @@ export default class BImage extends Init {
                 this._imageDrag && this._imageDrag(e);
             });
             this.image.on('dragend', (e) => {
-                this._imageDrag && this._imageDragEnd(e);
+                this._imageDragEnd && this._imageDragEnd(e);
             });
 
             this._onComplete && this._onComplete();

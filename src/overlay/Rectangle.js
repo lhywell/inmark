@@ -60,7 +60,7 @@ export default class RectOverlay extends Image {
         if (this.image) {
             this.image.on('drag', (e) => {
                 //拖动图片与多边形同步
-                this._imageDrag(e);
+                this._imageDrag && this._imageDrag(e);
                 if (this.getDrag() === true) {
                     let array = e.target.position;
                     this.graphic.attr({
@@ -71,7 +71,7 @@ export default class RectOverlay extends Image {
             });
             this.image.on('dragend', (e) => {
                 //拖动图片与多边形同步
-                this._imageDragEnd(e);
+                this._imageDragEnd && this._imageDragEnd(e);
             });
         }
         if (typeof this.data === 'object') {
@@ -245,7 +245,7 @@ export default class RectOverlay extends Image {
                 // console.log('mosemove', this.currShape)
             }
             const rPoints = this._changeToPoints(points);
-            this._onCreate(e, {
+            this._onCreate && this._onCreate(e, {
                 notes: '-1',
                 coordinates: rPoints
             })
@@ -272,16 +272,14 @@ export default class RectOverlay extends Image {
             })
             this._editNode = points;
 
-            if (typeof this._onCreateComplete === 'function') {
-                if (points.length > 0) {
-                    this._createEditGroup(shapePoints, this.currShape);
+            if (points.length > 0) {
+                this._createEditGroup(shapePoints, this.currShape);
 
-                    this._onCreateComplete(e, {
-                        ...data,
-                        coordinates: points
-                    })
-                    this.selectedSub = e.target;
-                }
+                this._onCreateComplete && this._onCreateComplete(e, {
+                    ...data,
+                    coordinates: points
+                })
+                this.selectedSub = e.target;
             }
         }
         this._isMouseDown = false
@@ -518,7 +516,7 @@ export default class RectOverlay extends Image {
             // console.log('drag', this.currShape)
             let shapePoints = this._toGlobal(e.target.shape.points, shape);
             const rPoints = this._changeToPoints(shapePoints);
-            this._onRectDrag(e, {
+            this._onRectDrag && this._onRectDrag(e, {
                 ...e.target.data,
                 coordinates: rPoints
             })
@@ -538,7 +536,7 @@ export default class RectOverlay extends Image {
             // console.log('end', this.position, JSON.stringify(e.target.shape.points), JSON.stringify(shapePoints));
 
             const rPoints = this._changeToPoints(shapePoints);
-            this._onRectDragComplete(e, {
+            this._onRectDragComplete && this._onRectDragComplete(e, {
                 ...e.target.data,
                 coordinates: rPoints
             })
@@ -631,7 +629,7 @@ export default class RectOverlay extends Image {
             // }
             let shapePoints = this._toGlobal(e.target.shape.points, shape);
             const rPoints = this._changeToPoints(shapePoints);
-            this._onSelected(e, {
+            this._onSelected && this._onSelected(e, {
                 ...e.target.data,
                 coordinates: rPoints
             })
@@ -856,7 +854,7 @@ export default class RectOverlay extends Image {
             // this._array = x;
             const rPoints = this._changeToPoints(newPoints);
 
-            this._onEditNodeDrag(e, {
+            this._onEditNodeDrag && this._onEditNodeDrag(e, {
                 ...group.bound.data,
                 coordinates: rPoints
             })
@@ -891,7 +889,7 @@ export default class RectOverlay extends Image {
                 // let shapePoints = this._toGlobal(this._editNode, this.currShape);
                 const rPoints = this._changeToPoints(this._editNode);
 
-                this._onEditNodeDragComplete(e, {
+                this._onEditNodeDragComplete && this._onEditNodeDragComplete(e, {
                     ...group.bound.data,
                     coordinates: rPoints
                 })
