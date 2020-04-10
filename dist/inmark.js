@@ -17892,91 +17892,93 @@ var RectOverlay = function (_Image) {
             });
 
             editNode.on("drag", function (e) {
-                var oldPoints = _zrender2.default.util.clone(_this6._editNode);
+                if (e.event.target.tagName === 'CANVAS') {
+                    var oldPoints = _zrender2.default.util.clone(_this6._editNode);
 
-                if (oldPoints.length === 0) {
-                    oldPoints = _zrender2.default.util.clone(_this6.currShape.shape.points);
+                    if (oldPoints.length === 0) {
+                        oldPoints = _zrender2.default.util.clone(_this6.currShape.shape.points);
+                    }
+
+
+                    var m = _this6.m;
+                    var _side = e.target.data._side;
+
+                    if (!m[0]) {
+                        m[0] = 1;
+                        m[4] = 0;
+                        m[5] = 0;
+                    }
+                    if (m[4] === _this6.position[0]) {}
+
+                    var bgDragX = void 0,
+                        bgDragY = void 0;
+                    if (_this6.bgDrag.length === 0) {
+                        bgDragX = 0;
+                        bgDragY = 0;
+                    } else {
+                        bgDragX = _this6.bgDrag[0];
+                        bgDragY = _this6.bgDrag[1];
+                    }
+
+                    var newPoints = [];
+                    var offsetX = 0;
+                    var offsetY = 0;
+                    var width = _this6.obj.width;
+                    var height = _this6.obj.height;
+
+                    switch (_side) {
+                        case 'tl':
+                            offsetX = e.event.offsetX;
+                            offsetY = e.event.offsetY;
+                            newPoints = [[(offsetX - _this6._option.x) / m[0] - bgDragX, (offsetY - _this6._option.y) / m[0] - bgDragY], [oldPoints[1][0], (offsetY - _this6._option.y) / m[0] - bgDragY], oldPoints[2], [(offsetX - _this6._option.x) / m[0] - bgDragX, oldPoints[3][1]]];
+                            break;
+
+                        case 'tr':
+                            offsetX = e.event.offsetX;
+                            offsetY = e.event.offsetY;
+
+                            newPoints = [[oldPoints[0][0], (offsetY - _this6._option.y) / m[0] - bgDragY], [(offsetX - _this6._option.x) / m[0] - bgDragX, (offsetY - _this6._option.y) / m[0] - bgDragY], [(offsetX - _this6._option.x) / m[0] - bgDragX, oldPoints[3][1]], oldPoints[3]];
+                            break;
+
+                        case 'br':
+                            offsetX = e.event.offsetX;
+                            offsetY = e.event.offsetY;
+
+                            newPoints = [oldPoints[0], [(offsetX - _this6._option.x) / m[0] - bgDragX, oldPoints[0][1]], [(offsetX - _this6._option.x) / m[0] - bgDragX, (offsetY - _this6._option.y) / m[0] - bgDragY], [oldPoints[0][0], (offsetY - _this6._option.y) / m[0] - bgDragY]];
+                            break;
+
+                        case 'bl':
+                            offsetX = e.event.offsetX;
+                            offsetY = e.event.offsetY;
+
+                            newPoints = [[(offsetX - _this6._option.x) / m[0] - bgDragX, oldPoints[0][1]], oldPoints[1], [oldPoints[2][0], (offsetY - _this6._option.y) / m[0] - bgDragY], [(offsetX - _this6._option.x) / m[0] - bgDragX, (offsetY - _this6._option.y) / m[0] - bgDragY]];
+                            break;
+                    }
+                    group.removeAll();
+
+                    group.attr({
+                        position: [0, 0],
+                        scale: [1, 1]
+                    });
+
+                    _this6.currShape.attr({
+                        scale: [1, 1],
+                        shape: {
+                            points: newPoints
+                        },
+                        position: [0, 0]
+                    });
+
+                    _this6._editNode = newPoints;
+
+                    var rPoints = _this6._changeToPoints(newPoints);
+
+                    _this6._onEditNodeDrag && _this6._onEditNodeDrag(e, _extends({}, group.bound.data, {
+                        coordinates: rPoints
+                    }));
+
+                    _this6._createEditPoint(newPoints, group);
                 }
-
-
-                var m = _this6.m;
-                var _side = e.target.data._side;
-
-                if (!m[0]) {
-                    m[0] = 1;
-                    m[4] = 0;
-                    m[5] = 0;
-                }
-                if (m[4] === _this6.position[0]) {}
-
-                var bgDragX = void 0,
-                    bgDragY = void 0;
-                if (_this6.bgDrag.length === 0) {
-                    bgDragX = 0;
-                    bgDragY = 0;
-                } else {
-                    bgDragX = _this6.bgDrag[0];
-                    bgDragY = _this6.bgDrag[1];
-                }
-
-                var newPoints = [];
-                var offsetX = 0;
-                var offsetY = 0;
-                var width = _this6.obj.width;
-                var height = _this6.obj.height;
-
-                switch (_side) {
-                    case 'tl':
-                        offsetX = e.event.offsetX;
-                        offsetY = e.event.offsetY;
-                        newPoints = [[(offsetX - _this6._option.x) / m[0] - bgDragX, (offsetY - _this6._option.y) / m[0] - bgDragY], [oldPoints[1][0], (offsetY - _this6._option.y) / m[0] - bgDragY], oldPoints[2], [(offsetX - _this6._option.x) / m[0] - bgDragX, oldPoints[3][1]]];
-                        break;
-
-                    case 'tr':
-                        offsetX = e.event.offsetX;
-                        offsetY = e.event.offsetY;
-
-                        newPoints = [[oldPoints[0][0], (offsetY - _this6._option.y) / m[0] - bgDragY], [(offsetX - _this6._option.x) / m[0] - bgDragX, (offsetY - _this6._option.y) / m[0] - bgDragY], [(offsetX - _this6._option.x) / m[0] - bgDragX, oldPoints[3][1]], oldPoints[3]];
-                        break;
-
-                    case 'br':
-                        offsetX = e.event.offsetX;
-                        offsetY = e.event.offsetY;
-
-                        newPoints = [oldPoints[0], [(offsetX - _this6._option.x) / m[0] - bgDragX, oldPoints[0][1]], [(offsetX - _this6._option.x) / m[0] - bgDragX, (offsetY - _this6._option.y) / m[0] - bgDragY], [oldPoints[0][0], (offsetY - _this6._option.y) / m[0] - bgDragY]];
-                        break;
-
-                    case 'bl':
-                        offsetX = e.event.offsetX;
-                        offsetY = e.event.offsetY;
-
-                        newPoints = [[(offsetX - _this6._option.x) / m[0] - bgDragX, oldPoints[0][1]], oldPoints[1], [oldPoints[2][0], (offsetY - _this6._option.y) / m[0] - bgDragY], [(offsetX - _this6._option.x) / m[0] - bgDragX, (offsetY - _this6._option.y) / m[0] - bgDragY]];
-                        break;
-                }
-                group.removeAll();
-
-                group.attr({
-                    position: [0, 0],
-                    scale: [1, 1]
-                });
-
-                _this6.currShape.attr({
-                    scale: [1, 1],
-                    shape: {
-                        points: newPoints
-                    },
-                    position: [0, 0]
-                });
-
-                _this6._editNode = newPoints;
-
-                var rPoints = _this6._changeToPoints(newPoints);
-
-                _this6._onEditNodeDrag && _this6._onEditNodeDrag(e, _extends({}, group.bound.data, {
-                    coordinates: rPoints
-                }));
-
-                _this6._createEditPoint(newPoints, group);
             });
             editNode.on("dragend", function (e) {
                 if (_this6._editNode.length > 0) {
@@ -18288,7 +18290,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.26";
+var version = "1.0.27";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
