@@ -8694,6 +8694,9 @@ var BImage = function (_Init) {
         key: '_zrMouseUp',
         value: function _zrMouseUp() {}
     }, {
+        key: '_zrDBClick',
+        value: function _zrDBClick() {}
+    }, {
         key: 'getRotate',
         value: function getRotate() {
             return this._option.rotate;
@@ -8910,6 +8913,7 @@ var BImage = function (_Init) {
             this.zr.off('mousemove', this._zrMouseMove);
             this.zr.off('mousedown', this._zrMouseDown);
             this.zr.off('mouseup', this._zrMouseUp);
+            this.zr.off('dblclick', this._zrDBClick);
         }
     }, {
         key: 'exportSimple',
@@ -12243,6 +12247,7 @@ var Init = function () {
             this.zr.on('mousemove', this._zrMouseMove, this);
             this.zr.on('mousedown', this._zrMouseDown, this);
             this.zr.on('mouseup', this._zrMouseUp, this);
+            this.zr.on('dblclick', this._zrDBClick, this);
         }
     }, {
         key: '_zrClick',
@@ -16385,6 +16390,7 @@ var RectOverlay = function (_Image) {
 
         _this._mousemove = opts.event.mousemove;
         _this._mouseout = opts.event.mouseout;
+        _this._onCreate = opts.event.onCreate;
         _this._onCreateComplete = opts.event.onCreateComplete;
         _this._onRectDrag = opts.event.onRectDrag;
         _this._onRectDragComplete = opts.event.onRectDragComplete;
@@ -16392,10 +16398,12 @@ var RectOverlay = function (_Image) {
         _this._onEditNodeDragComplete = opts.event.onEditNodeDragComplete;
         _this._onSelected = opts.event.onSelected;
         _this._unSelect = opts.event.unSelect;
+        _this._imageDrag = opts.event.onImageDrag;
+        _this._imageDragEnd = opts.event.onImageDragEnd;
 
         _this.data = opts.data;
 
-        _this._createLimit = 10;
+        _this._createLimit = 6;
         _this._editWidth = _EditPolygon2.default.shape.width;
         _this._styleConfig = _PolygonConfig2.default.style;
 
@@ -16414,9 +16422,11 @@ var RectOverlay = function (_Image) {
         _this.bgDrag = [];
         _this.graphic = _this._createGraphicGroup();
         _this.currShape = {};
-        _this.currPoint = [];
+        _this.tempShape = [];
+        _this.creatCount = 0;
         if (_this.image) {
             _this.image.on('drag', function (e) {
+                _this._imageDrag && _this._imageDrag(e);
                 if (_this.getDrag() === true) {
                     var array = e.target.position;
                     _this.graphic.attr({
@@ -16424,6 +16434,9 @@ var RectOverlay = function (_Image) {
                     });
                     _this.bgDrag = array;
                 }
+            });
+            _this.image.on('dragend', function (e) {
+                _this._imageDragEnd && _this._imageDragEnd(e);
             });
         }
         if (_typeof(_this.data) === 'object') {
@@ -16466,13 +16479,14 @@ var RectOverlay = function (_Image) {
                     });
                 }
             });
+            if (this.currShape && this.currShape.position) {
+                this.setSelectedStyle(this.currShape);
+            }
         }
     }, {
         key: 'close',
         value: function close() {
             this.isOpen = false;
-
-            this.dispose();
 
             this.setEdit(false);
 
@@ -16520,16 +16534,96 @@ var RectOverlay = function (_Image) {
             }
         }
     }, {
+        key: '_zrDBClick',
+        value: function _zrDBClick(e) {
+            if (e.target && e.target.data.type === "IMAGE" && this._isMouseDown && this.currShape) {
+
+                var index = this._areaShape.length - 1;
+                var shapePoints = this.currShape.shape.points;
+
+                var points = this._changeToPoints(shapePoints);
+                var data = {
+                    type: 'Polygon',
+                    notes: '-1',
+                    id: window.btoa(Math.random()) };
+                this._areaShape[index].attr({
+                    style: this._styleConfig.selected,
+                    data: _extends({}, data)
+                });
+                this._editNode = points;
+
+                if (points.length > 0) {
+                    this._createEditGroup(shapePoints, this.currShape);
+
+                    this._onCreateComplete && this._onCreateComplete(e, _extends({}, data, {
+                        coordinates: points
+                    }));
+                    this.selectedSub = e.target;
+                }
+                this._isMouseDown = false;
+                this._canDrawShape = false;
+                this._startPoint = [];
+                this._endPoint = [];
+                this.creatCount = 0;
+            }
+        }
+    }, {
         key: '_zrMouseDown',
         value: function _zrMouseDown(e) {
-            if (e.target && e.target.data.type === "IMAGE") {
-                this.resetShapeStyle();
+            if (e.which === 1 && e.target && e.target.data.type === "IMAGE") {
                 this.origin = this._getDrawPoint(e);
-                this._startPoint = this.origin;
+                this._startPoint[this.creatCount] = this.origin;
+
+                this.creatCount++;
                 this._isMouseDown = true;
                 this.currShape = null;
             }
         }
+    }, {
+        key: '_zrMouseMove',
+        value: function _zrMouseMove(e) {
+            if (this._isMouseDown && this._startPoint && e.target) {
+
+                this._canDrawShape = true;
+
+
+                this._endPoint = this._getDrawPoint(e);
+
+                var scale = this.group.scale[0];
+
+                var points = void 0;
+                if (this.creatCount === 1) {
+                    points = [[this._startPoint[0][0] / scale, this._startPoint[0][1] / scale], [this._endPoint[0] / scale, this._endPoint[1] / scale]];
+                } else {
+                    var newPoints = _zrender2.default.util.clone(this._startPoint);
+                    newPoints.push(this._endPoint);
+
+                    points = newPoints;
+                }
+
+                if (!this.currShape) {
+                    this.currShape = this._createShape(points, {
+                        notes: '-1'
+                    });
+                    this.graphic.add(this.currShape);
+                    this._areaShape.push(this.currShape);
+                } else {
+                    this.currShape.attr({
+                        shape: {
+                            points: points
+                        }
+                    });
+                }
+                var rPoints = this._changeToPoints(points);
+                this._onCreate && this._onCreate(e, {
+                    notes: '-1',
+                    coordinates: rPoints
+                });
+            }
+        }
+    }, {
+        key: '_zrMouseUp',
+        value: function _zrMouseUp(e) {}
     }, {
         key: '_getDrawPoint',
         value: function _getDrawPoint(e) {
@@ -16557,73 +16651,6 @@ var RectOverlay = function (_Image) {
             return [x, y];
         }
     }, {
-        key: '_zrMouseMove',
-        value: function _zrMouseMove(e) {
-            if (this._isMouseDown) {
-                var xLong = Math.abs(this._startPoint[0] - e.event.offsetX);
-                var yLong = Math.abs(this._startPoint[1] - e.event.offsetY);
-
-                if (xLong < this._createLimit && yLong < this._createLimit) {
-                    this._canDrawShape = false;
-                    return;
-                }
-                this._canDrawShape = true;
-
-
-                this._endPoint = this._getDrawPoint(e);
-
-                var scale = this.group.scale[0];
-
-                var points = this._changeToFourPoints(this._startPoint.concat(this._endPoint));
-
-                if (!this.currShape) {
-                    this.currShape = this._createShape(points, {
-                        notes: '-1'
-                    });
-                    this.graphic.add(this.currShape);
-                    this._areaShape.push(this.currShape);
-                } else {
-                    this.currShape.attr({
-                        shape: {
-                            points: points
-                        }
-                    });
-                }
-            }
-        }
-    }, {
-        key: '_zrMouseUp',
-        value: function _zrMouseUp(e) {
-            if (this._isMouseDown && this._canDrawShape && this.currShape) {
-                var index = this._areaShape.length - 1;
-                var shapePoints = this.currShape.shape.points;
-
-                var points = this._changeToPoints(shapePoints);
-                var data = {
-                    type: 'Polygon',
-                    notes: '-1',
-                    id: window.btoa(Math.random()) };
-                this._areaShape[index].attr({
-                    style: this._styleConfig.selected,
-                    data: _extends({}, data)
-                });
-                if (typeof this._onCreateComplete === 'function') {
-                    if (points.length > 0) {
-                        this._createEditGroup(shapePoints, this.currShape);
-
-                        this._onCreateComplete(e, _extends({}, data, {
-                            coordinates: points
-                        }));
-                        this.selectedSub = e.target;
-                    }
-                }
-            }
-            this._isMouseDown = false;
-            this._canDrawShape = false;
-            this._startPoint = [];
-            this._endPoint = [];
-        }
-    }, {
         key: 'setData',
         value: function setData(data) {
             this.showMarkers(data);
@@ -16647,7 +16674,7 @@ var RectOverlay = function (_Image) {
         value: function showMarkers(data) {
             var _this2 = this;
 
-            this._filterImage();
+            this.removeAll();
             if (data.length > 0) {
                 data.forEach(function (item) {
                     if (item.type === 'Polygon') {
@@ -16670,6 +16697,7 @@ var RectOverlay = function (_Image) {
                 });
             }
             this.group.add(this.graphic);
+            this.setEdit(false);
         }
     }, {
         key: 'setSelectedStyle',
@@ -16710,9 +16738,38 @@ var RectOverlay = function (_Image) {
             this.resetShapeStyle();
             this._areaShape.forEach(function (x) {
                 if (x.data.id === item.id) {
+                    _this3.currShape = x;
                     _this3.setSelectedStyle(x, options);
                 }
             });
+        }
+    }, {
+        key: 'setPosition',
+        value: function setPosition(item) {
+            var point = this._calculateToRelationpix(item.coordinates);
+            var point_center = [(point[0][0] + point[1][0]) / 2, (point[0][1] + point[3][1]) / 2];
+
+            var scale = this.group.scale[0];
+            var canvas_width = this.zr.painter._width;
+            var canvas_height = this.zr.painter._height;
+
+            var bgDragX = void 0;
+            var bgDragY = void 0;
+            if (this.bgDrag.length === 0) {
+                bgDragX = 0;
+                bgDragY = 0;
+            } else {
+                bgDragX = this.bgDrag[0];
+                bgDragY = this.bgDrag[1];
+            }
+
+            this.group.attr({
+                position: [(-point_center[0] - bgDragX) * scale + canvas_width / 2, (-point_center[1] - bgDragY) * scale + canvas_height / 2]
+            });
+
+            this.group.update();
+            this.group.decomposeTransform();
+            this.group.dirty();
         }
     }, {
         key: '_createEditGroup',
@@ -16738,14 +16795,11 @@ var RectOverlay = function (_Image) {
 
             var array = [];
 
-
             var points = _zrender2.default.util.clone(e.target.shape.points);
-
             var bgDragX = void 0,
                 bgDragY = void 0;
 
             var m = e.target.transform;
-
             if (this.bgDrag.length === 0) {
                 bgDragX = 0;
                 bgDragY = 0;
@@ -16753,7 +16807,6 @@ var RectOverlay = function (_Image) {
                 bgDragX = this.bgDrag[0];
                 bgDragY = this.bgDrag[1];
             }
-
             points.forEach(function (item) {
                 var x = void 0;
                 if (m) {
@@ -16788,12 +16841,18 @@ var RectOverlay = function (_Image) {
                 cursor: 'default',
                 draggable: false,
                 style: this._styleConfig.default,
-
                 zlevel: 2
             });
+
             var oldGroup = [];
-            shape.on('click', function (e) {});
-            shape.on('dragstart', function (e) {});
+            shape.on('click', function (e) {
+                _this5._editNode = _this5._toShapeDragEnd(e, e.target);
+            });
+            shape.on('dragstart', function (e) {
+                _this5.currShape = shape;
+
+                _this5.tempShape = e.target;
+            });
             shape.on('drag', function (e) {
                 var group = shape.bound;
                 group.attr({
@@ -16803,11 +16862,13 @@ var RectOverlay = function (_Image) {
                     item.hide();
                 });
 
+                _this5._editNode = _this5._toShapeDragEnd(e, e.target);
+
                 _this5.currShape = e.target;
 
                 var shapePoints = _this5._toGlobal(e.target.shape.points, shape);
                 var rPoints = _this5._changeToPoints(shapePoints);
-                _this5._onRectDrag(e, _extends({}, e.target.data, {
+                _this5._onRectDrag && _this5._onRectDrag(e, _extends({}, e.target.data, {
                     coordinates: rPoints
                 }));
             });
@@ -16818,13 +16879,11 @@ var RectOverlay = function (_Image) {
                 _this5.position = _zrender2.default.util.clone(shape.position);
 
                 var shapePoints = _this5._toShapeDragEnd(e, shape);
-                _this5.currPoint = shapePoints;
 
                 _this5.currShape = shape;
 
-
                 var rPoints = _this5._changeToPoints(shapePoints);
-                _this5._onRectDragComplete(e, _extends({}, e.target.data, {
+                _this5._onRectDragComplete && _this5._onRectDragComplete(e, _extends({}, e.target.data, {
                     coordinates: rPoints
                 }));
             });
@@ -16835,9 +16894,7 @@ var RectOverlay = function (_Image) {
                         cursor: 'default'
                     });
 
-                    if (_this5._canDrawShape === false) {
-                        _this5.dispose();
-                    }
+                    _this5.tempShape = e.target;
                 }
             });
             shape.on('mouseover', function (e) {
@@ -16845,8 +16902,8 @@ var RectOverlay = function (_Image) {
                     shape.attr({
                         cursor: 'default'
                     });
-                    if (_this5._canDrawShape === false) {
-                        _this5.dispose();
+                    if (_this5._canDrawShape === false && _this5._isMouseDown === false) {
+                        _this5.tempShape = e.target;
                     }
                 }
             });
@@ -16855,39 +16912,64 @@ var RectOverlay = function (_Image) {
                     _this5._bindEvent();
                 }
             });
+
             shape.on('mousedown', function (e) {
+                if (_this5._isMouseDown && _this5.creatCount) {
+                    _this5._startPoint[_this5.creatCount] = _this5._getDrawPoint(e);
+                    _this5.creatCount++;
+                    return;
+                }
+
+                _this5.currShape = e.target;
+                _this5.tempShape = e.target;
+
                 _this5.selectedSub = shape;
                 _this5.resetShapeStyle();
 
                 _this5.setSelectedStyle(e.target);
                 var shapePoints = _this5._toGlobal(e.target.shape.points, shape);
                 var rPoints = _this5._changeToPoints(shapePoints);
-                _this5._onSelected(e, _extends({}, e.target.data, {
+                _this5._onSelected && _this5._onSelected(e, _extends({}, e.target.data, {
                     coordinates: rPoints
                 }));
             });
+            shape.on('dblclick', function (e) {
+                var index = _this5._areaShape.length - 1;
+                var shapePoints = _this5.currShape.shape.points;
 
+                var points = _this5._changeToPoints(shapePoints);
+                var data = {
+                    type: 'Polygon',
+                    notes: '-1',
+                    id: window.btoa(Math.random()) };
+                _this5._areaShape[index].attr({
+                    style: _this5._styleConfig.selected,
+                    data: _extends({}, data)
+                });
+                _this5._editNode = points;
+
+                if (points.length > 0) {
+                    _this5._createEditGroup(shapePoints, _this5.currShape);
+
+                    _this5._onCreateComplete && _this5._onCreateComplete(e, _extends({}, data, {
+                        coordinates: points
+                    }));
+                    _this5.selectedSub = e.target;
+                }
+                _this5._isMouseDown = false;
+                _this5._canDrawShape = false;
+                _this5._startPoint = [];
+                _this5._endPoint = [];
+                _this5.creatCount = 0;
+            });
             shape.on('mouseup', function (e) {
-                if (_this5.isOpen) {
-                    shape.bound && shape.bound.eachChild(function (item) {
+                if (_this5.isOpen && _this5.selectedSub) {
+
+                    _this5.currShape.bound && _this5.currShape.bound.eachChild(function (item) {
                         item.show();
                     });
-                    _this5.temp = _zrender2.default.util.clone(e.target.shape.points);
+                    _this5.temp = _zrender2.default.util.clone(_this5.currShape.shape.points);
 
-                    _this5.currShape = e.target;
-
-                    if (!_this5.currShape) {
-                        if (oldGroup.length > 0) {
-                            oldGroup.forEach(function (item) {
-                                item.removeAll();
-                                _this5.graphic.remove(item);
-                            });
-                            oldGroup.shift();
-                        }
-
-                        var group = _this5._createEditGroup(shape.shape.points, shape);
-                        oldGroup.push(group);
-                    }
                     _this5._bindEvent();
                 }
             });
@@ -16904,7 +16986,7 @@ var RectOverlay = function (_Image) {
 
             editNode.on('mouseup', function (e) {});
             editNode.on("dragstart", function (e) {
-                group.removeAll();
+
                 var m = _this6.currShape.transform;
                 var point = _this6.currShape.shape.points;
                 var oldPoints = _zrender2.default.util.clone(point);
@@ -16922,90 +17004,92 @@ var RectOverlay = function (_Image) {
             });
 
             editNode.on("drag", function (e) {
-                var oldPoints = _this6.currPoint;
-                if (oldPoints.length === 0) {
-                    oldPoints = _zrender2.default.util.clone(_this6.currShape.shape.points);
+                if (e.event.target.tagName === 'CANVAS') {
+                    var oldPoints = _zrender2.default.util.clone(_this6._editNode);
+
+                    if (oldPoints.length === 0) {
+                        oldPoints = _zrender2.default.util.clone(_this6.currShape.shape.points);
+                    }
+
+                    var m = _this6.m;
+                    var _side = e.target.data._side;
+
+                    if (!m[0]) {
+                        m[0] = 1;
+                        m[4] = 0;
+                        m[5] = 0;
+                    }
+                    if (m[4] === _this6.position[0]) {}
+
+                    var bgDragX = void 0,
+                        bgDragY = void 0;
+                    if (_this6.bgDrag.length === 0) {
+                        bgDragX = 0;
+                        bgDragY = 0;
+                    } else {
+                        bgDragX = _this6.bgDrag[0];
+                        bgDragY = _this6.bgDrag[1];
+                    }
+
+                    var newPoints = [];
+                    var offsetX = 0;
+                    var offsetY = 0;
+                    var width = _this6.obj.width;
+                    var height = _this6.obj.height;
+
+                    switch (_side) {
+                        case 'tl':
+                            offsetX = e.event.offsetX;
+                            offsetY = e.event.offsetY;
+                            newPoints = [[(offsetX - _this6._option.x) / m[0] - bgDragX, (offsetY - _this6._option.y) / m[0] - bgDragY], [oldPoints[1][0], (offsetY - _this6._option.y) / m[0] - bgDragY], oldPoints[2], [(offsetX - _this6._option.x) / m[0] - bgDragX, oldPoints[3][1]]];
+                            break;
+
+                        case 'tr':
+                            offsetX = e.event.offsetX;
+                            offsetY = e.event.offsetY;
+
+                            newPoints = [[oldPoints[0][0], (offsetY - _this6._option.y) / m[0] - bgDragY], [(offsetX - _this6._option.x) / m[0] - bgDragX, (offsetY - _this6._option.y) / m[0] - bgDragY], [(offsetX - _this6._option.x) / m[0] - bgDragX, oldPoints[3][1]], oldPoints[3]];
+                            break;
+
+                        case 'br':
+                            offsetX = e.event.offsetX;
+                            offsetY = e.event.offsetY;
+
+                            newPoints = [oldPoints[0], [(offsetX - _this6._option.x) / m[0] - bgDragX, oldPoints[0][1]], [(offsetX - _this6._option.x) / m[0] - bgDragX, (offsetY - _this6._option.y) / m[0] - bgDragY], [oldPoints[0][0], (offsetY - _this6._option.y) / m[0] - bgDragY]];
+                            break;
+
+                        case 'bl':
+                            offsetX = e.event.offsetX;
+                            offsetY = e.event.offsetY;
+
+                            newPoints = [[(offsetX - _this6._option.x) / m[0] - bgDragX, oldPoints[0][1]], oldPoints[1], [oldPoints[2][0], (offsetY - _this6._option.y) / m[0] - bgDragY], [(offsetX - _this6._option.x) / m[0] - bgDragX, (offsetY - _this6._option.y) / m[0] - bgDragY]];
+                            break;
+                    }
+                    group.removeAll();
+
+                    group.attr({
+                        position: [0, 0],
+                        scale: [1, 1]
+                    });
+
+                    _this6.currShape.attr({
+                        scale: [1, 1],
+                        shape: {
+                            points: newPoints
+                        },
+                        position: [0, 0]
+                    });
+
+                    _this6._editNode = newPoints;
+
+                    var rPoints = _this6._changeToPoints(newPoints);
+
+                    _this6._onEditNodeDrag && _this6._onEditNodeDrag(e, _extends({}, group.bound.data, {
+                        coordinates: rPoints
+                    }));
+
+                    _this6._createEditPoint(newPoints, group);
                 }
-
-                var m = _this6.m;
-                var _side = e.target.data._side;
-
-                if (!m[0]) {
-                    m[0] = 1;
-                    m[4] = 0;
-                    m[5] = 0;
-                }
-                if (m[4] === _this6.position[0]) {}
-
-                var bgDragX = void 0,
-                    bgDragY = void 0;
-                if (_this6.bgDrag.length === 0) {
-                    bgDragX = 0;
-                    bgDragY = 0;
-                } else {
-                    bgDragX = _this6.bgDrag[0];
-                    bgDragY = _this6.bgDrag[1];
-                }
-
-                var newPoints = [];
-                var offsetX = 0;
-                var offsetY = 0;
-                var width = _this6.obj.width;
-                var height = _this6.obj.height;
-
-                switch (_side) {
-                    case 'tl':
-                        offsetX = e.event.offsetX;
-                        offsetY = e.event.offsetY;
-                        newPoints = [[(offsetX - _this6._option.x) / m[0] - bgDragX, (offsetY - _this6._option.y) / m[0] - bgDragY], [oldPoints[1][0], (offsetY - _this6._option.y) / m[0] - bgDragY], oldPoints[2], [(offsetX - _this6._option.x) / m[0] - bgDragX, oldPoints[3][1]]];
-                        break;
-
-                    case 'tr':
-                        offsetX = e.event.offsetX;
-                        offsetY = e.event.offsetY;
-
-                        newPoints = [[oldPoints[0][0], (offsetY - _this6._option.y) / m[0] - bgDragY], [(offsetX - _this6._option.x) / m[0] - bgDragX, (offsetY - _this6._option.y) / m[0] - bgDragY], [(offsetX - _this6._option.x) / m[0] - bgDragX, oldPoints[3][1]], oldPoints[3]];
-                        break;
-
-                    case 'br':
-                        offsetX = e.event.offsetX;
-                        offsetY = e.event.offsetY;
-
-                        newPoints = [oldPoints[0], [(offsetX - _this6._option.x) / m[0] - bgDragX, oldPoints[0][1]], [(offsetX - _this6._option.x) / m[0] - bgDragX, (offsetY - _this6._option.y) / m[0] - bgDragY], [oldPoints[0][0], (offsetY - _this6._option.y) / m[0] - bgDragY]];
-                        break;
-
-                    case 'bl':
-                        offsetX = e.event.offsetX;
-                        offsetY = e.event.offsetY;
-
-                        newPoints = [[(offsetX - _this6._option.x) / m[0] - bgDragX, oldPoints[0][1]], oldPoints[1], [oldPoints[2][0], (offsetY - _this6._option.y) / m[0] - bgDragY], [(offsetX - _this6._option.x) / m[0] - bgDragX, (offsetY - _this6._option.y) / m[0] - bgDragY]];
-                        break;
-                }
-                group.removeAll();
-
-                group.attr({
-                    position: [0, 0],
-                    scale: [1, 1]
-                });
-
-
-                _this6.currShape.attr({
-                    scale: [1, 1],
-                    shape: {
-                        points: newPoints
-                    },
-                    position: [0, 0]
-                });
-
-                _this6._editNode = newPoints;
-
-                var rPoints = _this6._changeToPoints(newPoints);
-
-                _this6._onEditNodeDrag(e, _extends({}, group.bound.data, {
-                    coordinates: rPoints
-                }));
-
-                _this6._createEditPoint(newPoints, group);
             });
             editNode.on("dragend", function (e) {
                 var shape = group.bound;
@@ -17016,6 +17100,32 @@ var RectOverlay = function (_Image) {
                     coordinates: rPoints
                 }));
             });
+            editNode.on("dragend", function (e) {
+                if (_this6._editNode.length > 0) {
+                    var shape = _this6._createShape(_this6._editNode, _this6.currShape.data);
+                    _this6.graphic.remove(_this6.currShape.bound);
+                    _this6.graphic.remove(_this6.currShape);
+                    _this6._areaShape.forEach(function (item, index) {
+                        if (item.data.id === _this6.currShape.data.id) {
+                            _this6._areaShape.splice(index, 1);
+                        }
+                    });
+                    _this6.currShape = shape;
+
+                    _this6._createEditGroup(_this6._editNode, shape);
+
+                    _this6._areaShape.push(shape);
+                    _this6.graphic.add(shape);
+
+                    _this6.setSelectedStyle(shape);
+
+                    var rPoints = _this6._changeToPoints(_this6._editNode);
+
+                    _this6._onEditNodeDragComplete && _this6._onEditNodeDragComplete(e, _extends({}, group.bound.data, {
+                        coordinates: rPoints
+                    }));
+                }
+            });
         }
     }, {
         key: '_createEditPoint',
@@ -17023,24 +17133,12 @@ var RectOverlay = function (_Image) {
             var _this7 = this;
 
             var editPoint = [];
-            editPoint.push({
-                _side: 'tl',
-                points: points[0]
-            });
 
-            editPoint.push({
-                _side: 'tr',
-                points: points[1]
-            });
-
-            editPoint.push({
-                _side: 'br',
-                points: points[2]
-            });
-
-            editPoint.push({
-                _side: 'bl',
-                points: points[3]
+            points.forEach(function (item, index) {
+                editPoint.push({
+                    _side: 'editNode_' + index,
+                    points: points[index]
+                });
             });
 
             editPoint.forEach(function (item) {
@@ -17092,7 +17190,6 @@ var RectOverlay = function (_Image) {
             var _this9 = this;
 
             if (this.selectedSub) {
-
                 var obj = void 0;
                 this._areaShape.forEach(function (item, index) {
                     if (item.data.id === _this9.selectedSub.data.id) {
@@ -17121,11 +17218,13 @@ var RectOverlay = function (_Image) {
                 }
             });
             var sub = this._areaShape[index];
-            this._areaShape.splice(index, 1);
+            if (sub) {
+                this._areaShape.splice(index, 1);
 
-            sub && this.graphic.remove(sub.bound);
-            sub.bound = null;
-            sub && this.graphic.remove(sub);
+                this.graphic.remove(sub.bound);
+                sub.bound = null;
+                this.graphic.remove(sub);
+            }
         }
     }, {
         key: 'removeAll',
