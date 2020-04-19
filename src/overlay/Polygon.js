@@ -164,7 +164,6 @@ export default class RectOverlay extends Image {
     _zrDBClick(e) {
         if (e.target && e.target.data.type === "IMAGE" && this._isMouseDown && this.currShape) {
 
-
             const index = this._areaShape.length - 1
             const shapePoints = this.currShape.shape.points
             // console.log(e, this.currShape)
@@ -195,7 +194,7 @@ export default class RectOverlay extends Image {
             this._canDrawShape = false
             this._startPoint = [];
             this._endPoint = [];
-            this.creatCount === 0;
+            this.creatCount = 0;
         }
 
     }
@@ -603,7 +602,7 @@ export default class RectOverlay extends Image {
             this._canDrawShape = false
             this._startPoint = [];
             this._endPoint = [];
-            this.creatCount === 0;
+            this.creatCount = 0;
         })
         shape.on('mouseup', (e) => {
             //开启编辑，选中某个框
@@ -847,24 +846,13 @@ export default class RectOverlay extends Image {
      */
     _createEditPoint(points, group) {
         let editPoint = [];
-        editPoint.push({
-            _side: 'tl',
-            points: points[0]
-        })
-
-        editPoint.push({
-            _side: 'tr',
-            points: points[1],
-        })
-
-        editPoint.push({
-            _side: 'br',
-            points: points[2]
-        })
-
-        editPoint.push({
-            _side: 'bl',
-            points: points[3]
+        
+        //创建多个编辑点
+        points.forEach((item, index) => {
+            editPoint.push({
+                _side: 'editNode_' + index,
+                points: points[index]
+            })
         })
 
         editPoint.forEach((item) => {
