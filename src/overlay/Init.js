@@ -40,6 +40,7 @@ export default class Init {
         this.zr.on('mousemove', this._zrMouseMove, this);
         this.zr.on('mousedown', this._zrMouseDown, this);
         this.zr.on('mouseup', this._zrMouseUp, this);
+        this.zr.on('dblclick', this._zrDBClick, this);
     }
     _zrClick() {}
     _zrMouseMove() {}

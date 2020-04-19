@@ -155,6 +155,7 @@ export default class BImage extends Init {
     _zrMouseMove() {}
     _zrMouseDown() {}
     _zrMouseUp() {}
+    _zrDBClick() {}
     getRotate() {
         //返回弧度制，角度制
         return this._option.rotate;
@@ -338,6 +339,7 @@ export default class BImage extends Init {
         this.zr.off('mousemove', this._zrMouseMove);
         this.zr.off('mousedown', this._zrMouseDown);
         this.zr.off('mouseup', this._zrMouseUp);
+        this.zr.off('dblclick', this._zrDBClick);
     }
     exportSimple() {
         this.zr.painter.getRenderedCanvas({
