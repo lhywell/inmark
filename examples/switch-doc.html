@@ -3,7 +3,7 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>vue标注</title>
+    <title>切换单证</title>
     <style type="text/css">
     body,
     html {
@@ -111,7 +111,7 @@
     }
     </style>
     <script src="./data/markjson.js"></script>
-    <script src="./data/markjson2.js"></script>
+    <script src="./data/markjson3.js"></script>
     <!-- 引入样式 -->
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
     <link rel="stylesheet" href="./lib/styles/icons.css">
@@ -156,7 +156,8 @@
             <el-tooltip class="item" effect="dark" content="导出图片" placement="bottom">
                 <i class="iconfont el-icon-download" @click="openTools('export',9)"></i>
             </el-tooltip>
-            <span @click="setData" style="cursor: pointer;">setData</span>
+            <span @click="switchDoc" style="cursor: pointer;display: inline-block;
+    width: 80px;">切换单证</span>
         </div>
         <div class="imageAnnotate" :id="imgId" v-loading="loading"></div>
         <div class="list" style="">
@@ -190,7 +191,7 @@ let inMapVue = new Vue({
     },
     created() {},
     mounted() {
-        this.initImage();
+        this.initImage(data.data);
         let h = document.documentElement.clientHeight;
         document.querySelector('.list').style.height = h + 'px'
     },
@@ -251,12 +252,12 @@ let inMapVue = new Vue({
             //获得ZImage实例
             this.ZImage = this.image.getImage();
 
-            this.initRect(this.markNoteList);
+            this.initPolygon(this.markNoteList);
 
             this.loading = false;
         },
-        initImage() {
-            let val = data.data;
+        initImage(data) {
+            let val = data;
             const resPath = val.resPath;
             const markInfo = val.markInfo;
 
@@ -286,7 +287,7 @@ let inMapVue = new Vue({
 
             });
         },
-        initRect(data) {
+        initPolygon(data) {
             let polygon = new inMark.Rect(this.image, {
                 data: data,
                 isOpen: false,
@@ -306,14 +307,6 @@ let inMapVue = new Vue({
             // polygon.setData(s);
             this.polygon = polygon;
             this.init = false;
-        },
-        setData() {
-            let data = data2.data;
-            const markInfo = data.markInfo;
-
-            this.markNoteList = JSON.parse(markInfo);
-
-            this.polygon && this.polygon.setData(this.markNoteList);
         },
         imageDrag(e) {
             // console.log(e)
@@ -363,7 +356,7 @@ let inMapVue = new Vue({
             if (this.polygon) {
                 this.polygon.open();
             } else {
-                // this.initRect(this.markNoteList);
+                this.initPolygon(this.markNoteList);
                 this.polygon.open();
             }
         },
@@ -422,6 +415,9 @@ let inMapVue = new Vue({
             this.polygon && this.polygon.setPosition(item);
 
             this.polygon && this.polygon.selected(item);
+        },
+        switchDoc() {
+            this.initImage(data3.data)
         }
     },
 })
