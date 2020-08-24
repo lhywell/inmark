@@ -97,7 +97,7 @@ this.image.zoomIn();
 this.image.zoomOut();
 ```
 
-#### 设置样式
+#### 设置css样式
 ```html
 <!-- 图片背景填色 -->
 canvas:nth-child(1){
