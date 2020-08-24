@@ -21,6 +21,11 @@ $ npm install inmark --save
 
 ###  图片
 
+```html
+<!-- 第一步，html页面增加一个dom标签，附上属性id -->
+<div class="imageAnnotate" :id="imgId"></div>
+```
+
 ```
 <!-- 生成实例 -->
 let image = new inMark.Image({
@@ -40,7 +45,7 @@ this.group = image.getGroup();//返回group,zrender.group
 
 ```
 #### 配置属性
-id：字符串类型，唯一id
+id：字符串类型，dom唯一id,用来生成canvs
 
 mode：字符串类型，设置渲染模式，
 默认为‘auto’，进行图片大小等比例缩放适应浏览器屏幕大小，
