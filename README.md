@@ -17,7 +17,7 @@
 $ npm install inmark --save
 ```
 
-### 文档说明
+## 文档说明
 
 ###  图片
 
@@ -52,7 +52,9 @@ event：对象类型，参见回调方法
 
 #### 回调方法
 onLoadComplete：图片加载完毕，执行渲染矩形等图形
+
 onImageDrag：图片拖拽开始
+
 onImageDragEnd：图片拖拽结束
 #### 实例方法
 
@@ -117,18 +119,28 @@ this.polygon = polygon;
 
 #### 配置属性
 data：数组类型，跟setData实例方法数据一样，
+
 isOpen：布尔类型，默认false为初始不开启绘画矩形，true为初始开启绘画矩形
+
 event：对象类型，参见回调方法
 
 #### 回调方法
 onCreate：开始拖拽创建矩形，拖拽结束前
+
 onCreateComplete：拖拽结束，新增矩形创建完毕
+
 onImageDrag：图片拖拽开始
+
 onImageDragEnd：图片拖拽结束
+
 onRectDrag：矩形拖动开始
+
 onRectDragComplete：矩形拖动结束
+
 onEditNodeDrag：矩形编辑开始
+
 onEditNodeDragComplete：矩形编辑结束
+
 onSelected：选中某个矩形
 
 #### 实例方法
@@ -143,8 +155,8 @@ this.polygon.setDrag(false);//关闭拖拽
 
 2. 设置标注数据setData
 ```
-/** this.markNoteList
-*[{
+/** 数组类型
+* this.markNoteList = [{
     coordinates: [[558.3230798626577,41.847382529992984],[664.28253473271,41.847382529992984],[664.28253473271,70.51483886948435],[558.3230798626577,70.51483886948435]],//左上角，右上角，左下角，右下角坐标，坐标x,y轴像素值
     id: "06216",//唯一id
     notes: "Nike Hong Kong Limited",//标注描述字符串
