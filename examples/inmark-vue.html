@@ -376,15 +376,15 @@ let inMapVue = new Vue({
             }
         },
         startRotate() {
-            this.image.rotate('clockwise', 90);
+            this.image.rotate(90);
         },
         rotateRight() {
-            this.image.rotate('clockwise', 0.2);
+            this.image.rotate(0.2);
             let x = this.image.getRotate();
             console.log(x)
         },
         rotateLeft() {
-            this.image.rotate('anticlockwise', -0.2);
+            this.image.rotate(-0.2);
             let x = this.image.getRotate();
             console.log(x)
         },

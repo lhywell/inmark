@@ -163,7 +163,7 @@ export default class BImage extends Init {
     resetRotate() {
         this.rotate(0);
     }
-    rotate(direction = 'clockwise', degree) {
+    rotate(degree) {
 
         //正值代表逆时针旋转，负值代表顺时针旋转
         const oldScale = this.group.scale[0];
@@ -172,7 +172,7 @@ export default class BImage extends Init {
         //等于0拖拽会发生飘移，所以设定0.003度，无限接近于0
         const zero = 0.003 / 180 * Math.PI;
 
-        if (direction === 0) {
+        if (degree === 0) {
             this._option.rotateTime = 0;
             this.group.attr({
                 rotation: zero,
@@ -187,7 +187,7 @@ export default class BImage extends Init {
 
         let degreePi = degree / 180 * Math.PI;
 
-        if (direction === 'clockwise') {
+        if (degree > 0) {
             this._option.rotateTime++;
 
             let result;

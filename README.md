@@ -69,10 +69,10 @@ onImageDragEnd：图片拖拽结束
 
 ```
 <!-- 顺时针旋转90度 -->
-this.image.rotate('clockwise', 90);
+this.image.rotate(90);
 
 <!-- 逆时针旋转-0.2度 -->
-this.image.rotate('anticlockwise', -0.2);
+this.image.rotate(-0.2);
 ```
 
 ###### 得到旋转返回对象
