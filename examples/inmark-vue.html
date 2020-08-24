@@ -312,7 +312,15 @@ let inMapVue = new Vue({
             const markInfo = data.markInfo;
 
             this.markNoteList = JSON.parse(markInfo);
-
+            
+            /** this.markNoteList
+            *[{
+                coordinates: Array(4),
+                id: "06216",
+                notes: "Nike Hong Kong Limited",
+                type: "Rectangle"
+            }]
+            **/ 
             this.polygon && this.polygon.setData(this.markNoteList);
         },
         imageDrag(e) {
@@ -381,7 +389,7 @@ let inMapVue = new Vue({
             console.log(x)
         },
         resetRotate() {
-            this.image.rotate(0);
+            this.image.resetRotate();
             let x = this.image.getRotate();
             console.log(x)
         },

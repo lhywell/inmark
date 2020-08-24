@@ -160,6 +160,9 @@ export default class BImage extends Init {
         //返回弧度制，角度制
         return this._option.rotate;
     }
+    resetRotate() {
+        this.rotate(0);
+    }
     rotate(direction = 'clockwise', degree) {
 
         //正值代表逆时针旋转，负值代表顺时针旋转
