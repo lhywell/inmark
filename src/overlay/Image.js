@@ -2,9 +2,9 @@ import zrender from 'zrender'
 import { merge } from '../common/utils.js'
 import Tools from '../common/Tools'
 import ImageConfig from '../config/ImageConfig.js'
-import EditPolygon from '../config/EditPolygon.js'
+import EditRect from '../config/EditRect.js'
 import Init from './Init'
-let zr, image, group;
+let ImageOption, image, group;
 
 /**
  * @constructor
@@ -12,37 +12,47 @@ let zr, image, group;
  */
 export default class BImage extends Init {
     constructor(opts) {
-        super(opts)
+        super(opts, ImageOption)
+        if (ImageOption) {
+            this._option = ImageOption;
+        } else {
+            this._option = {};
+            this._option.offsetX = 0 //图片等比例缩放后在画布中左右的位移
+            this._option.offsetY = 0 //图片等比例缩放后在画布中左右的位移
 
-        this._option = {};
-        this._option.offsetX = 0 //图片等比例缩放后在画布中左右的位移
-        this._option.offsetY = 0 //图片等比例缩放后在画布中左右的位移
+            this._option.imgZoom = 2 //图片放大限制
+            this._option.setRate = 0 //图片的缩放比例
+            this._option.widthImg = 0
+            this._option.heightImg = 0
+            this._option.scale = 1;
+            this._option.x = 0;
+            this._option.y = 0;
+            this._option.draggable = false;
+            this._option.rotateTime = 0;
+            this._option.center = [];
+            this._option.rotate = {};
+            this._option.mode = opts && opts.mode || 'auto';
 
-        this._option.imgZoom = 2 //图片放大限制
-        this._option.setRate = 0 //图片的缩放比例
-        this._option.widthImg = 0
-        this._option.heightImg = 0
-        this._option.scale = 1;
-        this._option.x = 0;
-        this._option.y = 0;
-        this._option.draggable = false;
-        this._option.rotateTime = 0;
-        this._option.center = [];
-        this._option.rotate = {};
-        this._option.mode = opts && opts.mode || 'auto';
+            this.type = 'IMAGE'
+            this.image = null;
+            this._editWidth = EditRect.shape.width
 
-        this.type = 'IMAGE'
-        this.image = null;
-        this._editWidth = EditPolygon.shape.width
-        this._imageDrag = opts && opts.event.onImageDrag;
-        this._imageDragEnd = opts && opts.event.onImageDragEnd;
-        this._onComplete = opts && opts.event.onLoadComplete;
-        // console.log(this)
-        this.initialize();
+            // 回调函数
+            this._imageDrag = opts && opts.event.onImageDrag;
+            this._imageDragEnd = opts && opts.event.onImageDragEnd;
+            this._onComplete = opts && opts.event.onLoadComplete;
+            // console.log(this)
+
+            this.initialize();
+
+            this._option.group = this.getGroup();
+            this._option.image = this.getImage();
+
+            ImageOption = this._option;
+        }
     }
     initialize() {
         this.renderImg(this.imgUrl);
-
         // let toos = new Tools();
     }
     getZrender() {
@@ -82,6 +92,7 @@ export default class BImage extends Init {
         //加载图片
         group = new zrender.Group();
         this.group = group;
+        this._option.group = group;
 
         let img = new Image();
         img.src = url;
@@ -132,7 +143,7 @@ export default class BImage extends Init {
 
             this.image = image;
 
-
+            this._option.image = image;
 
             group.add(image);
             this.zr.add(group);

@@ -2,9 +2,10 @@ import zrender from 'zrender'
 import {
     merge
 } from '../common/utils.js'
-import PolygonConfig from '../config/PolygonConfig.js'
-import EditPolygon from '../config/EditPolygon.js'
+import PolygonRect from '../config/PolygonRect.js'
+import EditRect from '../config/EditRect.js'
 import Image from './Image.js'
+
 /**
  * @constructor
  * @extends module:PolygonOverlay
@@ -12,16 +13,17 @@ import Image from './Image.js'
  * @param {Object} opts
  */
 export default class RectOverlay extends Image {
-    constructor(args, opts) {
+    constructor(opts) {
         super()
-        this.zr = args.zr;
-        this.group = args.group;
-        this.image = args.image;
-        this._option = merge(args._option, opts);
+
+        this.group = this._option.group;
+        this.image = this._option.image;
+
         this.type = 'RECTANGLE'
         //是否开启绘制模式
         this.isOpen = opts.isOpen || false;
 
+        // 回调函数
         this._mousemove = opts.event.mousemove
         this._mouseout = opts.event.mouseout
         this._onCreate = opts.event.onCreate
@@ -38,8 +40,8 @@ export default class RectOverlay extends Image {
         this.data = opts.data;
 
         this._createLimit = 6 //创建的图形宽高最小限制
-        this._editWidth = EditPolygon.shape.width //拖拽按钮的宽高限制
-        this._styleConfig = PolygonConfig.style;
+        this._editWidth = EditRect.shape.width //拖拽按钮的宽高限制
+        this._styleConfig = PolygonRect.style;
 
         this._isMouseDown = false
         this._canDrawShape = false
@@ -925,7 +927,7 @@ export default class RectOverlay extends Image {
 
         editPoint.forEach((item) => {
             let width = this._editWidth / this.group.scale[0];
-            let editNode = new zrender.Rect(merge(EditPolygon, {
+            let editNode = new zrender.Rect(merge(EditRect, {
                 shape: {
                     x: item.points[0] - width / 2,
                     y: item.points[1] - width / 2,

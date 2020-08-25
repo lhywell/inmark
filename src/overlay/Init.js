@@ -1,14 +1,14 @@
 import zrender from 'zrender'
 import { merge } from '../common/utils.js'
 import Tools from '../common/Tools'
-let zr, image, group;
+let zr;
 
 /**
  * @constructor
  * @param {Object} opts
  */
 export default class Init {
-    constructor(opts) {
+    constructor(opts, obj) {
         if (opts) {
             this.zr = zrender.init(document.getElementById(opts.id))
             zr = this.zr;
@@ -21,7 +21,7 @@ export default class Init {
             this._option = opts;
         } else {
             this.zr = zr;
-            this.group = group;
+            this._option = obj;
         }
         //屏蔽浏览器的右击事件
         this.zr.dom.oncontextmenu = function() {
