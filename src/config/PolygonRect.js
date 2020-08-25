@@ -1,5 +1,5 @@
 /**
- * 默认Polgyon配置
+ * 默认矩形配置
  */
 export default {
     data: [],
