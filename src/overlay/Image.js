@@ -32,24 +32,21 @@ export default class BImage extends Init {
             this._option.center = [];
             this._option.rotate = {};
             this._option.mode = opts && opts.mode || 'auto';
-
-            this.type = 'IMAGE'
-            this.image = null;
-            this._editWidth = EditRect.shape.width
-
-            // 回调函数
-            this._imageDrag = opts && opts.event.onImageDrag;
-            this._imageDragEnd = opts && opts.event.onImageDragEnd;
-            this._onComplete = opts && opts.event.onLoadComplete;
-            // console.log(this)
-
-            this.initialize();
-
-            this._option.group = this.getGroup();
-            this._option.image = this.getImage();
-
-            ImageOption = this._option;
         }
+
+        this.type = 'IMAGE'
+        this.image = null;
+        this._editWidth = EditRect.shape.width
+
+        // 回调函数
+        this._imageDrag = opts && opts.event.onImageDrag;
+        this._imageDragEnd = opts && opts.event.onImageDragEnd;
+        this._onComplete = opts && opts.event.onLoadComplete;
+        // console.log(this)
+
+        this.initialize();
+
+        ImageOption = this._option;
     }
     initialize() {
         this.renderImg(this.imgUrl);

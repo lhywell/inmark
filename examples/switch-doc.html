@@ -288,7 +288,7 @@ let inMapVue = new Vue({
             });
         },
         initPolygon(data) {
-            let polygon = new inMark.Rect(this.image, {
+            let polygon = new inMark.Rect({
                 data: data,
                 isOpen: false,
                 event: {
