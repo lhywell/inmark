@@ -42,7 +42,11 @@ export default class RectOverlay extends Image {
 
         this._createLimit = 6 //创建的图形宽高最小限制
         this._editWidth = EditRect.shape.width //拖拽按钮的宽高限制
-        this._styleConfig = merge(PolygonRect.style, opts.style)
+        if (opts.style) {
+            this._styleConfig = merge(PolygonRect.style, opts.style)
+        }else{
+            this._styleConfig = PolygonRect.style
+        }
 
         this._isMouseDown = false
         this._canDrawShape = false
