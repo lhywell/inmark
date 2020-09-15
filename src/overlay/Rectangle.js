@@ -33,6 +33,7 @@ export default class RectOverlay extends Image {
         this._onEditNodeDrag = opts.event.onEditNodeDrag
         this._onEditNodeDragComplete = opts.event.onEditNodeDragComplete
         this._onSelected = opts.event.onSelected
+        this._onHover = opts.event.onHover
         this._unSelect = opts.event.unSelect
         this._imageDrag = opts.event.onImageDrag
         this._imageDragEnd = opts.event.onImageDragEnd
@@ -41,7 +42,7 @@ export default class RectOverlay extends Image {
 
         this._createLimit = 6 //创建的图形宽高最小限制
         this._editWidth = EditRect.shape.width //拖拽按钮的宽高限制
-        this._styleConfig = PolygonRect.style;
+        this._styleConfig = merge(PolygonRect.style, opts.style)
 
         this._isMouseDown = false
         this._canDrawShape = false
@@ -576,6 +577,20 @@ export default class RectOverlay extends Image {
             //     });
             //     return;
             // }
+            this.currShape = e.target;
+            this.tempShape = e.target;
+
+            this.selectedSub = shape;
+            // this.resetShapeStyle();
+
+            // this.setSelectedStyle(e.target, PolygonRect.style.hover);
+
+            let shapePoints = this._toGlobal(e.target.shape.points, shape);
+            const rPoints = this._changeToPoints(shapePoints);
+            this._onHover && this._onHover(e, {
+                ...e.target.data,
+                coordinates: rPoints
+            })
         })
         shape.on('mouseout', (e) => {
             if (this.isOpen) {

@@ -22,7 +22,15 @@ export default {
             lineWidth: 1,
             lineDash: [0, 0],
             strokeNoScale: true
-        }
+        },
+        // hover颜色
+        hover: {
+            fill: 'rgba(24,151,117,0.05)',
+            stroke: '#189775',
+            lineWidth: 1,
+            lineDash: [0, 0],
+            strokeNoScale: true
+        },
     },
     edit: {
         dragBtnLimit: 10
