@@ -241,7 +241,7 @@ let inMapVue = new Vue({
                 this.startDeleteAll();
             }
             if (x === 'export') {
-                // this.polygon && this.polygon.export();
+                // this.rect && this.rect.export();
                 console.log(this.ZImage.getBoundingRect())
             }
             let ary = this.$refs.tools.getElementsByClassName('iconfont');
@@ -288,7 +288,7 @@ let inMapVue = new Vue({
         },
         initRect(data) {
             // return;
-            let polygon = new inMark.Rect({
+            let rect = new inMark.Rect({
                 data: data,
                 isOpen: false,
                 event: {
@@ -304,8 +304,8 @@ let inMapVue = new Vue({
                     unSelect: this.unSelect
                 }
             });
-            // polygon.setData(s);
-            this.polygon = polygon;
+            // rect.setData(s);
+            this.rect = rect;
             this.init = false;
         },
         setData() {
@@ -322,7 +322,7 @@ let inMapVue = new Vue({
                 type: "Rectangle"
             }]
             **/ 
-            this.polygon && this.polygon.setData(this.markNoteList);
+            this.rect && this.rect.setData(this.markNoteList);
         },
         imageDrag(e) {
             // console.log(e)
@@ -357,23 +357,23 @@ let inMapVue = new Vue({
         onSelected(e, data) {},
         reset() {
             // this.markNoteList.splice(0);
-            this.polygon && this.polygon.setDrag(false);
-            this.polygon && this.polygon.close();
+            this.rect && this.rect.setDrag(false);
+            this.rect && this.rect.close();
         },
         startDrag() {
             this.reset();
             if (this.image) {
-                this.polygon.setDrag(true);
+                this.rect.setDrag(true);
             }
         },
         startRect() {
             this.reset();
-            // console.log(this.polygon)
-            if (this.polygon) {
-                this.polygon.open();
+            // console.log(this.rect)
+            if (this.rect) {
+                this.rect.open();
             } else {
                 // this.initRect(this.markNoteList);
-                this.polygon.open();
+                this.rect.open();
             }
         },
         startRotate() {
@@ -395,19 +395,19 @@ let inMapVue = new Vue({
             console.log(x)
         },
         startZoomIn() {
-            this.polygon && this.polygon.close();
-            this.polygon.zoomIn();
+            this.rect && this.rect.close();
+            this.rect.zoomIn();
         },
         startZoomOut() {
-            this.polygon && this.polygon.close();
-            this.polygon.zoomOut();
+            this.rect && this.rect.close();
+            this.rect.zoomOut();
         },
         startDeleteCurrent() {
-            this.polygon && this.polygon.setDrag(false);
-            this.polygon && this.polygon.close();
+            this.rect && this.rect.setDrag(false);
+            this.rect && this.rect.close();
 
-            if (this.polygon) {
-                let item = this.polygon.removeAnnotation();
+            if (this.rect) {
+                let item = this.rect.removeAnnotation();
                 if (item) {
                     let index = this.markNoteList.forEach((x, y) => {
                         if (item.data.id === x.id) {
@@ -422,15 +422,15 @@ let inMapVue = new Vue({
 
             //删除所有标注
             this.markNoteList.splice(0);
-            this.polygon && this.polygon.removeAll();
+            this.rect && this.rect.removeAll();
         },
         deleteSub(item) {
-            this.polygon && this.polygon.removeSub(item);
+            this.rect && this.rect.removeSub(item);
         },
         seletedSub(item) {
-            this.polygon && this.polygon.setPosition(item);
+            this.rect && this.rect.setPosition(item);
 
-            this.polygon && this.polygon.selected(item);
+            this.rect && this.rect.selected(item);
         }
     },
 })
