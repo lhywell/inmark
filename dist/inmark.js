@@ -18424,7 +18424,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.27";
+var version = "1.0.28";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
