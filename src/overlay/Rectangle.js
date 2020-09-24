@@ -44,7 +44,7 @@ export default class RectOverlay extends Image {
         this._editWidth = EditRect.shape.width //拖拽按钮的宽高限制
         if (opts.style) {
             this._styleConfig = merge(PolygonRect.style, opts.style)
-        }else{
+        } else {
             this._styleConfig = PolygonRect.style
         }
 
@@ -565,6 +565,7 @@ export default class RectOverlay extends Image {
         })
         shape.on('mouseover', (e) => {
             if (this.isOpen) {
+
                 shape.attr({
                     cursor: 'default',
                 });
@@ -574,6 +575,7 @@ export default class RectOverlay extends Image {
 
                     this.dispose();
                 }
+                return;
             }
             // if (this.getDrag() === true) {
             //     shape.attr({
