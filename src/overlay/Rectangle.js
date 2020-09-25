@@ -374,6 +374,9 @@ export default class RectOverlay extends Image {
         }
     }
     selected(item, options = {}) {
+        if (this.isOpen) {
+            return;
+        }
         this.resetShapeStyle();
         this._areaShape.forEach(x => {
             if (x.data.id === item.id) {
@@ -383,6 +386,9 @@ export default class RectOverlay extends Image {
         })
     }
     setPosition(item) {
+        if (this.isOpen) {
+            return;
+        }
         let point = this._calculateToRelationpix(item.coordinates);
         let point_center = [(point[0][0] + point[1][0]) / 2, (point[0][1] + point[3][1]) / 2];
 
@@ -583,10 +589,10 @@ export default class RectOverlay extends Image {
             //     });
             //     return;
             // }
-            this.currShape = e.target;
-            this.tempShape = e.target;
+            // this.currShape = e.target;
+            // this.tempShape = e.target;
 
-            this.selectedSub = shape;
+            // this.selectedSub = shape;
             // this.resetShapeStyle();
 
             // this.setSelectedStyle(e.target, PolygonRect.style.hover);
