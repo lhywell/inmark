@@ -17775,6 +17775,9 @@ var RectOverlay = function (_Image) {
 
             var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
+            if (this.isOpen) {
+                return;
+            }
             this.resetShapeStyle();
             this._areaShape.forEach(function (x) {
                 if (x.data.id === item.id) {
@@ -17786,6 +17789,9 @@ var RectOverlay = function (_Image) {
     }, {
         key: 'setPosition',
         value: function setPosition(item) {
+            if (this.isOpen) {
+                return;
+            }
             var point = this._calculateToRelationpix(item.coordinates);
             var point_center = [(point[0][0] + point[1][0]) / 2, (point[0][1] + point[3][1]) / 2];
 
@@ -17956,11 +17962,6 @@ var RectOverlay = function (_Image) {
                     }
                     return;
                 }
-
-                _this5.currShape = e.target;
-                _this5.tempShape = e.target;
-
-                _this5.selectedSub = shape;
 
 
                 var shapePoints = _this5._toGlobal(e.target.shape.points, shape);
@@ -18430,7 +18431,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.30";
+var version = "1.0.31";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
