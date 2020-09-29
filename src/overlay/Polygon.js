@@ -1,56 +1,57 @@
-import zrender from 'zrender'
-import { merge } from '../common/utils.js'
-import PolygonRect from '../config/PolygonRect.js'
-import EditRect from '../config/EditRect.js'
-import Image from './Image.js'
+import zrender from 'zrender';
+import { merge } from '../common/utils.js';
+import PolygonRect from '../config/PolygonRect.js';
+import EditRect from '../config/EditRect.js';
+import Image from './Image.js';
 /**
  * @constructor
  * @extends module:PolygonOverlay
  * @param {Object} args
  * @param {Object} opts
  */
-export default class RectOverlay extends Image {
-    constructor(args, opts) {
-        super()
-        this.zr = args.zr;
-        this.group = args.group;
-        this.image = args.image;
-        this._option = merge(args._option, opts);
-        this.type = 'POLYGON'
+export default class Polygon extends Image {
+    constructor(opts) {
+        super();
+        this.group = this._option.group;
+        this.image = this._option.image;
+
+        this.type = 'POLYGON';
+
         //是否开启绘制模式
         this.isOpen = opts.isOpen || false;
 
-        this._mousemove = opts.event.mousemove
-        this._mouseout = opts.event.mouseout
-        this._onCreate = opts.event.onCreate
-        this._onCreateComplete = opts.event.onCreateComplete
-        this._onRectDrag = opts.event.onRectDrag
-        this._onRectDragComplete = opts.event.onRectDragComplete
-        this._onEditNodeDrag = opts.event.onEditNodeDrag
-        this._onEditNodeDragComplete = opts.event.onEditNodeDragComplete
-        this._onSelected = opts.event.onSelected
-        this._unSelect = opts.event.unSelect
-        this._imageDrag = opts.event.onImageDrag
-        this._imageDragEnd = opts.event.onImageDragEnd
+        // 回调函数
+        this._mousemove = opts.event.mousemove;
+        this._mouseout = opts.event.mouseout;
+        this._onCreate = opts.event.onCreate;
+        this._onCreateComplete = opts.event.onCreateComplete;
+        this._onRectDrag = opts.event.onRectDrag;
+        this._onRectDragComplete = opts.event.onRectDragComplete;
+        this._onEditNodeDrag = opts.event.onEditNodeDrag;
+        this._onEditNodeDragComplete = opts.event.onEditNodeDragComplete;
+        this._onSelected = opts.event.onSelected;
+        this._unSelect = opts.event.unSelect;
+        this._imageDrag = opts.event.onImageDrag;
+        this._imageDragEnd = opts.event.onImageDragEnd;
 
         this.data = opts.data;
 
-        this._createLimit = 6 //创建的图形宽高最小限制
-        this._editWidth = EditRect.shape.width //拖拽按钮的宽高限制
+        this._createLimit = 6; //创建的图形宽高最小限制
+        this._editWidth = EditRect.shape.width; //拖拽按钮的宽高限制
         this._styleConfig = PolygonRect.style;
 
-        this._isMouseDown = false
-        this._canDrawShape = false
+        this._isMouseDown = false;
+        this._canDrawShape = false;
 
-        this._startPoint = []
-        this._endPoint = []
+        this._startPoint = [];
+        this._endPoint = [];
 
-        this._areaShape = [] //所有的标注图形集合
-        this._edgePoint = []
-        this._editNode = []
-        this._editRectStart = []
+        this._areaShape = []; //所有的标注图形集合
+        this._edgePoint = [];
+        this._editNode = [];
+        this._editRectStart = [];
         this.position = [0, 0];
-        this.origin = []
+        this.origin = [];
         this.bgDrag = [];
         this.graphic = this._createGraphicGroup();
         this.currShape = {};
@@ -90,7 +91,7 @@ export default class RectOverlay extends Image {
         let group = new zrender.Group();
         group.data = {
             type: 'graphicGroup'
-        }
+        };
 
         return group;
     }
@@ -108,7 +109,7 @@ export default class RectOverlay extends Image {
                     'cursor': 'crosshair'
                 });
             }
-        })
+        });
         if (this.currShape && this.currShape.position) {
             this.setSelectedStyle(this.currShape);
         }
@@ -127,7 +128,7 @@ export default class RectOverlay extends Image {
                     'cursor': 'default'
                 });
             }
-        })
+        });
     }
     setEdit(blean) {
         if (blean) {
@@ -135,50 +136,50 @@ export default class RectOverlay extends Image {
             this._areaShape.forEach(item => {
                 item.attr({
                     draggable: true
-                })
+                });
                 if (item.bound) {
                     item.bound.eachChild(edit => {
                         edit.hide();
-                    })
+                    });
                 }
-            })
+            });
         } else {
             this._areaShape.forEach(item => {
                 item.attr({
                     draggable: false
-                })
+                });
 
                 if (item.bound) {
                     item.bound.eachChild(edit => {
                         edit.hide();
-                    })
+                    });
                 }
-            })
+            });
         }
     }
     _zrClick(e) {
-        if (e.target && e.target.data.type === "IMAGE") {
-            this.resetShapeStyle()
+        if (e.target && e.target.data.type === 'IMAGE') {
+            this.resetShapeStyle();
         }
     }
     _zrDBClick(e) {
-        if (e.target && e.target.data.type === "IMAGE" && this._isMouseDown && this.currShape) {
+        if (e.target && e.target.data.type === 'IMAGE' && this._isMouseDown && this.currShape) {
 
-            const index = this._areaShape.length - 1
-            const shapePoints = this.currShape.shape.points
+            const index = this._areaShape.length - 1;
+            const shapePoints = this.currShape.shape.points;
             // console.log(e, this.currShape)
             const points = this._changeToPoints(shapePoints);
             const data = {
                 type: 'Polygon',
                 notes: '-1',
                 id: window.btoa(Math.random()) //编码加密
-            }
+            };
             this._areaShape[index].attr({
                 style: this._styleConfig.selected,
                 data: {
                     ...data
                 }
-            })
+            });
             this._editNode = points;
 
             if (points.length > 0) {
@@ -187,11 +188,11 @@ export default class RectOverlay extends Image {
                 this._onCreateComplete && this._onCreateComplete(e, {
                     ...data,
                     coordinates: points
-                })
+                });
                 this.selectedSub = e.target;
             }
-            this._isMouseDown = false
-            this._canDrawShape = false
+            this._isMouseDown = false;
+            this._canDrawShape = false;
             this._startPoint = [];
             this._endPoint = [];
             this.creatCount = 0;
@@ -200,36 +201,40 @@ export default class RectOverlay extends Image {
     }
     _zrMouseDown(e) {
         // debugger;
-        if (e.which === 1 && e.target && e.target.data.type === "IMAGE") {
+        if (e.which === 1 && e.target && e.target.data.type === 'IMAGE') {
             //图形左上角坐标
             // this.resetShapeStyle();
+            if (this.isOpen === false) {
+                return;
+            }
+            this.resetShapeStyle();
+
             this.origin = this._getDrawPoint(e);
             this._startPoint[this.creatCount] = this.origin;
 
             this.creatCount++;
-            this._isMouseDown = true
-            this.currShape = null
+            this._isMouseDown = true;
+            this.currShape = null;
         }
     }
     _zrMouseMove(e) {
         //e.target=undefined 禁止拖动到浏览器外边
         if (this._isMouseDown && this._startPoint && e.target) {
 
-            this._canDrawShape = true
+            this._canDrawShape = true;
             //图形右下角坐标
 
             this._endPoint = this._getDrawPoint(e);
 
             //支持放大缩小
             let scale = this.group.scale[0];
-
             //直线
-            let points
+            let points;
             if (this.creatCount === 1) {
                 points = [
                     [this._startPoint[0][0] / scale, this._startPoint[0][1] / scale],
                     [this._endPoint[0] / scale, this._endPoint[1] / scale]
-                ]
+                ];
             } else {
                 let newPoints = zrender.util.clone(this._startPoint);
                 newPoints.push(this._endPoint);
@@ -241,22 +246,22 @@ export default class RectOverlay extends Image {
                 //如果不存在 则创建一个新的
                 this.currShape = this._createShape(points, {
                     notes: '-1'
-                })
-                this.graphic.add(this.currShape)
-                this._areaShape.push(this.currShape)
+                });
+                this.graphic.add(this.currShape);
+                this._areaShape.push(this.currShape);
             } else {
                 //否则鼠标移动更新当前数据
                 this.currShape.attr({
                     shape: {
                         points: points
                     }
-                })
+                });
             }
             const rPoints = this._changeToPoints(points);
             this._onCreate && this._onCreate(e, {
                 notes: '-1',
                 coordinates: rPoints
-            })
+            });
         }
 
     }
@@ -286,7 +291,7 @@ export default class RectOverlay extends Image {
             x = e.offsetX / zoom;
             y = e.offsetY / zoom;
         }
-        return [x, y]
+        return [x, y];
     }
     /**
      * @description 给id为某个值的标记物存入数据
@@ -305,7 +310,7 @@ export default class RectOverlay extends Image {
             if (x.data.type === 'IMAGE') {
                 save.push(x);
             }
-        })
+        });
         this.group.removeAll();
         this.group.add(save[0]);
         this.zr.add(this.group);
@@ -323,7 +328,7 @@ export default class RectOverlay extends Image {
 
                     if (typeof item.coordinates === 'object') {
                         const points = this._calculateToRelationpix(item.coordinates);
-                        const shape = this._createShape(points, item)
+                        const shape = this._createShape(points, item);
                         //注释可以打开
                         if (points.length === 0) {
                             throw new Error('此图形没有坐标数据,请删除此图形' + JSON.stringify(item));
@@ -336,16 +341,16 @@ export default class RectOverlay extends Image {
                         }
                     }
                 }
-            })
+            });
         }
-        this.group.add(this.graphic)
+        this.group.add(this.graphic);
         this.setEdit(false);
     }
     setSelectedStyle(shape, options = {}) {
         //选中某个框设置样式
         shape.attr({
             style: merge(this._styleConfig.selected, options)
-        })
+        });
         if (this.isOpen) {
             shape.attr({
                 draggable: true
@@ -364,8 +369,8 @@ export default class RectOverlay extends Image {
                         height: w
                     },
                     zlevel: 3
-                })
-            })
+                });
+            });
         }
     }
     selected(item, options = {}) {
@@ -375,7 +380,7 @@ export default class RectOverlay extends Image {
                 this.currShape = x;
                 this.setSelectedStyle(x, options);
             }
-        })
+        });
     }
     setPosition(item) {
         let point = this._calculateToRelationpix(item.coordinates);
@@ -386,7 +391,7 @@ export default class RectOverlay extends Image {
         let canvas_height = this.zr.painter._height;
 
         let bgDragX;
-        let bgDragY
+        let bgDragY;
         if (this.bgDrag.length === 0) {
             bgDragX = 0;
             bgDragY = 0;
@@ -409,7 +414,7 @@ export default class RectOverlay extends Image {
         let group = new zrender.Group();
         group.data = {
             type: 'EditGroup'
-        }
+        };
         //新建属性group.bound
         group.bound = shape;
 
@@ -451,7 +456,7 @@ export default class RectOverlay extends Image {
 
             x = [item[0] - bgDragX, item[1] - bgDragY];
             array.push(x);
-        })
+        });
         return array;
     }
     /**
@@ -470,26 +475,26 @@ export default class RectOverlay extends Image {
             draggable: false,
             style: this._styleConfig.default,
             zlevel: 2
-        })
+        });
 
         let oldGroup = [];
         shape.on('click', (e) => {
             this._editNode = this._toShapeDragEnd(e, e.target);
-        })
+        });
         shape.on('dragstart', (e) => {
             this.currShape = shape;
 
             this.tempShape = e.target;
-        })
+        });
         shape.on('drag', (e) => {
             //拖动多边形与编辑同步
             let group = shape.bound;
             group.attr({
                 position: group.bound.position
-            })
+            });
             group.eachChild(item => {
                 item.hide();
-            })
+            });
 
             //移动过程中，重新记录坐标点
             this._editNode = this._toShapeDragEnd(e, e.target);
@@ -501,8 +506,8 @@ export default class RectOverlay extends Image {
             this._onRectDrag && this._onRectDrag(e, {
                 ...e.target.data,
                 coordinates: rPoints
-            })
-        })
+            });
+        });
 
         shape.on('dragend', (e) => {
             let shape = e.target;
@@ -517,8 +522,8 @@ export default class RectOverlay extends Image {
             this._onRectDragComplete && this._onRectDragComplete(e, {
                 ...e.target.data,
                 coordinates: rPoints
-            })
-        })
+            });
+        });
         shape.on('mousemove', (e) => {
             if (this.isOpen) {
 
@@ -528,7 +533,7 @@ export default class RectOverlay extends Image {
 
                 this.tempShape = e.target;
             }
-        })
+        });
         shape.on('mouseover', (e) => {
             if (this.isOpen) {
                 shape.attr({
@@ -540,12 +545,12 @@ export default class RectOverlay extends Image {
                     // this.dispose();
                 }
             }
-        })
+        });
         shape.on('mouseout', (e) => {
             if (this.isOpen) {
                 this._bindEvent();
             }
-        })
+        });
 
         shape.on('mousedown', (e) => {
             //创建中
@@ -567,26 +572,26 @@ export default class RectOverlay extends Image {
             this._onSelected && this._onSelected(e, {
                 ...e.target.data,
                 coordinates: rPoints
-            })
+            });
 
-        })
+        });
         shape.on('dblclick', (e) => {
             //功能同双击
             const index = this._areaShape.length - 1;
-            const shapePoints = this.currShape.shape.points
+            const shapePoints = this.currShape.shape.points;
             // console.log(e, this.currShape)
             const points = this._changeToPoints(shapePoints);
             const data = {
                 type: 'Polygon',
                 notes: '-1',
                 id: window.btoa(Math.random()) //编码加密
-            }
+            };
             this._areaShape[index].attr({
                 style: this._styleConfig.selected,
                 data: {
                     ...data
                 }
-            })
+            });
             this._editNode = points;
 
             if (points.length > 0) {
@@ -595,54 +600,54 @@ export default class RectOverlay extends Image {
                 this._onCreateComplete && this._onCreateComplete(e, {
                     ...data,
                     coordinates: points
-                })
+                });
                 this.selectedSub = e.target;
             }
-            this._isMouseDown = false
-            this._canDrawShape = false
+            this._isMouseDown = false;
+            this._canDrawShape = false;
             this._startPoint = [];
             this._endPoint = [];
             this.creatCount = 0;
-        })
+        });
         shape.on('mouseup', (e) => {
             //开启编辑，选中某个框
             if (this.isOpen && this.selectedSub) {
 
                 this.currShape.bound && this.currShape.bound.eachChild(item => {
                     item.show();
-                })
+                });
                 this.temp = zrender.util.clone(this.currShape.shape.points);
 
                 this._bindEvent();
             }
-        })
+        });
 
-        return shape
+        return shape;
     }
     _editElementEvent(editNode, group) {
-        editNode.on('mouseover', (e) => {})
-        editNode.on('mouseout', (e) => {})
+        editNode.on('mouseover', (e) => {});
+        editNode.on('mouseout', (e) => {});
 
-        editNode.on('mouseup', (e) => {})
-        editNode.on("dragstart", (e) => {
+        editNode.on('mouseup', (e) => {});
+        editNode.on('dragstart', (e) => {
 
             let m = this.currShape.transform;
             let point = this.currShape.shape.points;
             const oldPoints = zrender.util.clone(point);
             // console.log(this.currShape, oldPoints)
 
-            this.oldPoint = oldPoints
+            this.oldPoint = oldPoints;
             let width = oldPoints[1][0] - oldPoints[0][0];
             let height = oldPoints[2][1] - oldPoints[1][1];
             // let bgDragX, bgDragY;
             this.obj = {
                 width,
                 height
-            }
+            };
             this.m = zrender.util.clone(this.currShape.transform || []);
-        })
+        });
 
-        editNode.on("drag", (e) => {
+        editNode.on('drag', (e) => {
             // console.log(JSON.stringify(this.currPoint));
             //禁止编辑画框到canvas外
             if (e.event.target.tagName === 'CANVAS') {
@@ -662,9 +667,9 @@ export default class RectOverlay extends Image {
                     m[4] = 0;
                     m[5] = 0;
                 }
-                if (m[4] === this.position[0]) {
+                // if (m[4] === this.position[0]) {
 
-                }
+                // }
 
                 let bgDragX, bgDragY;
                 if (this.bgDrag.length === 0) {
@@ -683,15 +688,15 @@ export default class RectOverlay extends Image {
 
                 switch (_side) {
                     case 'tl':
-                        offsetX = e.event.offsetX
-                        offsetY = e.event.offsetY
+                        offsetX = e.event.offsetX;
+                        offsetY = e.event.offsetY;
                         newPoints = [
                             [(offsetX - this._option.x) / m[0] - bgDragX, (offsetY - this._option.y) / m[0] - bgDragY],
                             [oldPoints[1][0], (offsetY - this._option.y) / m[0] - bgDragY],
                             oldPoints[2],
                             [(offsetX - this._option.x) / m[0] - bgDragX, oldPoints[3][1]],
-                        ]
-                        break
+                        ];
+                        break;
                         // case 't':
                         //     offsetY = e.event.offsetY
                         //     newPoints = [
@@ -702,16 +707,16 @@ export default class RectOverlay extends Image {
                         //     ]
                         //     break
                     case 'tr':
-                        offsetX = e.event.offsetX
-                        offsetY = e.event.offsetY
+                        offsetX = e.event.offsetX;
+                        offsetY = e.event.offsetY;
 
                         newPoints = [
                             [oldPoints[0][0], (offsetY - this._option.y) / m[0] - bgDragY],
                             [(offsetX - this._option.x) / m[0] - bgDragX, (offsetY - this._option.y) / m[0] - bgDragY],
                             [(offsetX - this._option.x) / m[0] - bgDragX, oldPoints[3][1]],
                             oldPoints[3]
-                        ]
-                        break
+                        ];
+                        break;
                         // case 'r':
                         //     offsetX = e.event.offsetX
                         //     newPoints = [
@@ -737,7 +742,7 @@ export default class RectOverlay extends Image {
                             [(offsetX - this._option.x) / m[0] - bgDragX, (offsetY - this._option.y) / m[0] - bgDragY],
                             [oldPoints[0][0], (offsetY - this._option.y) / m[0] - bgDragY]
                         ];
-                        break
+                        break;
                         // case 'b':
                         //     offsetY = e.event.offsetY
                         //     newPoints = [
@@ -748,16 +753,16 @@ export default class RectOverlay extends Image {
                         //     ]
                         //     break
                     case 'bl':
-                        offsetX = e.event.offsetX
-                        offsetY = e.event.offsetY
+                        offsetX = e.event.offsetX;
+                        offsetY = e.event.offsetY;
 
                         newPoints = [
                             [(offsetX - this._option.x) / m[0] - bgDragX, oldPoints[0][1]],
                             oldPoints[1],
                             [oldPoints[2][0], (offsetY - this._option.y) / m[0] - bgDragY],
                             [(offsetX - this._option.x) / m[0] - bgDragX, (offsetY - this._option.y) / m[0] - bgDragY]
-                        ]
-                        break
+                        ];
+                        break;
                         // case 'l':
                         //     offsetX = e.event.offsetX
                         //     newPoints = [
@@ -773,7 +778,7 @@ export default class RectOverlay extends Image {
                 group.attr({
                     position: [0, 0],
                     scale: [1, 1]
-                })
+                });
 
                 this.currShape.attr({
                     scale: [1, 1],
@@ -781,7 +786,7 @@ export default class RectOverlay extends Image {
                         points: newPoints,
                     },
                     position: [0, 0]
-                })
+                });
 
                 this._editNode = newPoints;
 
@@ -790,13 +795,13 @@ export default class RectOverlay extends Image {
                 this._onEditNodeDrag && this._onEditNodeDrag(e, {
                     ...group.bound.data,
                     coordinates: rPoints
-                })
+                });
 
                 this._createEditPoint(newPoints, group);
             }
 
-        })
-        editNode.on("dragend", (e) => {
+        });
+        editNode.on('dragend', (e) => {
             let shape = group.bound;
             // let shapePoints = this._toGlobal(this._editNode, this.currShape);
             const rPoints = this._changeToPoints(this._editNode);
@@ -804,9 +809,9 @@ export default class RectOverlay extends Image {
             this._onEditNodeDragComplete(e, {
                 ...group.bound.data,
                 coordinates: rPoints
-            })
-        })
-        editNode.on("dragend", (e) => {
+            });
+        });
+        editNode.on('dragend', (e) => {
             // let shape = group.bound;
             //双击框会消失
             if (this._editNode.length > 0) {
@@ -819,7 +824,7 @@ export default class RectOverlay extends Image {
                     if (item.data.id === this.currShape.data.id) {
                         this._areaShape.splice(index, 1);
                     }
-                })
+                });
                 this.currShape = shape;
 
                 this._createEditGroup(this._editNode, shape);
@@ -836,24 +841,24 @@ export default class RectOverlay extends Image {
                 this._onEditNodeDragComplete && this._onEditNodeDragComplete(e, {
                     ...group.bound.data,
                     coordinates: rPoints
-                })
+                });
             }
 
-        })
+        });
     }
     /**
      * @description 缩放标记
      */
     _createEditPoint(points, group) {
         let editPoint = [];
-        
+
         //创建多个编辑点
         points.forEach((item, index) => {
             editPoint.push({
                 _side: 'editNode_' + index,
                 points: points[index]
-            })
-        })
+            });
+        });
 
         editPoint.forEach((item) => {
             let width = this._editWidth / this.group.scale[0];
@@ -868,11 +873,11 @@ export default class RectOverlay extends Image {
                     _side: item._side
                 },
                 zlevel: 3
-            }))
+            }));
             this._editElementEvent(editNode, group);
 
             group.add(editNode);
-        })
+        });
     }
 
     setSilent(bol) {}
@@ -889,11 +894,11 @@ export default class RectOverlay extends Image {
                         stroke: stroke
                     },
                     draggable: false
-                })
+                });
 
                 item.bound && item.bound.eachChild(x => {
                     x.hide();
-                })
+                });
             }
         });
     }
@@ -910,7 +915,7 @@ export default class RectOverlay extends Image {
                     obj = item;
                     this._areaShape.splice(index, 1);
                 }
-            })
+            });
             if (obj) {
                 this.graphic.remove(obj.bound);
                 obj.bound = null;
@@ -955,7 +960,7 @@ export default class RectOverlay extends Image {
                 }
                 this.graphic.remove(item);
                 item = null;
-            })
+            });
         }
         this._areaShape = [];
     }
@@ -976,9 +981,9 @@ export default class RectOverlay extends Image {
         points.forEach(item => {
             let x = item[0] * this._option.setRate + this._option.offsetX;
             let y = item[1] * this._option.setRate + this._option.offsetY;
-            array.push([x, y])
-        })
-        return array
+            array.push([x, y]);
+        });
+        return array;
     }
 
     /**
@@ -998,9 +1003,9 @@ export default class RectOverlay extends Image {
             (points[0][1] - this._option.offsetY) / this._option.setRate,
             (points[2][0] - this._option.offsetX) / this._option.setRate,
             (points[2][1] - this._option.offsetY) / this._option.setRate,
-        ]
+        ];
 
-        return pointsData
+        return pointsData;
     }
     _changeToPoints(points) {
         // const pointsData = [
@@ -1011,9 +1016,9 @@ export default class RectOverlay extends Image {
         // ]
         let array = [];
         points.forEach(item => {
-            array.push([(item[0] - this._option.offsetX) / this._option.setRate, (item[1] - this._option.offsetY) / this._option.setRate])
-        })
-        return array
+            array.push([(item[0] - this._option.offsetX) / this._option.setRate, (item[1] - this._option.offsetY) / this._option.setRate]);
+        });
+        return array;
     }
 
     /**
@@ -1021,11 +1026,11 @@ export default class RectOverlay extends Image {
      * 
      */
     _changeToFourScalePoints(points, scale) {
-        let currData = []
-        currData[0] = [points[0] / scale, points[1] / scale]
-        currData[1] = [points[2] / scale, points[1] / scale]
-        currData[2] = [points[2] / scale, points[3] / scale]
-        currData[3] = [points[0] / scale, points[3] / scale]
+        let currData = [];
+        currData[0] = [points[0] / scale, points[1] / scale];
+        currData[1] = [points[2] / scale, points[1] / scale];
+        currData[2] = [points[2] / scale, points[3] / scale];
+        currData[3] = [points[0] / scale, points[3] / scale];
         return currData;
 
     }
@@ -1034,11 +1039,11 @@ export default class RectOverlay extends Image {
      *
      */
     _changeToFourPoints(points) {
-        let currData = []
-        currData[0] = [points[0], points[1]]
-        currData[1] = [points[2], points[1]]
-        currData[2] = [points[2], points[3]]
-        currData[3] = [points[0], points[3]]
+        let currData = [];
+        currData[0] = [points[0], points[1]];
+        currData[1] = [points[2], points[1]];
+        currData[2] = [points[2], points[3]];
+        currData[3] = [points[0], points[3]];
         return currData;
 
     }
@@ -1051,10 +1056,10 @@ export default class RectOverlay extends Image {
      */
     addHover(data) {
         for (let i = 0; i < this._areaShape.length; i++) {
-            const curr = this._areaShape[i]
+            const curr = this._areaShape[i];
             if (curr.data.id == data.id) {
-                this.zr.addHover(curr, data.style)
-                break
+                this.zr.addHover(curr, data.style);
+                break;
             }
         }
     }
@@ -1066,10 +1071,10 @@ export default class RectOverlay extends Image {
      */
     removeHover(data) {
         for (let i = 0; i < this._areaShape.length; i++) {
-            const curr = this._areaShape[i]
+            const curr = this._areaShape[i];
             if (curr.data.id == data.id) {
-                this.zr.removeHover(curr)
-                break
+                this.zr.removeHover(curr);
+                break;
             }
         }
     }
@@ -1084,17 +1089,17 @@ export default class RectOverlay extends Image {
 
         this._areaShape.forEach(item => {
             // debugger;
-            const shapePoints = item.shape.points
+            const shapePoints = item.shape.points;
             const twoPoint = this._changeToPoints(shapePoints);
 
             markInfo.push({
-                "id": item.data.id,
-                "type": item.data.type,
-                "notes": item.data.notes,
-                "coordinates": twoPoint
-            })
-        })
-        return markInfo
+                'id': item.data.id,
+                'type': item.data.type,
+                'notes': item.data.notes,
+                'coordinates': twoPoint
+            });
+        });
+        return markInfo;
     }
     reset() {}
 }

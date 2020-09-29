@@ -1,4 +1,4 @@
-import deepmerge from 'deepmerge'
+import deepmerge from 'deepmerge';
 
 export function merge() {
     let arr = Array.prototype.slice.call(arguments);

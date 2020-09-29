@@ -1,9 +1,9 @@
-import zrender from 'zrender'
-import { merge } from '../common/utils.js'
-import Tools from '../common/Tools'
-import ImageConfig from '../config/ImageConfig.js'
-import EditRect from '../config/EditRect.js'
-import Init from './Init'
+import zrender from 'zrender';
+import { merge } from '../common/utils.js';
+import Tools from '../common/Tools';
+import ImageConfig from '../config/ImageConfig.js';
+import EditRect from '../config/EditRect.js';
+import Init from './Init';
 let ImageOption, image, group;
 
 /**
@@ -12,18 +12,18 @@ let ImageOption, image, group;
  */
 export default class BImage extends Init {
     constructor(opts) {
-        super(opts, ImageOption)
+        super(opts, ImageOption);
         if (ImageOption) {
             this._option = ImageOption;
         } else {
             this._option = {};
-            this._option.offsetX = 0 //图片等比例缩放后在画布中左右的位移
-            this._option.offsetY = 0 //图片等比例缩放后在画布中左右的位移
+            this._option.offsetX = 0; //图片等比例缩放后在画布中左右的位移
+            this._option.offsetY = 0; //图片等比例缩放后在画布中左右的位移
 
-            this._option.imgZoom = 2 //图片放大限制
-            this._option.setRate = 0 //图片的缩放比例
-            this._option.widthImg = 0
-            this._option.heightImg = 0
+            this._option.imgZoom = 2; //图片放大限制
+            this._option.setRate = 0; //图片的缩放比例
+            this._option.widthImg = 0;
+            this._option.heightImg = 0;
             this._option.scale = 1;
             this._option.x = 0;
             this._option.y = 0;
@@ -34,9 +34,9 @@ export default class BImage extends Init {
             this._option.mode = opts && opts.mode || 'auto';
         }
 
-        this.type = 'IMAGE'
+        this.type = 'IMAGE';
         this.image = null;
-        this._editWidth = EditRect.shape.width
+        this._editWidth = EditRect.shape.width;
 
         // 回调函数
         this._imageDrag = opts && opts.event.onImageDrag;
@@ -73,7 +73,7 @@ export default class BImage extends Init {
                     'cursor': 'pointer'
                 });
             }
-        })
+        });
     }
     getDrag() {
         return this._option.draggable;
@@ -135,7 +135,7 @@ export default class BImage extends Init {
                     rate_height: this._option.heightImg
                 },
                 zlevel: 1
-            })
+            });
             this._option.center = [this._option.offsetX + (this._option.widthImg / 2), this._option.offsetY + this._option.heightImg / 2];
 
             this.image = image;
@@ -157,7 +157,7 @@ export default class BImage extends Init {
             this._bindEvent();
 
 
-        }
+        };
     }
     _zrClick() {}
     _zrMouseMove() {}
@@ -185,11 +185,11 @@ export default class BImage extends Init {
             this.group.attr({
                 rotation: zero,
                 origin: center
-            })
+            });
             this._option.rotate = {
                 radians: 0,
                 degrees: 0
-            }
+            };
             return;
         }
 
@@ -208,11 +208,11 @@ export default class BImage extends Init {
             this.group.attr({
                 rotation: result,
                 origin: center
-            })
+            });
             this._option.rotate = {
                 radians: -degreePi * this._option.rotateTime,
                 degrees: -degree * this._option.rotateTime
-            }
+            };
         } else {
             this._option.rotateTime--;
 
@@ -226,11 +226,11 @@ export default class BImage extends Init {
             this.group.attr({
                 rotation: result,
                 origin: center
-            })
+            });
             this._option.rotate = {
                 radians: degreePi * this._option.rotateTime,
                 degrees: degree * this._option.rotateTime
-            }
+            };
         }
     }
     _limitAttributes(newAttrs) {
@@ -278,7 +278,7 @@ export default class BImage extends Init {
         this.group.attr({
             position: [newPos.x, newPos.y],
             scale: [newAttrs.scale, newAttrs.scale]
-        })
+        });
 
         this._option.scale = newAttrs.scale;
         this._option.x = newPos.x;
@@ -288,21 +288,21 @@ export default class BImage extends Init {
     }
     exportSimple() {
         this.zr.painter.getRenderedCanvas({
-            backgroundColor: "#fff"
+            backgroundColor: '#fff'
         }).toBlob((blob) => {
-            var url = window.URL.createObjectURL(blob);
+            let url = window.URL.createObjectURL(blob);
             window.open(url);
         }, 'image/png');
     }
     export () {
         //离屏渲染导出
         //https://github.com/ecomfe/zrender/issues/363
-        var { x, y, width, height } = this.group.getBoundingRect();
-        var zr = zrender.init(document.createElement('div'), {
+        let { x, y, width, height } = this.group.getBoundingRect();
+        let zr = zrender.init(document.createElement('div'), {
             width,
             height
         });
-        var group = new zrender.Group();
+        let group = new zrender.Group();
         group.position = [0 - x, 0 - y];
 
         this.group.eachChild((child) => {
@@ -315,9 +315,9 @@ export default class BImage extends Init {
         zr.refreshImmediately();
 
         return zr.painter.getRenderedCanvas({
-            backgroundColor: "#fff"
+            backgroundColor: '#fff'
         }).toBlob((blob) => {
-            var url = window.URL.createObjectURL(blob);
+            let url = window.URL.createObjectURL(blob);
             window.open(url);
         }, 'image/png');
     }

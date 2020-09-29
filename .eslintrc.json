@@ -24,6 +24,7 @@
     "rules": {
         "strict": 0,
         "no-control-regex": "off",
+        "no-unused-vars": "off",
         "callback-return": "off",
         "no-console": "off",
         "no-alert": 0,

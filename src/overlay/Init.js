@@ -1,6 +1,6 @@
-import zrender from 'zrender'
-import { merge } from '../common/utils.js'
-import Tools from '../common/Tools'
+import zrender from 'zrender';
+import { merge } from '../common/utils.js';
+import Tools from '../common/Tools';
 let zr;
 
 /**
@@ -10,12 +10,12 @@ let zr;
 export default class Init {
     constructor(opts, obj) {
         if (opts) {
-            this.zr = zrender.init(document.getElementById(opts.id))
+            this.zr = zrender.init(document.getElementById(opts.id));
             zr = this.zr;
             if (opts && opts.imgUrl) {
                 this.imgUrl = opts.imgUrl;
             } else {
-                new Error('请填入imgUrl属性,仅支持http或者https')
+                new Error('请填入imgUrl属性,仅支持http或者https');
             }
             // console.log('初始化', this.zr)
             this._option = opts;
@@ -25,11 +25,11 @@ export default class Init {
         }
         //屏蔽浏览器的右击事件
         this.zr.dom.oncontextmenu = function() {
-            return false
+            return false;
         };
         this.ctx = {};
-        this.ctx.canvasWidth = this.zr.getWidth()
-        this.ctx.canvasHeight = this.zr.getHeight()
+        this.ctx.canvasWidth = this.zr.getWidth();
+        this.ctx.canvasHeight = this.zr.getHeight();
         this._zrClick = this._zrClick;
         this._zrMouseMove = this._zrMouseMove;
         this._zrMouseDown = this._zrMouseDown;
@@ -55,9 +55,9 @@ export default class Init {
         let array = [];
         newPoints.forEach(item => {
             let x;
-            x = shape.transformCoordToGlobal(item[0], item[1])
+            x = shape.transformCoordToGlobal(item[0], item[1]);
             array.push(x);
-        })
+        });
         // return newPoints;
         return array;
     }
@@ -67,13 +67,13 @@ export default class Init {
         newPoints.forEach(item => {
             let x, scale = this.group.scale[0];
             if (scale === 1) {
-                x = shape.transformCoordToGlobal(item[0], item[1])
+                x = shape.transformCoordToGlobal(item[0], item[1]);
             } else {
-                x = shape.transformCoordToGlobal(item[0], item[1])
+                x = shape.transformCoordToGlobal(item[0], item[1]);
                 x = [x[0] / scale, x[1] / scale];
             }
             array.push(x);
-        })
+        });
         return array;
     }
     _toLocal(points, shape) {
@@ -83,7 +83,7 @@ export default class Init {
             let x, scale = this.group.scale[0];
             x = shape.transformCoordToLocal(item[0], item[1]);
             array.push(x);
-        })
+        });
         return array;
     }
     clear() {
