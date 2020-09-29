@@ -8848,7 +8848,7 @@ var BImage = function (_Init) {
         key: 'exportSimple',
         value: function exportSimple() {
             this.zr.painter.getRenderedCanvas({
-                backgroundColor: "#fff"
+                backgroundColor: '#fff'
             }).toBlob(function (blob) {
                 var url = window.URL.createObjectURL(blob);
                 window.open(url);
@@ -8878,7 +8878,7 @@ var BImage = function (_Init) {
             zr.refreshImmediately();
 
             return zr.painter.getRenderedCanvas({
-                backgroundColor: "#fff"
+                backgroundColor: '#fff'
             }).toBlob(function (blob) {
                 var url = window.URL.createObjectURL(blob);
                 window.open(url);
@@ -16547,14 +16547,14 @@ var Polygon = function (_Image) {
     }, {
         key: '_zrClick',
         value: function _zrClick(e) {
-            if (e.target && e.target.data.type === "IMAGE") {
+            if (e.target && e.target.data.type === 'IMAGE') {
                 this.resetShapeStyle();
             }
         }
     }, {
         key: '_zrDBClick',
         value: function _zrDBClick(e) {
-            if (e.target && e.target.data.type === "IMAGE" && this._isMouseDown && this.currShape) {
+            if (e.target && e.target.data.type === 'IMAGE' && this._isMouseDown && this.currShape) {
 
                 var index = this._areaShape.length - 1;
                 var shapePoints = this.currShape.shape.points;
@@ -16588,7 +16588,7 @@ var Polygon = function (_Image) {
     }, {
         key: '_zrMouseDown',
         value: function _zrMouseDown(e) {
-            if (e.which === 1 && e.target && e.target.data.type === "IMAGE") {
+            if (e.which === 1 && e.target && e.target.data.type === 'IMAGE') {
                 if (this.isOpen === false) {
                     return;
                 }
@@ -17008,7 +17008,7 @@ var Polygon = function (_Image) {
             editNode.on('mouseout', function (e) {});
 
             editNode.on('mouseup', function (e) {});
-            editNode.on("dragstart", function (e) {
+            editNode.on('dragstart', function (e) {
 
                 var m = _this6.currShape.transform;
                 var point = _this6.currShape.shape.points;
@@ -17026,7 +17026,7 @@ var Polygon = function (_Image) {
                 _this6.m = _zrender2.default.util.clone(_this6.currShape.transform || []);
             });
 
-            editNode.on("drag", function (e) {
+            editNode.on('drag', function (e) {
                 if (e.event.target.tagName === 'CANVAS') {
                     var oldPoints = _zrender2.default.util.clone(_this6._editNode);
 
@@ -17042,7 +17042,7 @@ var Polygon = function (_Image) {
                         m[4] = 0;
                         m[5] = 0;
                     }
-                    if (m[4] === _this6.position[0]) {}
+
 
                     var bgDragX = void 0,
                         bgDragY = void 0;
@@ -17114,7 +17114,7 @@ var Polygon = function (_Image) {
                     _this6._createEditPoint(newPoints, group);
                 }
             });
-            editNode.on("dragend", function (e) {
+            editNode.on('dragend', function (e) {
                 var shape = group.bound;
 
                 var rPoints = _this6._changeToPoints(_this6._editNode);
@@ -17123,7 +17123,7 @@ var Polygon = function (_Image) {
                     coordinates: rPoints
                 }));
             });
-            editNode.on("dragend", function (e) {
+            editNode.on('dragend', function (e) {
                 if (_this6._editNode.length > 0) {
                     var shape = _this6._createShape(_this6._editNode, _this6.currShape.data);
                     _this6.graphic.remove(_this6.currShape.bound);
@@ -17351,10 +17351,10 @@ var Polygon = function (_Image) {
                 var twoPoint = _this13._changeToPoints(shapePoints);
 
                 markInfo.push({
-                    "id": item.data.id,
-                    "type": item.data.type,
-                    "notes": item.data.notes,
-                    "coordinates": twoPoint
+                    'id': item.data.id,
+                    'type': item.data.type,
+                    'notes': item.data.notes,
+                    'coordinates': twoPoint
                 });
             });
             return markInfo;
@@ -17457,8 +17457,7 @@ var RectOverlay = function (_Image) {
         _this._startPoint = [];
         _this._endPoint = [];
 
-        _this._areaShape = [];
-        _this._edgePoint = [];
+        _this._areaShapes = [];
         _this._editNode = [];
         _this._editRectStart = [];
         _this.position = [0, 0];
@@ -17547,7 +17546,7 @@ var RectOverlay = function (_Image) {
         key: 'setEdit',
         value: function setEdit(blean) {
             if (blean) {
-                this._areaShape.forEach(function (item) {
+                this._areaShapes.forEach(function (item) {
                     item.attr({
                         draggable: true
                     });
@@ -17558,7 +17557,7 @@ var RectOverlay = function (_Image) {
                     }
                 });
             } else {
-                this._areaShape.forEach(function (item) {
+                this._areaShapes.forEach(function (item) {
                     item.attr({
                         draggable: false
                     });
@@ -17574,14 +17573,14 @@ var RectOverlay = function (_Image) {
     }, {
         key: '_zrClick',
         value: function _zrClick(e) {
-            if (e.target && e.target.data.type === "IMAGE") {
+            if (e.target && e.target.data.type === 'IMAGE') {
                 this.resetShapeStyle();
             }
         }
     }, {
         key: '_zrMouseDown',
         value: function _zrMouseDown(e) {
-            if (e.which === 1 && e.target && e.target.data.type === "IMAGE") {
+            if (e.which === 1 && e.target && e.target.data.type === 'IMAGE') {
                 this.resetShapeStyle();
                 this.origin = this._getDrawPoint(e);
                 this._startPoint = this.origin;
@@ -17644,7 +17643,7 @@ var RectOverlay = function (_Image) {
                         notes: '-1'
                     });
                     this.graphic.add(this.currShape);
-                    this._areaShape.push(this.currShape);
+                    this._areaShapes.push(this.currShape);
                 } else {
                     this.currShape.attr({
                         shape: {
@@ -17663,7 +17662,7 @@ var RectOverlay = function (_Image) {
         key: '_zrMouseUp',
         value: function _zrMouseUp(e) {
             if (this._isMouseDown && this.currShape) {
-                var index = this._areaShape.length - 1;
+                var index = this._areaShapes.length - 1;
                 var shapePoints = this.currShape.shape.points;
 
                 var points = this._changeToPoints(shapePoints);
@@ -17671,7 +17670,7 @@ var RectOverlay = function (_Image) {
                     type: 'Rectangle',
                     notes: '-1',
                     id: window.btoa(Math.random()) };
-                this._areaShape[index].attr({
+                this._areaShapes[index].attr({
                     style: this._styleConfig.selected,
                     data: _extends({}, data)
                 });
@@ -17694,12 +17693,12 @@ var RectOverlay = function (_Image) {
     }, {
         key: 'setData',
         value: function setData(data) {
-            this.showMarkers(data);
+            this.setMarkers(data);
         }
     }, {
         key: '_filterImage',
         value: function _filterImage() {
-            this._areaShape.splice(0);
+            this._areaShapes.splice(0);
             var save = [];
             this.group.eachChild(function (x) {
                 if (x.data.type === 'IMAGE') {
@@ -17711,8 +17710,8 @@ var RectOverlay = function (_Image) {
             this.zr.add(this.group);
         }
     }, {
-        key: 'showMarkers',
-        value: function showMarkers(data) {
+        key: 'setMarkers',
+        value: function setMarkers(data) {
             var _this2 = this;
 
             this.removeAll();
@@ -17730,7 +17729,7 @@ var RectOverlay = function (_Image) {
                             if (points.length > 0) {
                                 _this2._createEditGroup(points, shape);
 
-                                _this2._areaShape.push(shape);
+                                _this2._areaShapes.push(shape);
                                 _this2.graphic.add(shape);
                             }
                         }
@@ -17779,9 +17778,14 @@ var RectOverlay = function (_Image) {
                 return;
             }
             this.resetShapeStyle();
-            this._areaShape.forEach(function (x) {
+            this._areaShapes.forEach(function (x) {
                 if (x.data.id === item.id) {
                     _this3.currShape = x;
+
+                    var shapePoints = _this3.currShape.shape.points;
+                    var points = _this3._changeToPoints(shapePoints);
+                    _this3._editNode = points;
+
                     _this3.setSelectedStyle(x, options);
                 }
             });
@@ -17792,6 +17796,7 @@ var RectOverlay = function (_Image) {
             if (this.isOpen) {
                 return;
             }
+
             var point = this._calculateToRelationpix(item.coordinates);
             var point_center = [(point[0][0] + point[1][0]) / 2, (point[0][1] + point[3][1]) / 2];
 
@@ -17960,6 +17965,7 @@ var RectOverlay = function (_Image) {
 
                         _this5.dispose();
                     }
+
                     return;
                 }
 
@@ -18015,7 +18021,7 @@ var RectOverlay = function (_Image) {
             editNode.on('mouseout', function (e) {});
 
             editNode.on('mouseup', function (e) {});
-            editNode.on("dragstart", function (e) {
+            editNode.on('dragstart', function (e) {
                 var m = _this6.currShape.transform;
                 var point = _this6.currShape.shape.points;
                 var oldPoints = _zrender2.default.util.clone(point);
@@ -18032,7 +18038,7 @@ var RectOverlay = function (_Image) {
                 _this6.m = _zrender2.default.util.clone(_this6.currShape.transform || []);
             });
 
-            editNode.on("drag", function (e) {
+            editNode.on('drag', function (e) {
                 if (e.event.target.tagName === 'CANVAS') {
                     var oldPoints = _zrender2.default.util.clone(_this6._editNode);
 
@@ -18049,7 +18055,7 @@ var RectOverlay = function (_Image) {
                         m[4] = 0;
                         m[5] = 0;
                     }
-                    if (m[4] === _this6.position[0]) {}
+
 
                     var bgDragX = void 0,
                         bgDragY = void 0;
@@ -18121,21 +18127,21 @@ var RectOverlay = function (_Image) {
                     _this6._createEditPoint(newPoints, group);
                 }
             });
-            editNode.on("dragend", function (e) {
+            editNode.on('dragend', function (e) {
                 if (_this6._editNode.length > 0) {
                     var shape = _this6._createShape(_this6._editNode, _this6.currShape.data);
                     _this6.graphic.remove(_this6.currShape.bound);
                     _this6.graphic.remove(_this6.currShape);
-                    _this6._areaShape.forEach(function (item, index) {
+                    _this6._areaShapes.forEach(function (item, index) {
                         if (item.data.id === _this6.currShape.data.id) {
-                            _this6._areaShape.splice(index, 1);
+                            _this6._areaShapes.splice(index, 1);
                         }
                     });
                     _this6.currShape = shape;
 
                     _this6._createEditGroup(_this6._editNode, shape);
 
-                    _this6._areaShape.push(shape);
+                    _this6._areaShapes.push(shape);
                     _this6.graphic.add(shape);
 
                     _this6.setSelectedStyle(shape);
@@ -18204,7 +18210,7 @@ var RectOverlay = function (_Image) {
             var _this8 = this;
 
             var stroke = this._styleConfig.default.stroke;
-            this._areaShape.forEach(function (item) {
+            this._areaShapes.forEach(function (item) {
                 if (item.data.type === 'Rectangle') {
                     item.attr({
                         style: _extends({}, _this8._styleConfig.default, {
@@ -18226,10 +18232,10 @@ var RectOverlay = function (_Image) {
 
             if (this.selectedSub) {
                 var obj = void 0;
-                this._areaShape.forEach(function (item, index) {
+                this._areaShapes.forEach(function (item, index) {
                     if (item.data.id === _this9.selectedSub.data.id) {
                         obj = item;
-                        _this9._areaShape.splice(index, 1);
+                        _this9._areaShapes.splice(index, 1);
                     }
                 });
                 if (obj) {
@@ -18247,14 +18253,14 @@ var RectOverlay = function (_Image) {
         value: function removeSub(data) {
             var id = data.id;
             var index = void 0;
-            this._areaShape.forEach(function (sub, i) {
+            this._areaShapes.forEach(function (sub, i) {
                 if (sub.data.id === id) {
                     index = i;
                 }
             });
-            var sub = this._areaShape[index];
+            var sub = this._areaShapes[index];
             if (sub) {
-                this._areaShape.splice(index, 1);
+                this._areaShapes.splice(index, 1);
 
                 this.graphic.remove(sub.bound);
                 sub.bound = null;
@@ -18266,8 +18272,8 @@ var RectOverlay = function (_Image) {
         value: function removeAll() {
             var _this10 = this;
 
-            if (this._areaShape.length > 0) {
-                this._areaShape.forEach(function (item) {
+            if (this._areaShapes.length > 0) {
+                this._areaShapes.forEach(function (item) {
                     if (item.bound) {
                         _this10.graphic.remove(item.bound);
                         item.bound = null;
@@ -18276,7 +18282,7 @@ var RectOverlay = function (_Image) {
                     item = null;
                 });
             }
-            this._areaShape = [];
+            this._areaShapes = [];
         }
     }, {
         key: '_calculateToRelationpix',
@@ -18332,8 +18338,8 @@ var RectOverlay = function (_Image) {
     }, {
         key: 'addHover',
         value: function addHover(data) {
-            for (var i = 0; i < this._areaShape.length; i++) {
-                var curr = this._areaShape[i];
+            for (var i = 0; i < this._areaShapes.length; i++) {
+                var curr = this._areaShapes[i];
                 if (curr.data.id == data.id) {
                     this.zr.addHover(curr, data.style);
                     break;
@@ -18343,8 +18349,8 @@ var RectOverlay = function (_Image) {
     }, {
         key: 'removeHover',
         value: function removeHover(data) {
-            for (var i = 0; i < this._areaShape.length; i++) {
-                var curr = this._areaShape[i];
+            for (var i = 0; i < this._areaShapes.length; i++) {
+                var curr = this._areaShapes[i];
                 if (curr.data.id == data.id) {
                     this.zr.removeHover(curr);
                     break;
@@ -18358,15 +18364,15 @@ var RectOverlay = function (_Image) {
 
             var markInfo = [];
 
-            this._areaShape.forEach(function (item) {
+            this._areaShapes.forEach(function (item) {
                 var shapePoints = item.shape.points;
                 var twoPoint = _this13._changeToPoints(shapePoints);
 
                 markInfo.push({
-                    "id": item.data.id,
-                    "type": item.data.type,
-                    "notes": item.data.notes,
-                    "coordinates": twoPoint
+                    'id': item.data.id,
+                    'type': item.data.type,
+                    'notes': item.data.notes,
+                    'coordinates': twoPoint
                 });
             });
             return markInfo;
