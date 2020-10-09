@@ -26,6 +26,8 @@ export default class BImage extends Init {
             this._option.heightImg = 0;
             this._option.scale = 1; //original模式图片的缩放比例
             this._option.origin = [0, 0]; //旋转和缩放的原点
+            this._option.x = 0;
+            this._option.y = 0;
             this._option.offsetM = 0; //original模式画布中横轴位移
             this._option.offsetN = 0; //original模式画布中纵轴位移
             this._option.draggable = false;
@@ -298,10 +300,11 @@ export default class BImage extends Init {
 
         return { x, y, scale };
     }
-    zoomIn(times = 1.25) {
+    zoomIn(times = 1.109) {
+        // zoomOut取0.8,zoomIn取1.25，执行出错，先放大再缩小，拖动图片会触发无限放大或缩小
         this.zoomStage(times);
     }
-    zoomOut(times = 0.8) {
+    zoomOut(times = 0.9) {
         this.zoomStage(times);
     }
     zoomStage(scaleBy) {
