@@ -17,8 +17,8 @@ export default class BImage extends Init {
             this._option = ImageOption;
         } else {
             this._option = {};
-            this._option.offsetX = 0; //图片等比例缩放后在画布中左右的位移
-            this._option.offsetY = 0; //图片等比例缩放后在画布中左右的位移
+            this._option.offsetX = 0; //auto模式图片等比例缩放后在画布中横轴位移
+            this._option.offsetY = 0; //auto模式图片等比例缩放后在画布中纵轴位移
 
             this._option.imgZoom = 2; //图片放大限制
             this._option.setRate = 0; //图片的缩放比例
@@ -26,8 +26,8 @@ export default class BImage extends Init {
             this._option.heightImg = 0;
             this._option.scale = 1;
             this._option.origin = [0, 0]; //旋转和缩放的原点
-            this._option.x = 0;
-            this._option.y = 0;
+            this._option.offsetM = 0; //original模式画布中横轴位移
+            this._option.offsetN = 0; //original模式画布中纵轴位移
             this._option.draggable = false;
             this._option.rotateTime = 0;
             this._option.center = [];
@@ -97,7 +97,7 @@ export default class BImage extends Init {
         img.setAttribute('crossorigin', 'anonymous');
         img.onload = () => {
             if (this._option.mode === 'auto') {
-                //图片自动适应屏幕大小
+                //auto模式图片自动适应屏幕大小
                 const xRate = this.ctx.canvasWidth / img.width;
                 const yRate = this.ctx.canvasHeight / img.height;
                 this._option.setRate = xRate < yRate ? xRate : yRate;
@@ -110,7 +110,7 @@ export default class BImage extends Init {
                 this._option.offsetX = (this.ctx.canvasWidth - this._option.widthImg) / 2;
                 this._option.offsetY = (this.ctx.canvasHeight - this._option.heightImg) / 2;
             } else {
-                //1:1展示图片
+                //original模式，1:1展示图片
                 this._option.setRate = 1;
                 this._option.widthImg = img.width;
                 this._option.heightImg = img.height;
@@ -156,8 +156,6 @@ export default class BImage extends Init {
             this._onComplete && this._onComplete();
 
             this._bindEvent();
-
-
         };
     }
     _zrClick() {}
@@ -170,8 +168,8 @@ export default class BImage extends Init {
         this._option.widthImg = box.width * this._option.scale;
         this._option.heightImg = box.height * this._option.scale;
 
-        this._option.offsetX = this._option.x;
-        this._option.offsetY = this._option.y;
+        this._option.offsetX = this._option.offsetM;
+        this._option.offsetY = this._option.offsetN;
         this._option.center = [this._option.offsetX + (this._option.widthImg / 2), this._option.offsetY + (this._option.heightImg / 2)];
 
         return this._option.center
@@ -188,8 +186,11 @@ export default class BImage extends Init {
         this._option.widthImg = box.width * this._option.scale;
         this._option.heightImg = box.height * this._option.scale;
 
-        this._option.origin = [(this._option.widthImg / 2), (this._option.heightImg / 2)];
-
+        if (this._option.mode === 'auto') {
+            this._option.origin = [(this._option.widthImg / 2) + this._option.offsetX, (this._option.heightImg / 2) + this._option.offsetY];
+        } else {
+            this._option.origin = [(this._option.widthImg / 2), (this._option.heightImg / 2)];
+        }
         return this._option.origin;
     }
     getCenter() {
@@ -198,15 +199,23 @@ export default class BImage extends Init {
     _getOffset() {
         const origin = this.getOrigin();
 
-        let x = -origin[0] * this._option.scale + origin[0];
-        let y = -origin[1] * this._option.scale + origin[1];
+        if (this._option.mode === 'auto') {
+            return [0, 0];
+        } else {
+            let x = -origin[0] * this._option.scale + origin[0];
+            let y = -origin[1] * this._option.scale + origin[1];
 
-        return [-x, -y];
+            return [-x, -y];
+        }
     }
     _reSetPosition() {
         const offset = this._getOffset();
 
-        return [offset[0] + this._option.x, offset[1] + this._option.y];
+        if (this._option.mode === 'auto') {
+            return offset;
+        } else {
+            return [offset[0] + this._option.offsetM, offset[1] + this._option.offsetN];
+        }
     }
     rotate(degree) {
 
@@ -323,8 +332,8 @@ export default class BImage extends Init {
 
         let d = this.group.getLocalTransform();
 
-        this._option.x = d[4];
-        this._option.y = d[5];
+        this._option.offsetM = d[4];
+        this._option.offsetN = d[5];
 
         this._option.scale = newAttrs.scale;
 
