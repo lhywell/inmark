@@ -3,8 +3,97 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>js原生语法</title>
+    <title>js原生语法-放大缩小旋转</title>
     <style type="text/css">
+    html,
+    body,
+    div,
+    span,
+    applet,
+    object,
+    iframe,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p,
+    blockquote,
+    pre,
+    a,
+    abbr,
+    acronym,
+    address,
+    big,
+    cite,
+    code,
+    del,
+    dfn,
+    em,
+    img,
+    ins,
+    kbd,
+    q,
+    s,
+    samp,
+    small,
+    strike,
+    strong,
+    sub,
+    sup,
+    tt,
+    var,
+    b,
+    u,
+    i,
+    center,
+    dl,
+    dt,
+    dd,
+    ol,
+    ul,
+    li,
+    fieldset,
+    form,
+    label,
+    legend,
+    table,
+    caption,
+    tbody,
+    tfoot,
+    thead,
+    tr,
+    th,
+    td,
+    article,
+    aside,
+    canvas,
+    details,
+    embed,
+    figure,
+    figcaption,
+    footer,
+    header,
+    hgroup,
+    menu,
+    nav,
+    output,
+    ruby,
+    section,
+    summary,
+    time,
+    mark,
+    audio,
+    video {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        font-size: 100%;
+        font: inherit;
+        vertical-align: baseline;
+    }
+
     body,
     html {
         width: 100%;
@@ -19,6 +108,7 @@
         height: 100%;
         background-color: #fff;
         z-index: 99999;
+
     }
 
     .tools {
@@ -125,7 +215,7 @@
     }
     </style>
     <!-- 标注数据 -->
-    <script src="./data/markjson.js"></script>
+    <script src="./data/markjson4.js"></script>
     <script src="./data/markjson2.js"></script>
     <!-- 引入icon 样式 -->
     <link rel="stylesheet" href="./lib/styles/icons.css">
@@ -310,7 +400,7 @@ initImage();
 
 function initImage() {
     let val = data.data;
-    const resPath = val.resPath;
+    const resPath = 'https://by.cdn1.bailian-ai.com/Image/rotate_test.png';
     const markInfo = val.markInfo;
 
     markNoteList = JSON.parse(markInfo);
@@ -451,7 +541,9 @@ function onCreate(e, obj) {
     // console.log('create', e, obj)
 }
 
-function onCreateComplete(e, obj) {}
+function onCreateComplete(e, obj) {
+    console.log(e, obj)
+}
 
 function onRectDrag(e, obj) {
     // console.log('拖动',e,obj)
@@ -520,7 +612,7 @@ function startRotate() {
 function rotateRight() {
     image.rotate(0.2);
     let x = image.getRotate();
-    console.log(x)
+    // console.log(x)
 }
 
 function rotateLeft() {

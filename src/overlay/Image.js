@@ -25,6 +25,7 @@ export default class BImage extends Init {
             this._option.widthImg = 0;
             this._option.heightImg = 0;
             this._option.scale = 1;
+            this._option.origin = [0, 0]; //旋转和缩放的原点
             this._option.x = 0;
             this._option.y = 0;
             this._option.draggable = false;
@@ -164,6 +165,17 @@ export default class BImage extends Init {
     _zrMouseDown() {}
     _zrMouseUp() {}
     _zrDBClick() {}
+    _reSetCenter() {
+        const box = this.image.getBoundingRect();
+        this._option.widthImg = box.width * this._option.scale;
+        this._option.heightImg = box.height * this._option.scale;
+
+        this._option.offsetX = this._option.x;
+        this._option.offsetY = this._option.y;
+        this._option.center = [this._option.offsetX + (this._option.widthImg / 2), this._option.offsetY + (this._option.heightImg / 2)];
+
+        return this._option.center
+    }
     getRotate() {
         //返回弧度制，角度制
         return this._option.rotate;
@@ -171,12 +183,36 @@ export default class BImage extends Init {
     resetRotate() {
         this.rotate(0);
     }
+    getOrigin() {
+        const box = this.image.getBoundingRect();
+        this._option.widthImg = box.width * this._option.scale;
+        this._option.heightImg = box.height * this._option.scale;
+
+        this._option.origin = [(this._option.widthImg / 2), (this._option.heightImg / 2)];
+
+        return this._option.origin;
+    }
+    getCenter() {
+        return this._reSetCenter();
+    }
+    _getOffset() {
+        const origin = this.getOrigin();
+
+        let x = -origin[0] * this._option.scale + origin[0];
+        let y = -origin[1] * this._option.scale + origin[1];
+
+        return [-x, -y];
+    }
+    _reSetPosition() {
+        const offset = this._getOffset();
+
+        return [offset[0] + this._option.x, offset[1] + this._option.y];
+    }
     rotate(degree) {
 
         //正值代表逆时针旋转，负值代表顺时针旋转
         const oldScale = this.group.scale[0];
 
-        let center = this._option.center;
         //等于0拖拽会发生飘移，所以设定0.003度，无限接近于0
         const zero = 0.003 / 180 * Math.PI;
 
@@ -184,7 +220,8 @@ export default class BImage extends Init {
             this._option.rotateTime = 0;
             this.group.attr({
                 rotation: zero,
-                origin: center
+                position: this._reSetPosition(),
+                origin: this.getOrigin()
             });
             this._option.rotate = {
                 radians: 0,
@@ -194,7 +231,6 @@ export default class BImage extends Init {
         }
 
         let degreePi = degree / 180 * Math.PI;
-
         if (degree > 0) {
             this._option.rotateTime++;
 
@@ -207,8 +243,10 @@ export default class BImage extends Init {
 
             this.group.attr({
                 rotation: result,
-                origin: center
+                position: this._reSetPosition(),
+                origin: this.getOrigin()
             });
+
             this._option.rotate = {
                 radians: -degreePi * this._option.rotateTime,
                 degrees: -degree * this._option.rotateTime
@@ -225,7 +263,8 @@ export default class BImage extends Init {
 
             this.group.attr({
                 rotation: result,
-                origin: center
+                position: this._reSetPosition(),
+                origin: this.getOrigin()
             });
             this._option.rotate = {
                 radians: degreePi * this._option.rotateTime,
@@ -235,6 +274,7 @@ export default class BImage extends Init {
     }
     _limitAttributes(newAttrs) {
         const box = this.image.getBoundingRect();
+
         const minX = -box.width + this.ctx.canvasWidth / 2;
         const maxX = this.ctx.canvasWidth / 2;
 
@@ -249,7 +289,7 @@ export default class BImage extends Init {
 
         return { x, y, scale };
     }
-    zoomIn(times = 1.2) {
+    zoomIn(times = 1.25) {
         this.zoomStage(times);
     }
     zoomOut(times = 0.8) {
@@ -276,13 +316,17 @@ export default class BImage extends Init {
         const newAttrs = this._limitAttributes({ ...newPos, scale: newScale });
 
         this.group.attr({
-            position: [newPos.x, newPos.y],
-            scale: [newAttrs.scale, newAttrs.scale]
+            position: [0, 0],
+            scale: [newAttrs.scale, newAttrs.scale],
+            origin: this.getOrigin()
         });
 
+        let d = this.group.getLocalTransform();
+
+        this._option.x = d[4];
+        this._option.y = d[5];
+
         this._option.scale = newAttrs.scale;
-        this._option.x = newPos.x;
-        this._option.y = newPos.y;
 
         return this;
     }

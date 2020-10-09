@@ -8553,6 +8553,7 @@ var BImage = function (_Init) {
             _this._option.widthImg = 0;
             _this._option.heightImg = 0;
             _this._option.scale = 1;
+            _this._option.origin = [0, 0];
             _this._option.x = 0;
             _this._option.y = 0;
             _this._option.draggable = false;
@@ -8708,6 +8709,19 @@ var BImage = function (_Init) {
         key: '_zrDBClick',
         value: function _zrDBClick() {}
     }, {
+        key: '_reSetCenter',
+        value: function _reSetCenter() {
+            var box = this.image.getBoundingRect();
+            this._option.widthImg = box.width * this._option.scale;
+            this._option.heightImg = box.height * this._option.scale;
+
+            this._option.offsetX = this._option.x;
+            this._option.offsetY = this._option.y;
+            this._option.center = [this._option.offsetX + this._option.widthImg / 2, this._option.offsetY + this._option.heightImg / 2];
+
+            return this._option.center;
+        }
+    }, {
         key: 'getRotate',
         value: function getRotate() {
             return this._option.rotate;
@@ -8718,11 +8732,42 @@ var BImage = function (_Init) {
             this.rotate(0);
         }
     }, {
+        key: 'getOrigin',
+        value: function getOrigin() {
+            var box = this.image.getBoundingRect();
+            this._option.widthImg = box.width * this._option.scale;
+            this._option.heightImg = box.height * this._option.scale;
+
+            this._option.origin = [this._option.widthImg / 2, this._option.heightImg / 2];
+
+            return this._option.origin;
+        }
+    }, {
+        key: 'getCenter',
+        value: function getCenter() {
+            return this._reSetCenter();
+        }
+    }, {
+        key: '_getOffset',
+        value: function _getOffset() {
+            var origin = this.getOrigin();
+
+            var x = -origin[0] * this._option.scale + origin[0];
+            var y = -origin[1] * this._option.scale + origin[1];
+
+            return [-x, -y];
+        }
+    }, {
+        key: '_reSetPosition',
+        value: function _reSetPosition() {
+            var offset = this._getOffset();
+
+            return [offset[0] + this._option.x, offset[1] + this._option.y];
+        }
+    }, {
         key: 'rotate',
         value: function rotate(degree) {
             var oldScale = this.group.scale[0];
-
-            var center = this._option.center;
 
             var zero = 0.003 / 180 * Math.PI;
 
@@ -8730,7 +8775,8 @@ var BImage = function (_Init) {
                 this._option.rotateTime = 0;
                 this.group.attr({
                     rotation: zero,
-                    origin: center
+                    position: this._reSetPosition(),
+                    origin: this.getOrigin()
                 });
                 this._option.rotate = {
                     radians: 0,
@@ -8740,7 +8786,6 @@ var BImage = function (_Init) {
             }
 
             var degreePi = degree / 180 * Math.PI;
-
             if (degree > 0) {
                 this._option.rotateTime++;
 
@@ -8753,8 +8798,10 @@ var BImage = function (_Init) {
 
                 this.group.attr({
                     rotation: result,
-                    origin: center
+                    position: this._reSetPosition(),
+                    origin: this.getOrigin()
                 });
+
                 this._option.rotate = {
                     radians: -degreePi * this._option.rotateTime,
                     degrees: -degree * this._option.rotateTime
@@ -8771,7 +8818,8 @@ var BImage = function (_Init) {
 
                 this.group.attr({
                     rotation: _result,
-                    origin: center
+                    position: this._reSetPosition(),
+                    origin: this.getOrigin()
                 });
                 this._option.rotate = {
                     radians: degreePi * this._option.rotateTime,
@@ -8783,6 +8831,7 @@ var BImage = function (_Init) {
         key: '_limitAttributes',
         value: function _limitAttributes(newAttrs) {
             var box = this.image.getBoundingRect();
+
             var minX = -box.width + this.ctx.canvasWidth / 2;
             var maxX = this.ctx.canvasWidth / 2;
 
@@ -8800,7 +8849,7 @@ var BImage = function (_Init) {
     }, {
         key: 'zoomIn',
         value: function zoomIn() {
-            var times = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1.2;
+            var times = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1.25;
 
             this.zoomStage(times);
         }
@@ -8834,13 +8883,17 @@ var BImage = function (_Init) {
             var newAttrs = this._limitAttributes(_extends({}, newPos, { scale: newScale }));
 
             this.group.attr({
-                position: [newPos.x, newPos.y],
-                scale: [newAttrs.scale, newAttrs.scale]
+                position: [0, 0],
+                scale: [newAttrs.scale, newAttrs.scale],
+                origin: this.getOrigin()
             });
 
+            var d = this.group.getLocalTransform();
+
+            this._option.x = d[4];
+            this._option.y = d[5];
+
             this._option.scale = newAttrs.scale;
-            this._option.x = newPos.x;
-            this._option.y = newPos.y;
 
             return this;
         }
@@ -18437,7 +18490,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.31";
+var version = "1.0.32";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
@@ -30377,27 +30430,28 @@ Transformable.getLocalTransform = function (target, m) {
   var scale = target.scale || [1, 1];
   var rotation = target.rotation || 0;
   var position = target.position || [0, 0];
-
+console.log('m1',m[4],'origin='+origin)
   if (origin) {
     // Translate to origin
     m[4] -= origin[0];
     m[5] -= origin[1];
   }
-
+console.log('m2scale-s',m[4],'scale='+scale)
   matrix.scale(m, m, scale);
-
+console.log('m2scale',m[4])
   if (rotation) {
     matrix.rotate(m, m, rotation);
   }
-
+console.log('m3rotate',m[4],'origin='+origin)
   if (origin) {
     // Translate back from origin
     m[4] += origin[0];
     m[5] += origin[1];
   }
-
+console.log('m4',m[4],'position='+position)
   m[4] += position[0];
   m[5] += position[1];
+  console.log('m5',m[4])
   return m;
 };
 
