@@ -8792,7 +8792,6 @@ var BImage = function (_Init) {
             var zero = 0.003 / 180 * Math.PI;
 
             if (degree === 0) {
-                this._option.rotateTime = 0;
                 this.group.attr({
                     rotation: zero,
                     position: this._reSetPosition(),
@@ -8806,70 +8805,45 @@ var BImage = function (_Init) {
             }
 
             var degreePi = degree / 180 * Math.PI;
+
             var result = void 0;
+            var oldDegree = this._option.rotate.degrees;
+            var oldDegreePi = this._option.rotate.radians;
 
-            if (degree > 0) {
-                this._option.rotateTime++;
+            oldDegree -= degree;
+            oldDegreePi -= degreePi;
 
-                if (this._option.rotateTime === 0) {
-                    radian_out = 0;
-                    result = zero;
-                } else {
-                    var dg = -degree * this._option.rotateTime;
-                    var ra = -degreePi * this._option.rotateTime;
+            if (oldDegree === 0) {
+                radian_out = 0;
+                result = zero;
+            } else {
+                var dg = oldDegree;
+                var ra = oldDegreePi;
 
-                    if (Math.abs(dg) >= 360 || Math.abs(degree_out - degree) >= 360) {
-                        count++;
-                        this._option.rotateTime = 0;
-                    }
+                if (Math.abs(dg) >= 360 || Math.abs(degree_out - degree) >= 360) {
+                    count++;
+                }
 
+                if (degree > 0) {
                     degree_out = remainder + dg + count * 360;
                     radian_out = remainder_h + ra + count * (360 / 180 * Math.PI);
-
-                    if (degree_out % degree != 0 && count === 1) {
-                        remainder = degree_out;
-                        remainder_h = radian_out;
-                    }
-
-                    result = radian_out;
-
-                    if (radian_out === 0) {
-                        result = zero;
-                    }
-
-                    count = 0;
-                }
-            } else {
-                this._option.rotateTime--;
-
-                if (this._option.rotateTime === 0) {
-                    radian_out = 0;
-                    result = zero;
                 } else {
-                    var _dg = degree * this._option.rotateTime;
-                    var _ra = degreePi * this._option.rotateTime;
-
-                    if (Math.abs(_dg) >= 360 || Math.abs(degree_out - degree) >= 360) {
-                        count++;
-                        this._option.rotateTime = 0;
-                    }
-
-                    degree_out = remainder + _dg - count * 360;
-                    radian_out = remainder_h + _ra - count * (360 / 180 * Math.PI);
-
-                    if (degree_out % degree != 0 && count === 1) {
-                        remainder = degree_out;
-                        remainder_h = radian_out;
-                    }
-
-                    result = radian_out;
-
-                    if (radian_out === 0) {
-                        result = zero;
-                    }
-
-                    count = 0;
+                    degree_out = remainder + dg - count * 360;
+                    radian_out = remainder_h + ra - count * (360 / 180 * Math.PI);
                 }
+
+                if (degree_out % degree != 0 && count === 1) {
+                    remainder = degree_out;
+                    remainder_h = radian_out;
+                }
+
+                result = radian_out;
+
+                if (radian_out === 0) {
+                    result = zero;
+                }
+
+                count = 0;
             }
 
             this.group.attr({
@@ -8968,12 +8942,11 @@ var BImage = function (_Init) {
     }, {
         key: '_convertImageToCanvas',
         value: function _convertImageToCanvas(img) {
-            var canvas = document.createElement("canvas");
+            var canvas = document.createElement('canvas');
             canvas.width = this._option.widthImg;
             canvas.height = this._option.heightImg;
-            var ctx = canvas.getContext('2d');
-            console.log(this._option.rotate.radians, this._option.rotate.degree);
 
+            var ctx = canvas.getContext('2d');
             ctx.rotate(this._option.rotate.radians);
 
             ctx.drawImage(img, 0, 0, this._option.widthImg, this._option.heightImg);
@@ -18621,7 +18594,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.34";
+var version = "1.0.35";
 console.log('inMark v' + version);
 var inMark = {
     version: version,

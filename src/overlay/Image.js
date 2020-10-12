@@ -236,7 +236,7 @@ export default class BImage extends Init {
         const zero = 0.003 / 180 * Math.PI;
 
         if (degree === 0) {
-            this._option.rotateTime = 0;
+            // this._option.rotateTime = 0;
             this.group.attr({
                 rotation: zero,
                 position: this._reSetPosition(),
@@ -250,71 +250,46 @@ export default class BImage extends Init {
         }
 
         let degreePi = degree / 180 * Math.PI;
+
         let result;
+        let oldDegree = this._option.rotate.degrees;
+        let oldDegreePi = this._option.rotate.radians;
 
-        if (degree > 0) {
-            this._option.rotateTime++;
+        oldDegree -= degree;
+        oldDegreePi -= degreePi;
 
-            if (this._option.rotateTime === 0) {
-                radian_out = 0;
-                result = zero;
-            } else {
-                let dg = -degree * this._option.rotateTime;
-                let ra = -degreePi * this._option.rotateTime;
+        if (oldDegree === 0) {
+            radian_out = 0;
+            result = zero;
+        } else {
+            let dg = oldDegree;
+            let ra = oldDegreePi;
 
-                if (Math.abs(dg) >= 360 || Math.abs(degree_out - degree) >= 360) {
-                    count++;
-                    this._option.rotateTime = 0
-                }
+            if (Math.abs(dg) >= 360 || Math.abs(degree_out - degree) >= 360) {
+                count++;
+            }
 
+            if (degree > 0) {
                 degree_out = remainder + dg + (count * 360);
                 radian_out = remainder_h + ra + (count * (360 / 180 * Math.PI));
-
-                if (degree_out % degree != 0 && count === 1) {
-                    remainder = degree_out;
-                    remainder_h = radian_out;
-                }
-
-                result = radian_out;
-
-                if (radian_out === 0) {
-                    result = zero;
-                }
-
-                count = 0;
-            }
-
-        } else {
-            this._option.rotateTime--;
-
-            if (this._option.rotateTime === 0) {
-                radian_out = 0;
-                result = zero;
             } else {
-                let dg = degree * this._option.rotateTime;
-                let ra = degreePi * this._option.rotateTime;
-
-                if (Math.abs(dg) >= 360 || Math.abs(degree_out - degree) >= 360) {
-                    count++;
-                    this._option.rotateTime = 0
-                }
-
                 degree_out = remainder + dg - (count * 360);
                 radian_out = remainder_h + ra - (count * (360 / 180 * Math.PI));
-
-                if (degree_out % degree != 0 && count === 1) {
-                    remainder = degree_out;
-                    remainder_h = radian_out;
-                }
-
-                result = radian_out;
-
-                if (radian_out === 0) {
-                    result = zero;
-                }
-
-                count = 0;
             }
+
+
+            if (degree_out % degree != 0 && count === 1) {
+                remainder = degree_out;
+                remainder_h = radian_out;
+            }
+
+            result = radian_out;
+
+            if (radian_out === 0) {
+                result = zero;
+            }
+
+            count = 0;
         }
 
         this.group.attr({
@@ -326,7 +301,7 @@ export default class BImage extends Init {
         this._option.rotate = {
             radians: this.group.rotation,
             degrees: this.group.rotation / Math.PI * 180
-        }
+        };
     }
     _limitAttributes(newAttrs) {
         const box = this.image.getBoundingRect();
@@ -391,18 +366,17 @@ export default class BImage extends Init {
         // 获取离屏canvas
         return this.zr.painter.getRenderedCanvas({
             backgroundColor: '#fff'
-        })
+        });
     }
     getType() {
-        return this.zr.painter.getType()
+        return this.zr.painter.getType();
     }
     _convertImageToCanvas(img) {
-        let canvas = document.createElement("canvas");
+        let canvas = document.createElement('canvas');
         canvas.width = this._option.widthImg;
         canvas.height = this._option.heightImg;
-        let ctx = canvas.getContext('2d');
-        console.log(this._option.rotate.radians, this._option.rotate.degree)
 
+        let ctx = canvas.getContext('2d');
         ctx.rotate(this._option.rotate.radians);
 
         ctx.drawImage(img, 0, 0, this._option.widthImg, this._option.heightImg);
@@ -421,7 +395,7 @@ export default class BImage extends Init {
             let imgUrl = canvas.toDataURL('image/jpeg');
 
             // this.exportImages(imgUrl);
-        }
+        };
     }
     base64ToBlob(code) {
         let parts = code.split(';base64,');
