@@ -4,8 +4,13 @@ import Tools from '../common/Tools';
 import ImageConfig from '../config/ImageConfig.js';
 import EditRect from '../config/EditRect.js';
 import Init from './Init';
-let ImageOption, image, group;
 
+let ImageOption, image, group;
+let count = 0;
+let degree_out = 0,
+    radian_out = 0,
+    remainder = 0, //余数
+    remainder_h = 0; //余数弧度
 /**
  * @constructor
  * @param {Object} opts
@@ -17,6 +22,8 @@ export default class BImage extends Init {
             this._option = ImageOption;
         } else {
             this._option = {};
+            this._option.id = opts && opts.id;
+            this._option.imgUrl = opts && opts.imgUrl;
             this._option.offsetX = 0; //auto模式图片等比例缩放后在画布中横轴位移
             this._option.offsetY = 0; //auto模式图片等比例缩放后在画布中纵轴位移
 
@@ -26,14 +33,15 @@ export default class BImage extends Init {
             this._option.heightImg = 0;
             this._option.scale = 1; //original模式图片的缩放比例
             this._option.origin = [0, 0]; //旋转和缩放的原点
-            this._option.x = 0;
-            this._option.y = 0;
             this._option.offsetM = 0; //original模式画布中横轴位移
             this._option.offsetN = 0; //original模式画布中纵轴位移
             this._option.draggable = false;
             this._option.rotateTime = 0;
             this._option.center = [];
-            this._option.rotate = {};
+            this._option.rotate = {
+                radians: 0,
+                degrees: 0
+            };
             this._option.mode = opts && opts.mode || 'auto';
         }
 
@@ -95,8 +103,8 @@ export default class BImage extends Init {
         this._option.group = group;
 
         let img = new Image();
-        img.src = url;
         img.setAttribute('crossorigin', 'anonymous');
+        img.src = url;
         img.onload = () => {
             if (this._option.mode === 'auto') {
                 //auto模式图片自动适应屏幕大小
@@ -174,7 +182,7 @@ export default class BImage extends Init {
         this._option.offsetY = this._option.offsetN;
         this._option.center = [this._option.offsetX + (this._option.widthImg / 2), this._option.offsetY + (this._option.heightImg / 2)];
 
-        return this._option.center
+        return this._option.center;
     }
     getRotate() {
         //返回弧度制，角度制
@@ -242,45 +250,82 @@ export default class BImage extends Init {
         }
 
         let degreePi = degree / 180 * Math.PI;
+        let result;
+
         if (degree > 0) {
             this._option.rotateTime++;
 
-            let result;
             if (this._option.rotateTime === 0) {
+                radian_out = 0;
                 result = zero;
             } else {
-                result = -degreePi * this._option.rotateTime;
+                let dg = -degree * this._option.rotateTime;
+                let ra = -degreePi * this._option.rotateTime;
+
+                if (Math.abs(dg) >= 360 || Math.abs(degree_out - degree) >= 360) {
+                    count++;
+                    this._option.rotateTime = 0
+                }
+
+                degree_out = remainder + dg + (count * 360);
+                radian_out = remainder_h + ra + (count * (360 / 180 * Math.PI));
+
+                if (degree_out % degree != 0 && count === 1) {
+                    remainder = degree_out;
+                    remainder_h = radian_out;
+                }
+
+                result = radian_out;
+
+                if (radian_out === 0) {
+                    result = zero;
+                }
+
+                count = 0;
             }
 
-            this.group.attr({
-                rotation: result,
-                position: this._reSetPosition(),
-                origin: this.getOrigin()
-            });
-
-            this._option.rotate = {
-                radians: -degreePi * this._option.rotateTime,
-                degrees: -degree * this._option.rotateTime
-            };
         } else {
             this._option.rotateTime--;
 
-            let result;
             if (this._option.rotateTime === 0) {
+                radian_out = 0;
                 result = zero;
             } else {
-                result = degreePi * this._option.rotateTime;
-            }
+                let dg = degree * this._option.rotateTime;
+                let ra = degreePi * this._option.rotateTime;
 
-            this.group.attr({
-                rotation: result,
-                position: this._reSetPosition(),
-                origin: this.getOrigin()
-            });
-            this._option.rotate = {
-                radians: degreePi * this._option.rotateTime,
-                degrees: degree * this._option.rotateTime
-            };
+                if (Math.abs(dg) >= 360 || Math.abs(degree_out - degree) >= 360) {
+                    count++;
+                    this._option.rotateTime = 0
+                }
+
+                degree_out = remainder + dg - (count * 360);
+                radian_out = remainder_h + ra - (count * (360 / 180 * Math.PI));
+
+                if (degree_out % degree != 0 && count === 1) {
+                    remainder = degree_out;
+                    remainder_h = radian_out;
+                }
+
+                result = radian_out;
+
+                if (radian_out === 0) {
+                    result = zero;
+                }
+
+                count = 0;
+            }
+        }
+
+        this.group.attr({
+            rotation: result,
+            position: this._reSetPosition(),
+            origin: this.getOrigin()
+        });
+
+        this._option.rotate = {
+            radians: this.group.rotation,
+            degrees: this.group.rotation / Math.PI * 180
         }
     }
     _limitAttributes(newAttrs) {
@@ -341,6 +386,73 @@ export default class BImage extends Init {
         this._option.scale = newAttrs.scale;
 
         return this;
+    }
+    getOffCanvas() {
+        // 获取离屏canvas
+        return this.zr.painter.getRenderedCanvas({
+            backgroundColor: '#fff'
+        })
+    }
+    getType() {
+        return this.zr.painter.getType()
+    }
+    _convertImageToCanvas(img) {
+        let canvas = document.createElement("canvas");
+        canvas.width = this._option.widthImg;
+        canvas.height = this._option.heightImg;
+        let ctx = canvas.getContext('2d');
+        console.log(this._option.rotate.radians, this._option.rotate.degree)
+
+        ctx.rotate(this._option.rotate.radians);
+
+        ctx.drawImage(img, 0, 0, this._option.widthImg, this._option.heightImg);
+
+        return canvas;
+    }
+    exportOut() {
+        let img = new Image();
+        img.setAttribute('crossorigin', 'anonymous');
+        img.src = this._option.imgUrl;
+        img.width = this._option.widthImg;
+        img.height = this._option.heightImg;
+
+        img.onload = () => {
+            let canvas = this._convertImageToCanvas(img);
+            let imgUrl = canvas.toDataURL('image/jpeg');
+
+            // this.exportImages(imgUrl);
+        }
+    }
+    base64ToBlob(code) {
+        let parts = code.split(';base64,');
+        let contentType = parts[0].split(':')[1];
+
+        let raw = window.atob(parts[1]);
+        let rawLength = raw.length;
+
+        let uInt8Array = new Uint8Array(rawLength);
+
+        for (let i = 0; i < rawLength; ++i) {
+            uInt8Array[i] = raw.charCodeAt(i);
+        }
+        return new Blob([uInt8Array], { type: contentType });
+    }
+    exportImages(datas) {
+        let aLink = document.createElement('a');
+        let blob = this.base64ToBlob(datas);
+
+        let evt = document.createEvent('HTMLEvents');
+        evt.initEvent('click', true, true);
+        aLink.download =
+            'test' + '.jpg';
+        aLink.href = URL.createObjectURL(blob);
+        aLink.dispatchEvent(
+            new MouseEvent('click', {
+                bubbles: true,
+                cancelable: true,
+                view: window
+            })
+        );
     }
     exportSimple() {
         this.zr.painter.getRenderedCanvas({

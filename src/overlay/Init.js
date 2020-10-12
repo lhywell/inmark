@@ -17,7 +17,7 @@ export default class Init {
             } else {
                 new Error('请填入imgUrl属性,仅支持http或者https');
             }
-            // console.log('初始化', this.zr)
+            // console.log('初始化', opts)
             this._option = opts;
         } else {
             this.zr = zr;

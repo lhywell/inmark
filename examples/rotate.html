@@ -436,7 +436,7 @@ function initImage() {
 
     $('#markNoteList').html(str);
 
-    $('#markNoteList .item').on('mouseenter', function(e) {
+    $('#markNoteList .item').on('click', function(e) {
         let index = $(this).parent().attr('data-index');
         let obj = markNoteList[index]
         seletedSub(obj)
@@ -556,6 +556,7 @@ function onEditNodeDrag(e, obj) {
 }
 
 function onEditNodeDragComplete(e, obj) {
+    console.log(e,obj)
     markNoteList.forEach(item => {
         if (item.id === obj.id) {
             item.coordinates = obj.coordinates;
@@ -667,9 +668,9 @@ function deleteSub(item) {
 
 function seletedSub(item) {
     console.log(item)
-    // rect && rect.setPosition(item);
 
     rect && rect.selected(item);
+    rect && rect.setPosition(item);
 }
 </script>
 

@@ -456,19 +456,19 @@ export default class RectOverlay extends Image {
             bgDragX = this.bgDrag[0];
             bgDragY = this.bgDrag[1];
         }
-        // console.log('m', m, bgDragX, bgDragY, points, this._option.x, this._option.y)
+        // console.log('m', m, bgDragX, bgDragY, points, this._option.offsetM, this._option.offsetN)
         points.forEach(item => {
             let x;
             if (m) {
-                if (m[4] - this._option.x > 0) {
-                    item[0] = item[0] + (Math.abs(m[4] - this._option.x) / m[0]);
+                if (m[4] - this._option.offsetM > 0) {
+                    item[0] = item[0] + (Math.abs(m[4] - this._option.offsetM) / m[0]);
                 } else {
-                    item[0] = item[0] - (Math.abs(m[4] - this._option.x) / m[0]);
+                    item[0] = item[0] - (Math.abs(m[4] - this._option.offsetM) / m[0]);
                 }
-                if (m[5] - this._option.y > 0) {
-                    item[1] = item[1] + (Math.abs(m[5] - this._option.y) / m[0]);
+                if (m[5] - this._option.offsetN > 0) {
+                    item[1] = item[1] + (Math.abs(m[5] - this._option.offsetN) / m[0]);
                 } else {
-                    item[1] = item[1] - (Math.abs(m[5] - this._option.y) / m[0]);
+                    item[1] = item[1] - (Math.abs(m[5] - this._option.offsetN) / m[0]);
                 }
             }
 
@@ -787,10 +787,10 @@ export default class RectOverlay extends Image {
                         offsetX = e.event.offsetX;
                         offsetY = e.event.offsetY;
                         newPoints = [
-                            [(offsetX - this._option.x) / m[0] - bgDragX, (offsetY - this._option.y) / m[0] - bgDragY],
-                            [oldPoints[1][0], (offsetY - this._option.y) / m[0] - bgDragY],
+                            [(offsetX - this._option.offsetM) / m[0] - bgDragX, (offsetY - this._option.offsetN) / m[0] - bgDragY],
+                            [oldPoints[1][0], (offsetY - this._option.offsetN) / m[0] - bgDragY],
                             oldPoints[2],
-                            [(offsetX - this._option.x) / m[0] - bgDragX, oldPoints[3][1]],
+                            [(offsetX - this._option.offsetM) / m[0] - bgDragX, oldPoints[3][1]],
                         ];
                         break;
                         // case 't':
@@ -807,9 +807,9 @@ export default class RectOverlay extends Image {
                         offsetY = e.event.offsetY;
 
                         newPoints = [
-                            [oldPoints[0][0], (offsetY - this._option.y) / m[0] - bgDragY],
-                            [(offsetX - this._option.x) / m[0] - bgDragX, (offsetY - this._option.y) / m[0] - bgDragY],
-                            [(offsetX - this._option.x) / m[0] - bgDragX, oldPoints[3][1]],
+                            [oldPoints[0][0], (offsetY - this._option.offsetN) / m[0] - bgDragY],
+                            [(offsetX - this._option.offsetM) / m[0] - bgDragX, (offsetY - this._option.offsetN) / m[0] - bgDragY],
+                            [(offsetX - this._option.offsetM) / m[0] - bgDragX, oldPoints[3][1]],
                             oldPoints[3]
                         ];
                         break;
@@ -834,9 +834,9 @@ export default class RectOverlay extends Image {
                         // ]
                         newPoints = [
                             oldPoints[0],
-                            [(offsetX - this._option.x) / m[0] - bgDragX, oldPoints[0][1]],
-                            [(offsetX - this._option.x) / m[0] - bgDragX, (offsetY - this._option.y) / m[0] - bgDragY],
-                            [oldPoints[0][0], (offsetY - this._option.y) / m[0] - bgDragY]
+                            [(offsetX - this._option.offsetM) / m[0] - bgDragX, oldPoints[0][1]],
+                            [(offsetX - this._option.offsetM) / m[0] - bgDragX, (offsetY - this._option.offsetN) / m[0] - bgDragY],
+                            [oldPoints[0][0], (offsetY - this._option.offsetN) / m[0] - bgDragY]
                         ];
                         break;
                         // case 'b':
@@ -853,10 +853,10 @@ export default class RectOverlay extends Image {
                         offsetY = e.event.offsetY;
 
                         newPoints = [
-                            [(offsetX - this._option.x) / m[0] - bgDragX, oldPoints[0][1]],
+                            [(offsetX - this._option.offsetM) / m[0] - bgDragX, oldPoints[0][1]],
                             oldPoints[1],
-                            [oldPoints[2][0], (offsetY - this._option.y) / m[0] - bgDragY],
-                            [(offsetX - this._option.x) / m[0] - bgDragX, (offsetY - this._option.y) / m[0] - bgDragY]
+                            [oldPoints[2][0], (offsetY - this._option.offsetN) / m[0] - bgDragY],
+                            [(offsetX - this._option.offsetM) / m[0] - bgDragX, (offsetY - this._option.offsetN) / m[0] - bgDragY]
                         ];
                         break;
                         // case 'l':

@@ -154,7 +154,7 @@
                 <i class="iconfont icon-clear" @click="openTools('clear',8)"></i>
             </el-tooltip>
             <el-tooltip class="item" effect="dark" content="导出图片" placement="bottom">
-                <i class="iconfont el-icon-download" @click="openTools('export',9)"></i>
+                <i class="icon el-icon-download" @click="openTools('export',9)"></i>
             </el-tooltip>
             <span @click="setData" style="cursor: pointer;">setData</span>
         </div>
@@ -241,8 +241,8 @@ let inMapVue = new Vue({
                 this.startDeleteAll();
             }
             if (x === 'export') {
-                // this.rect && this.rect.export();
-                console.log(this.ZImage.getBoundingRect())
+                this.rect && this.rect.exportOut();
+                // console.log(this.ZImage.getBoundingRect())
             }
             let ary = this.$refs.tools.getElementsByClassName('iconfont');
             Array.from(ary)[index].className += ' active';

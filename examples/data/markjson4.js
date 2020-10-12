@@ -3,7 +3,7 @@ let data = {
     "data": {
         "format": "jpg",
         "id": 1308,
-        "markInfo": "[{\"notes\":\"到百度首页\",\"coordinates\":[[13, 16],[429, 16],[429, 44],[13, 44]],\"id\":\"06216\",\"type\":\"Rectangle\"}]",
+        "markInfo": "[{\"notes\":\"到百度首页\",\"coordinates\":[[13, 16],[790, 16],[790, 37],[13, 37]],\"id\":\"06216\",\"type\":\"Rectangle\"},{\"notes\":\"太阳\",\"coordinates\":[[15, 49],[796, 49],[796, 73],[15, 73]],\"id\":\"06217\",\"type\":\"Rectangle\"},{\"notes\":\"但有\",\"coordinates\":[[11, 81],[798, 81],[798, 105],[11, 105]],\"id\":\"06218\",\"type\":\"Rectangle\"}]",
         "markStatus": "3_已提交",
         "oprRecordList": [{
                 "id": 0,
