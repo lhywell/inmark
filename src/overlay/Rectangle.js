@@ -393,7 +393,7 @@ export default class RectOverlay extends Image {
         if (this.isOpen) {
             return;
         }
-        
+
         let point = this._calculateToRelationpix(item.coordinates);
         let point_center = [(point[0][0] + point[1][0]) / 2, (point[0][1] + point[3][1]) / 2];
 
@@ -727,25 +727,36 @@ export default class RectOverlay extends Image {
             // console.log(JSON.stringify(this.currShape.shape.points));
             // let shape = group.bound;
             // this.currShape = shape;
-            let m = this.currShape.transform;
-            let point = this.currShape.shape.points;
-            const oldPoints = zrender.util.clone(point);
-            // console.log(this.currShape, JSON.stringify(oldPoints))
+            //e.which鼠标左键，禁止鼠标右键拖动框
+            if (e.which === 3) {
+                group.eachChild(item => {
+                    item.hide();
+                });
+                return;
+            }
+            if (e.which === 1) {
+                let m = this.currShape.transform;
+                let point = this.currShape.shape.points;
+                const oldPoints = zrender.util.clone(point);
+                // console.log(this.currShape, JSON.stringify(oldPoints))
 
-            this.oldPoint = oldPoints;
-            let width = oldPoints[1][0] - oldPoints[0][0];
-            let height = oldPoints[2][1] - oldPoints[1][1];
-            // let bgDragX, bgDragY;
-            this.obj = {
-                width,
-                height
-            };
-            this.m = zrender.util.clone(this.currShape.transform || []);
+                this.oldPoint = oldPoints;
+                let width = oldPoints[1][0] - oldPoints[0][0];
+                let height = oldPoints[2][1] - oldPoints[1][1];
+                // let bgDragX, bgDragY;
+                this.obj = {
+                    width,
+                    height
+                };
+                this.m = zrender.util.clone(this.currShape.transform || []);
+            }
+
         });
 
         editNode.on('drag', (e) => {
             //禁止编辑画框到canvas外
-            if (e.event.target.tagName === 'CANVAS') {
+            //e.which鼠标左键，禁止鼠标右键拖动框
+            if (e.event.target.tagName === 'CANVAS' && e.which === 1) {
                 //框拖拽移动之后，取记录点坐标
                 let oldPoints = zrender.util.clone(this._editNode);
 
