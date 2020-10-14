@@ -313,7 +313,7 @@ let inMapVue = new Vue({
             const markInfo = data.markInfo;
 
             this.markNoteList = JSON.parse(markInfo);
-            
+
             /** this.markNoteList
             *[{
                 coordinates: Array(4),
@@ -321,7 +321,7 @@ let inMapVue = new Vue({
                 notes: "Nike Hong Kong Limited",
                 type: "Rectangle"
             }]
-            **/ 
+            **/
             this.rect && this.rect.setData(this.markNoteList);
         },
         imageDrag(e) {
@@ -408,6 +408,7 @@ let inMapVue = new Vue({
 
             if (this.rect) {
                 let item = this.rect.removeAnnotation();
+
                 if (item) {
                     let index = this.markNoteList.forEach((x, y) => {
                         if (item.data.id === x.id) {
@@ -416,6 +417,7 @@ let inMapVue = new Vue({
                     });
                 }
             }
+
         },
         startDeleteAll() {
             this.reset();

@@ -176,9 +176,10 @@
         border: 1px solid #044CA1;
     }
 
+    /*高度要定位准确*/
     .imageAnnotate {
         width: 100%;
-        height: 100%;
+        height: calc(100% - 40px);
         position: relative;
     }
 
@@ -213,6 +214,10 @@
     canvas:nth-child(1) {
         background: #d2d2d2
     }
+
+    .currentDegree {
+        width: 156px;
+    }
     </style>
     <!-- 标注数据 -->
     <script src="./data/markjson4.js"></script>
@@ -221,6 +226,8 @@
     <link rel="stylesheet" href="./lib/styles/icons.css">
     <!-- 引入bootstrap 样式 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+     <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
 </head>
 
 <body>
@@ -228,9 +235,6 @@
         <div class="tools" id="tools">
             <div class="item" data-container="body" data-toggle="popover" data-placement="bottom" data-content="拖 动" data-trigger="hover">
                 <i class="iconfont icon-drag"></i>
-            </div>
-            <div class="item" data-container="body" data-toggle="popover" data-placement="bottom" data-content="矩形标注" data-trigger="hover">
-                <i class="iconfont icon-act"></i>
             </div>
             <div class="item" data-container="body" data-toggle="popover" data-placement="bottom" data-content="顺时针旋转90" data-trigger="hover">
                 <i class="iconfont icon-rotate" id="rotate9"></i>
@@ -252,24 +256,14 @@
                 <i class="el-icon-refresh"></i>
             </div>
             <span></span>
-            <div class="item" data-container="body" data-toggle="popover" data-placement="bottom" data-content="删除标记" data-trigger="hover">
-                <i class="iconfont icon-delete"></i>
-            </div>
-            <span></span>
-            <div class="item" data-container="body" data-toggle="popover" data-placement="bottom" data-content="清空所有标注" data-trigger="hover">
-                <i class="iconfont icon-clear"></i>
-            </div>
             <div class="item" data-container="body" data-toggle="popover" data-placement="bottom" data-content="导出图片" data-trigger="hover">
-                <i class="iconfont el-icon-download"></i>
+                <i class="icon el-icon-download"></i>
             </div>
-            <span id="setData" style="cursor: pointer;">setData</span>
+            <div class="currentDegree">当前角度：<em id="setDegreeText">0</em>°</div>
+            <a href="javascript:void(0)" id="resetRotate">重置</a>
         </div>
         <div class="imageAnnotate" id="inmarkDOM"></div>
         <div class="loading"></div>
-        <div class="list" id="markNoteList">
-            <!-- <span class="item" @click="seletedSub(item)">{{item.notes}}</span> -->
-            <!-- <span class="item" @click="deleteSub(item)">删除</span> -->
-        </div>
     </div>
     </div>
 </body>
@@ -296,16 +290,10 @@ let zr = null,
 $('[data-toggle="popover"]').popover()
 
 
-let h = document.documentElement.clientHeight;
-document.querySelector('.list').style.height = h + 'px'
-
-
 $('.icon-drag').click(function() {
     openTools('drag', $(this))
 })
-$('.icon-act').click(function() {
-    openTools('act', $(this))
-})
+
 
 $('#rotate9').click(function() {
     openTools('rotate', $(this))
@@ -328,18 +316,17 @@ $('.el-icon-refresh').click(function() {
     openTools('resetRotate', $(this))
 })
 
-$('.icon-delete').click(function() {
-    openTools('delete', $(this))
-})
-$('.icon-clear').click(function() {
-    openTools('clear', $(this))
-})
+
 $('.el-icon-download').click(function() {
     openTools('export', $(this))
+
 })
 
-$('#setData').click(function() {
-    setData()
+$('#resetRotate').click(function() {
+    image.rotate(0);
+
+    let dom = document.getElementById('setDegreeText');
+    dom.innerHTML = 0;
 })
 
 
@@ -358,7 +345,7 @@ function openTools(x, _this) {
         startDrag();
     }
     if (x === 'act') {
-        startRect();
+        // startRect();
     }
     if (x === 'rotate') {
         startRotate();
@@ -380,14 +367,10 @@ function openTools(x, _this) {
     if (x === 'resetRotate') {
         resetRotate();
     }
-    if (x === 'delete') {
-        startDeleteCurrent();
-    }
-    if (x === 'clear') {
-        startDeleteAll();
-    }
+
     if (x === 'export') {
         // rect && rect.export();
+        image && image.exportOut();
         console.log(ZImage.getBoundingRect())
     }
 
@@ -400,7 +383,7 @@ initImage();
 
 function initImage() {
     let val = data.data;
-    const resPath = 'https://by.cdn1.bailian-ai.com/Image/rotate_test.png';
+    const resPath = val.resPath;
     const markInfo = val.markInfo;
 
     markNoteList = JSON.parse(markInfo);
@@ -411,12 +394,13 @@ function initImage() {
     // 生成图片实例
     image = new inMark.Image({
         id: imgId,
-        mode: 'original', //original or auto
+        mode: 'auto-rotate', //original or auto
         imgUrl: resPath,
         event: {
             onLoadComplete: loadComplete,
             onImageDrag: imageDrag,
             onImageDragEnd: onImageDragEnd_image,
+            onRotate: onRotate,
         }
     });
 
@@ -453,130 +437,20 @@ function loadComplete() {
     //获得ZImage实例
     ZImage = image.getImage();
 
-    initRect(markNoteList);
+    // initRect(markNoteList);
 
     $('.loading').hide();
 }
 
-// 画矩形
-function initRect(data) {
-    // return;
-    rect = new inMark.Rect({
-        data: data,
-        isOpen: false,
-        style: {
-            default: {
-                fill: 'rgba(49, 117, 247,.5)',
-                stroke: '#3175f7',
-                // stroke: '#FFA200',
-                lineWidth: 1,
-                lineDash: [0, 0],
-                strokeNoScale: true
-            },
-            // 选中颜色
-            selected: {
-                fill: 'rgba(49, 117, 247,.8)',
-                stroke: '#3175f7',
-                lineWidth: 1,
-                lineDash: [0, 0],
-                strokeNoScale: true
-            }
-        },
-        event: {
-            onCreate: onCreate,
-            onImageDrag: onImageDrag,
-            onImageDragEnd: onImageDragEnd,
-            onCreateComplete: onCreateComplete,
-            onRectDrag: onRectDrag,
-            onRectDragComplete: onRectDragComplete,
-            onEditNodeDrag: onEditNodeDrag,
-            onEditNodeDragComplete: onEditNodeDragComplete,
-            onSelected: onSelected,
-            onHover: onHover,
-            unSelect: unSelect
-        }
-    });
-    // rect.setData(s);
 
-    init = false;
-
-    startDrag();
-}
-
-// 设置数据
-function setData() {
-    let data = data2.data;
-    const markInfo = data.markInfo;
-
-    markNoteList = JSON.parse(markInfo);
-
-    /** markNoteList
-    *[{
-        coordinates: Array(4),
-        id: "06216",
-        notes: "Nike Hong Kong Limited",
-        type: "Rectangle"
-    }]
-    **/
-    rect && rect.setData(markNoteList);
-}
 
 function imageDrag(e) {
-    // console.log(e)
-}
-
-function onImageDrag(e) {
-    // console.log(e)
-}
-
-function onImageDragEnd(e) {
     // console.log(e)
 }
 
 function onImageDragEnd_image(e) {
     console.log(e)
 }
-
-function onCreate(e, obj) {
-    // console.log('create', e, obj)
-}
-
-function onCreateComplete(e, obj) {
-    console.log(e, obj)
-}
-
-function onRectDrag(e, obj) {
-    // console.log('拖动',e,obj)
-}
-
-function onRectDragComplete(e, obj) {}
-
-function onEditNodeDrag(e, obj) {
-    // console.log('编辑', e, obj)
-}
-
-function onEditNodeDragComplete(e, obj) {
-    console.log(e,obj)
-    markNoteList.forEach(item => {
-        if (item.id === obj.id) {
-            item.coordinates = obj.coordinates;
-        }
-    })
-}
-
-function onSelected(e, data) {}
-
-function onHover(e, data) {
-    rect && rect.selected(data, {
-        fill: 'rgba(49, 117, 247,.8)',
-        stroke: '#3175f7',
-        lineWidth: 1,
-        lineDash: [0, 0],
-        strokeNoScale: true
-    });
-}
-
-function unSelect(e, data) {}
 
 //重置拖拽
 function reset() {
@@ -607,7 +481,9 @@ function startRect() {
 }
 
 function startRotate() {
-    image.rotate(90);
+    image.rotate(331);
+    let x = image.getRotate();
+    console.log(x)
 }
 
 function rotateRight() {
@@ -671,6 +547,12 @@ function seletedSub(item) {
 
     rect && rect.selected(item);
     rect && rect.setPosition(item);
+}
+
+function onRotate(item) {
+    console.log(item)
+    let dom = document.getElementById('setDegreeText');
+    dom.innerHTML = item.degrees;
 }
 </script>
 

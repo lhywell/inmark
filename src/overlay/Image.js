@@ -1,5 +1,5 @@
 import zrender from 'zrender';
-import { merge } from '../common/utils.js';
+import { merge, calcHypotenuse, cosA } from '../common/utils.js';
 import Tools from '../common/Tools';
 import ImageConfig from '../config/ImageConfig.js';
 import EditRect from '../config/EditRect.js';
@@ -53,6 +53,7 @@ export default class BImage extends Init {
         this._imageDrag = opts && opts.event.onImageDrag;
         this._imageDragEnd = opts && opts.event.onImageDragEnd;
         this._onComplete = opts && opts.event.onLoadComplete;
+        this._onRotate = opts && opts.event.onRotate;
         // console.log(this)
 
         this.initialize();
@@ -119,6 +120,85 @@ export default class BImage extends Init {
                 this._option.heightImg = img.height * this._option.setRate;
                 this._option.offsetX = (this.ctx.canvasWidth - this._option.widthImg) / 2;
                 this._option.offsetY = (this.ctx.canvasHeight - this._option.heightImg) / 2;
+            } else if (this._option.mode === 'auto-rotate') {
+                //auto-rotate，旋转模式，增加中心点参考线
+
+                //auto模式图片自动适应屏幕大小
+                const xRate = this.ctx.canvasWidth / img.width;
+                const yRate = this.ctx.canvasHeight / img.height;
+                this._option.setRate = xRate < yRate ? xRate : yRate;
+
+                if (this._option.setRate > this._option.imgZoom) {
+                    this._option.setRate = this._option.imgZoom;
+                }
+                this._option.widthImg = img.width * this._option.setRate;
+                this._option.heightImg = img.height * this._option.setRate;
+
+                this._option.padding = 20;
+                this._option.offsetX = (this.ctx.canvasWidth - this._option.widthImg) / 2;
+                this._option.offsetY = (this.ctx.canvasHeight - this._option.heightImg) / 2 || this._option.padding;
+                this._option.heightImg -= this._option.padding * 2;
+
+                let xLine = new zrender.Line({
+                    shape: {
+                        x1: 0,
+                        y1: this.ctx.canvasHeight / 2,
+                        x2: this.ctx.canvasWidth,
+                        y2: this.ctx.canvasHeight / 2
+                    },
+                    data: {
+                        type: 'LINE'
+                    },
+                    style: {
+                        stroke: '#408AE7'
+                    },
+                    zlevel: 2
+                });
+
+                let yLine = new zrender.Line({
+                    shape: {
+                        x1: this.ctx.canvasWidth / 2,
+                        y1: 0,
+                        x2: this.ctx.canvasWidth / 2,
+                        y2: this.ctx.canvasHeight
+                    },
+                    data: {
+                        type: 'LINE'
+                    },
+                    style: {
+                        stroke: '#408AE7'
+                    },
+                    zlevel: 2
+                });
+
+                let circle = new zrender.Circle({
+                    shape: {
+                        cx: this.ctx.canvasWidth / 2,
+                        cy: this._option.padding,
+                        r: 6,
+                    },
+                    data: {
+                        type: 'CIRCLE'
+                    },
+                    style: {
+                        fill: '#408AE7',
+                        stroke: '#3071E3'
+                    },
+                    cursor: 'crosshair',
+                    draggable: false,
+                    zlevel: 2
+                });
+
+                // 不放到group,旋转的时候脱离group
+                this.zr.add(xLine);
+                this.zr.add(yLine);
+
+                group.add(circle);
+
+                circle.on('mousedown', (e) => {
+                    this._option.zmousedown = true;
+                });
+
             } else {
                 //original模式，1:1展示图片
                 this._option.setRate = 1;
@@ -169,9 +249,67 @@ export default class BImage extends Init {
         };
     }
     _zrClick() {}
-    _zrMouseMove() {}
-    _zrMouseDown() {}
-    _zrMouseUp() {}
+    _zrMouseMove(e) {
+        let center = this.getOrigin();
+        let centerX = center[0];
+        let position = [];
+
+        if (e.event.offsetX >= centerX) {
+            position[0] = e.event.offsetX - centerX;
+        } else {
+            position[0] = -(centerX - e.event.offsetX);
+        }
+
+        position[1] = e.event.offsetY - this._option.padding;
+
+        if (this._option.zmousedown === true) {
+
+            let a1 = position[0];
+            let b1 = position[1];
+            let center = this.getOrigin();
+
+            //求对角线长度
+            let a = calcHypotenuse(Math.abs(a1), Math.abs(b1));
+
+            let b = center[1] - this._option.padding;
+
+            let c = calcHypotenuse(Math.abs(a1), Math.abs(b - b1));
+
+            // cosA = (b²+c²-a²)/2bc
+            let cosA_value = cosA(Math.abs(a), Math.abs(b), Math.abs(c));
+            let radians = Math.acos(cosA_value);
+            let degree = Math.acos(cosA_value) * 180 / Math.PI;
+
+            let outValue;
+
+            if (a1 <= 0) {
+                outValue = 360 - degree;
+                radians = -Math.PI - (Math.PI - radians);
+            } else {
+                outValue = degree;
+                radians = -radians;
+            }
+
+            this.group.attr({
+                rotation: radians,
+                position: this._reSetPosition(),
+                origin: this.getOrigin()
+            });
+
+            this._option.rotate = {
+                radians: radians,
+                degrees: outValue.toFixed(2)
+            };
+
+            this._onRotate && this._onRotate(this.getRotate());
+        }
+    }
+    _zrMouseDown(e) {}
+    _zrMouseUp(e) {
+        if (this._option.mode === 'auto-rotate') {
+            this._option.zmousedown = false;
+        }
+    }
     _zrDBClick() {}
     _reSetCenter() {
         const box = this.image.getBoundingRect();
@@ -196,9 +334,9 @@ export default class BImage extends Init {
         this._option.widthImg = box.width * this._option.scale;
         this._option.heightImg = box.height * this._option.scale;
 
-        if (this._option.mode === 'auto') {
+        if (this._option.mode === 'auto' || this._option.mode === 'auto-rotate') {
             this._option.origin = [(this._option.widthImg / 2) + this._option.offsetX, (this._option.heightImg / 2) + this._option.offsetY];
-        } else {
+        } else if (this._option.mode === 'original') {
             this._option.origin = [(this._option.widthImg / 2), (this._option.heightImg / 2)];
         }
         return this._option.origin;
@@ -209,7 +347,7 @@ export default class BImage extends Init {
     _getOffset() {
         const origin = this.getOrigin();
 
-        if (this._option.mode === 'auto') {
+        if (this._option.mode === 'auto' || this._option.mode === 'auto-rotate') {
             return [0, 0];
         } else {
             let x = -origin[0] * this._option.scale + origin[0];
@@ -221,7 +359,7 @@ export default class BImage extends Init {
     _reSetPosition() {
         const offset = this._getOffset();
 
-        if (this._option.mode === 'auto') {
+        if (this._option.mode === 'auto' || this._option.mode === 'auto-rotate') {
             return offset;
         } else {
             return [offset[0] + this._option.offsetM, offset[1] + this._option.offsetN];
@@ -302,6 +440,8 @@ export default class BImage extends Init {
             radians: this.group.rotation,
             degrees: this.group.rotation / Math.PI * 180
         };
+
+        this._onRotate && this._onRotate(this.getRotate());
     }
     _limitAttributes(newAttrs) {
         const box = this.image.getBoundingRect();
@@ -377,9 +517,20 @@ export default class BImage extends Init {
         canvas.height = this._option.heightImg;
 
         let ctx = canvas.getContext('2d');
+
+        let degree = this._option.rotate.degrees;
         ctx.rotate(this._option.rotate.radians);
 
-        ctx.drawImage(img, 0, 0, this._option.widthImg, this._option.heightImg);
+        if (degree >= 0 && degree < 90) {
+            ctx.drawImage(img, 0, -this._option.heightImg);
+        } else if (degree >= 90 && degree < 180) {
+            ctx.drawImage(img, -this._option.widthImg, -this._option.heightImg);
+        } else if (degree >= 180 && degree < 270) {
+            ctx.drawImage(img, -this._option.widthImg, 0);
+        } else if (degree >= 270 && degree < 360) {
+            ctx.drawImage(img, -this._option.widthImg, 0);
+        }
+        // ctx.drawImage(img, 0, 0, this._option.widthImg, this._option.heightImg);
 
         return canvas;
     }
@@ -389,11 +540,11 @@ export default class BImage extends Init {
         img.src = this._option.imgUrl;
         img.width = this._option.widthImg;
         img.height = this._option.heightImg;
+        img.style.background = '#fff';
 
         img.onload = () => {
-            let canvas = this._convertImageToCanvas(img);
-            let imgUrl = canvas.toDataURL('image/jpeg');
-
+            // let canvas = this._convertImageToCanvas(img);
+            // let imgUrl = canvas.toDataURL('image/jpeg');
             // this.exportImages(imgUrl);
         };
     }

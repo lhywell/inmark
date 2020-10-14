@@ -36,7 +36,7 @@ let data = {
         "proId": 35,
         "proName": "任务17-20191223耿傲",
         "resName": "合同222520193000007634的副本-9",
-        "resPath": "https://ocr-data.cdn.bailian-ai.com/prod/任务17-20191223耿傲/20191223/origin/合同222520193000007634的副本-9.jpg",
+        "resPath": "https://by.cdn1.bailian-ai.com/Image/rotate_test.png",
         "reviewStatus": "1_通过"
     },
     "msg": "success",
