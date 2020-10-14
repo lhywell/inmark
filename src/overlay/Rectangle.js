@@ -916,6 +916,8 @@ export default class RectOverlay extends Image {
 
                 this._createEditGroup(this._editNode, shape);
 
+                this.selectedSub = shape;
+
                 this._areaShapes.push(shape);
                 this.graphic.add(shape);
 
