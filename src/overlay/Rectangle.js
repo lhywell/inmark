@@ -514,6 +514,7 @@ export default class RectOverlay extends Image {
             // console.log('start', e.target.position, JSON.stringify(e.target.shape.points));
         });
         shape.on('drag', (e) => {
+
             //拖动多边形与编辑同步
             let group = shape.bound;
             group.attr({
@@ -549,21 +550,24 @@ export default class RectOverlay extends Image {
 
         // })
         shape.on('dragend', (e) => {
-            let shape = e.target;
+            if (e.which === 1) {
+                let shape = e.target;
 
-            this.position = zrender.util.clone(shape.position);
-            //拖动后点坐标
-            let shapePoints = this._toShapeDragEnd(e, shape);
+                this.position = zrender.util.clone(shape.position);
+                //拖动后点坐标
+                let shapePoints = this._toShapeDragEnd(e, shape);
 
-            this.currShape = shape;
+                this.currShape = shape;
 
-            // console.log('end', this.position, JSON.stringify(e.target.shape.points), JSON.stringify(shapePoints));
+                // console.log('end', this.position, JSON.stringify(e.target.shape.points), JSON.stringify(shapePoints));
 
-            const rPoints = this._changeToPoints(shapePoints);
-            this._onRectDragComplete && this._onRectDragComplete(e, {
-                ...e.target.data,
-                coordinates: rPoints
-            });
+                const rPoints = this._changeToPoints(shapePoints);
+                this._onRectDragComplete && this._onRectDragComplete(e, {
+                    ...e.target.data,
+                    coordinates: rPoints
+                });
+            }
+
         });
         shape.on('mousemove', (e) => {
             if (this.isOpen) {
@@ -617,7 +621,7 @@ export default class RectOverlay extends Image {
             });
         });
         shape.on('mouseout', (e) => {
-            if (this.isOpen) {
+            if (this.isOpen && e.which === 1) {
                 this._bindEvent();
             }
         });
@@ -681,7 +685,7 @@ export default class RectOverlay extends Image {
         shape.on('mouseup', (e) => {
             //开启编辑，选中某个框
             // console.log('shap-mouseup', this.currShape, this.isOpen, this.selectedSub, this.tempShape.id, this.currShape.id)
-            if (this.isOpen && this.selectedSub) {
+            if (this.isOpen && this.selectedSub && e.which === 1) {
                 this._startPoint = [];
 
                 this.currShape.bound && this.currShape.bound.eachChild(item => {
