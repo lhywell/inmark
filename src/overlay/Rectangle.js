@@ -498,14 +498,19 @@ export default class RectOverlay extends Image {
 
         let oldGroup = [];
         shape.on('click', (e) => {
-            // console.log('click', e.target)
-            //点击重新设置坐标点
-            this._editNode = this._toShapeDragEnd(e, e.target);
+            if (e.which === 1) {
+                // console.log('click', e.target)
+                //点击重新设置坐标点
+                this._editNode = this._toShapeDragEnd(e, e.target);
+            }
+
         });
         shape.on('dragstart', (e) => {
-            this.currShape = shape;
+            if (e.which === 1) {
+                this.currShape = shape;
 
-            this.tempShape = e.target;
+                this.tempShape = e.target;
+            }
             // console.log('start', e.target.position, JSON.stringify(e.target.shape.points));
         });
         shape.on('drag', (e) => {
@@ -538,6 +543,7 @@ export default class RectOverlay extends Image {
                 ...e.target.data,
                 coordinates: rPoints
             });
+
         });
         // shape.on('dragstart', (e) => {
 
@@ -616,59 +622,60 @@ export default class RectOverlay extends Image {
             }
         });
         shape.on('mousedown', (e) => {
-            //选中某个框
-            // this.currShape = e.target;
-            this.currShape = e.target;
-            this.tempShape = e.target;
+            if (e.which === 1) {
+                //选中某个框
+                // this.currShape = e.target;
+                this.currShape = e.target;
+                this.tempShape = e.target;
 
-            this.selectedSub = shape;
-            this.resetShapeStyle();
+                this.selectedSub = shape;
+                this.resetShapeStyle();
 
-            this.setSelectedStyle(e.target);
-            // if (this.getDrag() === true) {
-            //     shape.attr({
-            //         draggable: false
-            //     })
+                this.setSelectedStyle(e.target);
+                // if (this.getDrag() === true) {
+                //     shape.attr({
+                //         draggable: false
+                //     })
 
-            //     this.cover = new zrender.Polygon({
-            //         shape: {
-            //             points: [
-            //                 [0, 0],
-            //                 [0, 2000],
-            //                 [2000, 9000],
-            //                 [9000, 0]
-            //             ],
-            //             smooth: 0,
-            //         },
-            //         cursor: 'pointer',
-            //         draggable: true,
-            //         style: {
-            //             fill: 'rgba(24,151,117,0)',
-            //             lineWidth: 0,
-            //             lineDash: [0, 0],
-            //         },
-            //         zlevel: 3
-            //     })
-            //     this.zr.add(this.cover);
+                //     this.cover = new zrender.Polygon({
+                //         shape: {
+                //             points: [
+                //                 [0, 0],
+                //                 [0, 2000],
+                //                 [2000, 9000],
+                //                 [9000, 0]
+                //             ],
+                //             smooth: 0,
+                //         },
+                //         cursor: 'pointer',
+                //         draggable: true,
+                //         style: {
+                //             fill: 'rgba(24,151,117,0)',
+                //             lineWidth: 0,
+                //             lineDash: [0, 0],
+                //         },
+                //         zlevel: 3
+                //     })
+                //     this.zr.add(this.cover);
 
-            //     this.cover.on('drag', (e) => {
-            //         let array = e.target.position;
+                //     this.cover.on('drag', (e) => {
+                //         let array = e.target.position;
 
-            //         this.group.attr({
-            //             position: array
-            //         });
-            //     })
-            //     this.cover.on('dragend', (e) => {
-            //         this.zr.remove(this.cover);
-            //     })
-            // }
-            let shapePoints = this._toGlobal(e.target.shape.points, shape);
-            const rPoints = this._changeToPoints(shapePoints);
-            this._onSelected && this._onSelected(e, {
-                ...e.target.data,
-                coordinates: rPoints
-            });
-
+                //         this.group.attr({
+                //             position: array
+                //         });
+                //     })
+                //     this.cover.on('dragend', (e) => {
+                //         this.zr.remove(this.cover);
+                //     })
+                // }
+                let shapePoints = this._toGlobal(e.target.shape.points, shape);
+                const rPoints = this._changeToPoints(shapePoints);
+                this._onSelected && this._onSelected(e, {
+                    ...e.target.data,
+                    coordinates: rPoints
+                });
+            }
         });
 
         shape.on('mouseup', (e) => {
@@ -755,7 +762,6 @@ export default class RectOverlay extends Image {
 
         editNode.on('drag', (e) => {
             //禁止编辑画框到canvas外
-            //e.which鼠标左键，禁止鼠标右键拖动框
             if (e.event.target.tagName === 'CANVAS' && e.which === 1) {
                 //框拖拽移动之后，取记录点坐标
                 let oldPoints = zrender.util.clone(this._editNode);
