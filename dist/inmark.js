@@ -9213,8 +9213,8 @@ exports.default = {
     shape: {
         x: 0,
         y: 0,
-        width: 4,
-        height: 4
+        width: 5,
+        height: 5
     },
     data: {
         type: 'editRect'
@@ -18772,7 +18772,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.36";
+var version = "1.0.38";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
