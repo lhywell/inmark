@@ -515,7 +515,6 @@ export default class RectOverlay extends Image {
             // console.log('start', e.target.position, JSON.stringify(e.target.shape.points));
         });
         shape.on('drag', (e) => {
-
             //拖动多边形与编辑同步
             let group = shape.bound;
             group.attr({
@@ -635,6 +634,7 @@ export default class RectOverlay extends Image {
                 // this.currShape = e.target;
                 this.currShape = e.target;
                 this.tempShape = e.target;
+                // console.log(this.currShape, JSON.stringify(this.currShape.shape.points))
 
                 this.selectedSub = shape;
                 this.resetShapeStyle();
@@ -695,7 +695,7 @@ export default class RectOverlay extends Image {
                 this.currShape.bound && this.currShape.bound.eachChild(item => {
                     item.show();
                 });
-                this.temp = zrender.util.clone(this.currShape.shape.points);
+                // this.temp = zrender.util.clone(this.currShape.shape.points);
 
                 // this.currShape = e.target;
 
@@ -794,13 +794,13 @@ export default class RectOverlay extends Image {
             //禁止编辑画框到canvas外
             if (e.event.target.tagName === 'CANVAS' && e.which === 1) {
                 //框拖拽移动之后，取记录点坐标
-                let oldPoints = zrender.util.clone(this._editNode);
+                // let oldPoints = zrender.util.clone(this._editNode);
 
-                //框非移动，取拖拽坐标
-                if (oldPoints.length === 0) {
-                    oldPoints = zrender.util.clone(this.currShape.shape.points);
-                }
-                // console.log('old', JSON.stringify(oldPoints), JSON.stringify(this.currShape.shape.points))
+                // //框非移动，取拖拽坐标
+                // if (oldPoints.length === 0) {
+                //     oldPoints = zrender.util.clone(this.currShape.shape.points);
+                // }
+                let oldPoints = zrender.util.clone(this.currShape.shape.points);
 
                 let m = this.m;
                 const _side = e.target.data._side;
