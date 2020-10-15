@@ -18302,6 +18302,7 @@ var RectOverlay = function (_Image) {
                     _this5.currShape = e.target;
                     _this5.tempShape = e.target;
 
+
                     _this5.selectedSub = shape;
                     _this5.resetShapeStyle();
 
@@ -18322,7 +18323,6 @@ var RectOverlay = function (_Image) {
                     _this5.currShape.bound && _this5.currShape.bound.eachChild(function (item) {
                         item.show();
                     });
-                    _this5.temp = _zrender2.default.util.clone(_this5.currShape.shape.points);
 
                     _this5._bindEvent();
                 }
@@ -18392,12 +18392,7 @@ var RectOverlay = function (_Image) {
 
             editNode.on('drag', function (e) {
                 if (e.event.target.tagName === 'CANVAS' && e.which === 1) {
-                    var oldPoints = _zrender2.default.util.clone(_this7._editNode);
-
-                    if (oldPoints.length === 0) {
-                        oldPoints = _zrender2.default.util.clone(_this7.currShape.shape.points);
-                    }
-
+                    var oldPoints = _zrender2.default.util.clone(_this7.currShape.shape.points);
 
                     var m = _this7.m;
                     var _side = e.target.data._side;
@@ -18772,7 +18767,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.38";
+var version = "1.0.39";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
