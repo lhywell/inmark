@@ -8740,7 +8740,7 @@ var BImage = function (_Init) {
                     group.add(circle);
 
                     circle.on('mousedown', function (e) {
-                        _this2._option.zmousedown = true;
+                        _this2._option.rotateListen = true;
                     });
                 } else {
                     _this2._option.setRate = 1;
@@ -8795,27 +8795,26 @@ var BImage = function (_Init) {
     }, {
         key: '_zrMouseMove',
         value: function _zrMouseMove(e) {
-            var center = this.getOrigin();
-            var centerX = center[0];
-            var position = [];
+            if (this._option.rotateListen === true) {
+                var center = this.getOrigin();
+                var centerX = center[0];
+                var position = [];
 
-            if (e.event.offsetX >= centerX) {
-                position[0] = e.event.offsetX - centerX;
-            } else {
-                position[0] = -(centerX - e.event.offsetX);
-            }
+                if (e.event.offsetX >= centerX) {
+                    position[0] = e.event.offsetX - centerX;
+                } else {
+                    position[0] = -(centerX - e.event.offsetX);
+                }
 
-            position[1] = e.event.offsetY - this._option.padding;
+                position[1] = e.event.offsetY - this._option.padding;
 
-            if (this._option.zmousedown === true) {
 
                 var a1 = position[0];
                 var b1 = position[1];
-                var _center = this.getOrigin();
 
                 var a = (0, _utils.calcHypotenuse)(Math.abs(a1), Math.abs(b1));
 
-                var b = _center[1] - this._option.padding;
+                var b = center[1] - this._option.padding;
 
                 var c = (0, _utils.calcHypotenuse)(Math.abs(a1), Math.abs(b - b1));
 
@@ -8854,7 +8853,7 @@ var BImage = function (_Init) {
         key: '_zrMouseUp',
         value: function _zrMouseUp(e) {
             if (this._option.mode === 'auto-rotate') {
-                this._option.zmousedown = false;
+                this._option.rotateListen = false;
             }
         }
     }, {
@@ -17927,6 +17926,7 @@ var RectOverlay = function (_Image) {
         key: '_zrMouseMove',
         value: function _zrMouseMove(e) {
             if (this._isMouseDown && this._startPoint && e.target) {
+
                 var p = this._getDrawPoint(e);
 
                 var xLong = Math.abs(this._startPoint[0] - p[0]);
@@ -17938,10 +17938,9 @@ var RectOverlay = function (_Image) {
 
                     return;
                 }
-                this._canDrawShape = true;
-
-
                 this._endPoint = this._getDrawPoint(e);
+
+                this._canDrawShape = true;
 
                 var scale = this.group.scale[0];
 
@@ -18243,18 +18242,22 @@ var RectOverlay = function (_Image) {
             });
 
             shape.on('dragend', function (e) {
-                var shape = e.target;
+                if (e.which === 1) {
+                    var _shape = e.target;
 
-                _this5.position = _zrender2.default.util.clone(shape.position);
+                    _this5.position = _zrender2.default.util.clone(_shape.position);
 
-                var shapePoints = _this5._toShapeDragEnd(e, shape);
+                    var shapePoints = _this5._toShapeDragEnd(e, _shape);
 
-                _this5.currShape = shape;
+                    _this5.currShape = _shape;
 
-                var rPoints = _this5._changeToPoints(shapePoints);
-                _this5._onRectDragComplete && _this5._onRectDragComplete(e, _extends({}, e.target.data, {
-                    coordinates: rPoints
-                }));
+                    _this5._reCreatePoints(shapePoints);
+
+                    var rPoints = _this5._changeToPoints(shapePoints);
+                    _this5._onRectDragComplete && _this5._onRectDragComplete(e, _extends({}, e.target.data, {
+                        coordinates: rPoints
+                    }));
+                }
             });
             shape.on('mousemove', function (e) {
                 if (_this5.isOpen) {
@@ -18313,7 +18316,7 @@ var RectOverlay = function (_Image) {
             });
 
             shape.on('mouseup', function (e) {
-                if (_this5.isOpen && _this5.selectedSub) {
+                if (_this5.isOpen && _this5.selectedSub && e.which === 1) {
                     _this5._startPoint = [];
 
                     _this5.currShape.bound && _this5.currShape.bound.eachChild(function (item) {
@@ -18328,9 +18331,35 @@ var RectOverlay = function (_Image) {
             return shape;
         }
     }, {
+        key: '_reCreatePoints',
+        value: function _reCreatePoints(points) {
+            var _this6 = this;
+
+            var shape = this._createShape(points, this.currShape.data);
+            this.graphic.remove(this.currShape.bound);
+            this.graphic.remove(this.currShape);
+            this._areaShapes.forEach(function (item, index) {
+                if (item.data.id === _this6.currShape.data.id) {
+                    _this6._areaShapes.splice(index, 1);
+                }
+            });
+            this.currShape = shape;
+
+            this._createEditGroup(points, shape);
+
+            this.selectedSub = shape;
+
+            this._areaShapes.push(shape);
+            this.graphic.add(shape);
+
+            this.setSelectedStyle(shape);
+
+            this._startPoint = [];
+        }
+    }, {
         key: '_editElementEvent',
         value: function _editElementEvent(editNode, group) {
-            var _this6 = this;
+            var _this7 = this;
 
             editNode.on('mouseover', function (e) {});
             editNode.on('mouseout', function (e) {});
@@ -18344,33 +18373,33 @@ var RectOverlay = function (_Image) {
                     return;
                 }
                 if (e.which === 1) {
-                    var m = _this6.currShape.transform;
-                    var point = _this6.currShape.shape.points;
+                    var m = _this7.currShape.transform;
+                    var point = _this7.currShape.shape.points;
                     var oldPoints = _zrender2.default.util.clone(point);
 
 
-                    _this6.oldPoint = oldPoints;
+                    _this7.oldPoint = oldPoints;
                     var width = oldPoints[1][0] - oldPoints[0][0];
                     var height = oldPoints[2][1] - oldPoints[1][1];
 
-                    _this6.obj = {
+                    _this7.obj = {
                         width: width,
                         height: height
                     };
-                    _this6.m = _zrender2.default.util.clone(_this6.currShape.transform || []);
+                    _this7.m = _zrender2.default.util.clone(_this7.currShape.transform || []);
                 }
             });
 
             editNode.on('drag', function (e) {
                 if (e.event.target.tagName === 'CANVAS' && e.which === 1) {
-                    var oldPoints = _zrender2.default.util.clone(_this6._editNode);
+                    var oldPoints = _zrender2.default.util.clone(_this7._editNode);
 
                     if (oldPoints.length === 0) {
-                        oldPoints = _zrender2.default.util.clone(_this6.currShape.shape.points);
+                        oldPoints = _zrender2.default.util.clone(_this7.currShape.shape.points);
                     }
 
 
-                    var m = _this6.m;
+                    var m = _this7.m;
                     var _side = e.target.data._side;
 
                     if (!m[0]) {
@@ -18382,46 +18411,46 @@ var RectOverlay = function (_Image) {
 
                     var bgDragX = void 0,
                         bgDragY = void 0;
-                    if (_this6.bgDrag.length === 0) {
+                    if (_this7.bgDrag.length === 0) {
                         bgDragX = 0;
                         bgDragY = 0;
                     } else {
-                        bgDragX = _this6.bgDrag[0];
-                        bgDragY = _this6.bgDrag[1];
+                        bgDragX = _this7.bgDrag[0];
+                        bgDragY = _this7.bgDrag[1];
                     }
 
                     var newPoints = [];
                     var offsetX = 0;
                     var offsetY = 0;
-                    var width = _this6.obj.width;
-                    var height = _this6.obj.height;
+                    var width = _this7.obj.width;
+                    var height = _this7.obj.height;
 
                     switch (_side) {
                         case 'tl':
                             offsetX = e.event.offsetX;
                             offsetY = e.event.offsetY;
-                            newPoints = [[(offsetX - _this6._option.offsetM) / m[0] - bgDragX, (offsetY - _this6._option.offsetN) / m[0] - bgDragY], [oldPoints[1][0], (offsetY - _this6._option.offsetN) / m[0] - bgDragY], oldPoints[2], [(offsetX - _this6._option.offsetM) / m[0] - bgDragX, oldPoints[3][1]]];
+                            newPoints = [[(offsetX - _this7._option.offsetM) / m[0] - bgDragX, (offsetY - _this7._option.offsetN) / m[0] - bgDragY], [oldPoints[1][0], (offsetY - _this7._option.offsetN) / m[0] - bgDragY], oldPoints[2], [(offsetX - _this7._option.offsetM) / m[0] - bgDragX, oldPoints[3][1]]];
                             break;
 
                         case 'tr':
                             offsetX = e.event.offsetX;
                             offsetY = e.event.offsetY;
 
-                            newPoints = [[oldPoints[0][0], (offsetY - _this6._option.offsetN) / m[0] - bgDragY], [(offsetX - _this6._option.offsetM) / m[0] - bgDragX, (offsetY - _this6._option.offsetN) / m[0] - bgDragY], [(offsetX - _this6._option.offsetM) / m[0] - bgDragX, oldPoints[3][1]], oldPoints[3]];
+                            newPoints = [[oldPoints[0][0], (offsetY - _this7._option.offsetN) / m[0] - bgDragY], [(offsetX - _this7._option.offsetM) / m[0] - bgDragX, (offsetY - _this7._option.offsetN) / m[0] - bgDragY], [(offsetX - _this7._option.offsetM) / m[0] - bgDragX, oldPoints[3][1]], oldPoints[3]];
                             break;
 
                         case 'br':
                             offsetX = e.event.offsetX;
                             offsetY = e.event.offsetY;
 
-                            newPoints = [oldPoints[0], [(offsetX - _this6._option.offsetM) / m[0] - bgDragX, oldPoints[0][1]], [(offsetX - _this6._option.offsetM) / m[0] - bgDragX, (offsetY - _this6._option.offsetN) / m[0] - bgDragY], [oldPoints[0][0], (offsetY - _this6._option.offsetN) / m[0] - bgDragY]];
+                            newPoints = [oldPoints[0], [(offsetX - _this7._option.offsetM) / m[0] - bgDragX, oldPoints[0][1]], [(offsetX - _this7._option.offsetM) / m[0] - bgDragX, (offsetY - _this7._option.offsetN) / m[0] - bgDragY], [oldPoints[0][0], (offsetY - _this7._option.offsetN) / m[0] - bgDragY]];
                             break;
 
                         case 'bl':
                             offsetX = e.event.offsetX;
                             offsetY = e.event.offsetY;
 
-                            newPoints = [[(offsetX - _this6._option.offsetM) / m[0] - bgDragX, oldPoints[0][1]], oldPoints[1], [oldPoints[2][0], (offsetY - _this6._option.offsetN) / m[0] - bgDragY], [(offsetX - _this6._option.offsetM) / m[0] - bgDragX, (offsetY - _this6._option.offsetN) / m[0] - bgDragY]];
+                            newPoints = [[(offsetX - _this7._option.offsetM) / m[0] - bgDragX, oldPoints[0][1]], oldPoints[1], [oldPoints[2][0], (offsetY - _this7._option.offsetN) / m[0] - bgDragY], [(offsetX - _this7._option.offsetM) / m[0] - bgDragX, (offsetY - _this7._option.offsetN) / m[0] - bgDragY]];
                             break;
                     }
                     group.removeAll();
@@ -18431,7 +18460,7 @@ var RectOverlay = function (_Image) {
                         scale: [1, 1]
                     });
 
-                    _this6.currShape.attr({
+                    _this7.currShape.attr({
                         scale: [1, 1],
                         shape: {
                             points: newPoints
@@ -18439,43 +18468,24 @@ var RectOverlay = function (_Image) {
                         position: [0, 0]
                     });
 
-                    _this6._editNode = newPoints;
+                    _this7._editNode = newPoints;
 
-                    var rPoints = _this6._changeToPoints(newPoints);
+                    var rPoints = _this7._changeToPoints(newPoints);
 
-                    _this6._onEditNodeDrag && _this6._onEditNodeDrag(e, _extends({}, group.bound.data, {
+                    _this7._onEditNodeDrag && _this7._onEditNodeDrag(e, _extends({}, group.bound.data, {
                         coordinates: rPoints
                     }));
 
-                    _this6._createEditPoint(newPoints, group);
+                    _this7._createEditPoint(newPoints, group);
                 }
             });
             editNode.on('dragend', function (e) {
-                if (_this6._editNode.length > 0) {
-                    var shape = _this6._createShape(_this6._editNode, _this6.currShape.data);
-                    _this6.graphic.remove(_this6.currShape.bound);
-                    _this6.graphic.remove(_this6.currShape);
-                    _this6._areaShapes.forEach(function (item, index) {
-                        if (item.data.id === _this6.currShape.data.id) {
-                            _this6._areaShapes.splice(index, 1);
-                        }
-                    });
-                    _this6.currShape = shape;
+                if (_this7._editNode.length > 0) {
+                    _this7._reCreatePoints(_this7._editNode);
 
-                    _this6._createEditGroup(_this6._editNode, shape);
+                    var rPoints = _this7._changeToPoints(_this7._editNode);
 
-                    _this6.selectedSub = shape;
-
-                    _this6._areaShapes.push(shape);
-                    _this6.graphic.add(shape);
-
-                    _this6.setSelectedStyle(shape);
-
-                    _this6._startPoint = [];
-
-                    var rPoints = _this6._changeToPoints(_this6._editNode);
-
-                    _this6._onEditNodeDragComplete && _this6._onEditNodeDragComplete(e, _extends({}, group.bound.data, {
+                    _this7._onEditNodeDragComplete && _this7._onEditNodeDragComplete(e, _extends({}, group.bound.data, {
                         coordinates: rPoints
                     }));
                 }
@@ -18484,7 +18494,7 @@ var RectOverlay = function (_Image) {
     }, {
         key: '_createEditPoint',
         value: function _createEditPoint(points, group) {
-            var _this7 = this;
+            var _this8 = this;
 
             var editPoint = [];
             editPoint.push({
@@ -18508,7 +18518,7 @@ var RectOverlay = function (_Image) {
             });
 
             editPoint.forEach(function (item) {
-                var width = _this7._editWidth / _this7.group.scale[0];
+                var width = _this8._editWidth / _this8.group.scale[0];
                 var editNode = new _zrender2.default.Rect((0, _utils.merge)(_EditRect2.default, {
                     shape: {
                         x: item.points[0] - width / 2,
@@ -18521,7 +18531,7 @@ var RectOverlay = function (_Image) {
                     },
                     zlevel: 3
                 }));
-                _this7._editElementEvent(editNode, group);
+                _this8._editElementEvent(editNode, group);
 
                 group.add(editNode);
             });
@@ -18532,13 +18542,13 @@ var RectOverlay = function (_Image) {
     }, {
         key: 'resetShapeStyle',
         value: function resetShapeStyle() {
-            var _this8 = this;
+            var _this9 = this;
 
             var stroke = this._styleConfig.default.stroke;
             this._areaShapes.forEach(function (item) {
                 if (item.data.type === 'Rectangle') {
                     item.attr({
-                        style: _extends({}, _this8._styleConfig.default, {
+                        style: _extends({}, _this9._styleConfig.default, {
                             stroke: stroke
                         }),
                         draggable: false
@@ -18553,14 +18563,14 @@ var RectOverlay = function (_Image) {
     }, {
         key: 'removeAnnotation',
         value: function removeAnnotation() {
-            var _this9 = this;
+            var _this10 = this;
 
             if (this.selectedSub) {
                 var obj = void 0;
                 this._areaShapes.forEach(function (item, index) {
-                    if (item.data.id === _this9.selectedSub.data.id) {
+                    if (item.data.id === _this10.selectedSub.data.id) {
                         obj = item;
-                        _this9._areaShapes.splice(index, 1);
+                        _this10._areaShapes.splice(index, 1);
                     }
                 });
                 if (obj) {
@@ -18595,15 +18605,15 @@ var RectOverlay = function (_Image) {
     }, {
         key: 'removeAll',
         value: function removeAll() {
-            var _this10 = this;
+            var _this11 = this;
 
             if (this._areaShapes.length > 0) {
                 this._areaShapes.forEach(function (item) {
                     if (item.bound) {
-                        _this10.graphic.remove(item.bound);
+                        _this11.graphic.remove(item.bound);
                         item.bound = null;
                     }
-                    _this10.graphic.remove(item);
+                    _this11.graphic.remove(item);
                     item = null;
                 });
             }
@@ -18612,12 +18622,12 @@ var RectOverlay = function (_Image) {
     }, {
         key: '_calculateToRelationpix',
         value: function _calculateToRelationpix(points) {
-            var _this11 = this;
+            var _this12 = this;
 
             var array = [];
             points.forEach(function (item) {
-                var x = item[0] * _this11._option.setRate + _this11._option.offsetX;
-                var y = item[1] * _this11._option.setRate + _this11._option.offsetY;
+                var x = item[0] * _this12._option.setRate + _this12._option.offsetX;
+                var y = item[1] * _this12._option.setRate + _this12._option.offsetY;
                 array.push([x, y]);
             });
             return array;
@@ -18632,11 +18642,11 @@ var RectOverlay = function (_Image) {
     }, {
         key: '_changeToPoints',
         value: function _changeToPoints(points) {
-            var _this12 = this;
+            var _this13 = this;
 
             var array = [];
             points.forEach(function (item) {
-                array.push([(item[0] - _this12._option.offsetX) / _this12._option.setRate, (item[1] - _this12._option.offsetY) / _this12._option.setRate]);
+                array.push([(item[0] - _this13._option.offsetX) / _this13._option.setRate, (item[1] - _this13._option.offsetY) / _this13._option.setRate]);
             });
             return array;
         }
@@ -18685,13 +18695,13 @@ var RectOverlay = function (_Image) {
     }, {
         key: 'getData',
         value: function getData() {
-            var _this13 = this;
+            var _this14 = this;
 
             var markInfo = [];
 
             this._areaShapes.forEach(function (item) {
                 var shapePoints = item.shape.points;
-                var twoPoint = _this13._changeToPoints(shapePoints);
+                var twoPoint = _this14._changeToPoints(shapePoints);
 
                 markInfo.push({
                     'id': item.data.id,
