@@ -169,8 +169,8 @@ export default class RectOverlay extends Image {
         }
     }
     _zrMouseDown(e) {
-        // debugger;
         //e.which鼠标左键，禁止鼠标右键创建框
+        // 创建框
         if (e.which === 1 && e.target && e.target.data.type === 'IMAGE') {
 
             //图形左上角坐标
@@ -208,6 +208,7 @@ export default class RectOverlay extends Image {
     _zrMouseMove(e) {
         //e.target=undefined 禁止拖动到浏览器外边
         if (this._isMouseDown && this._startPoint && e.target) {
+
             let p = this._getDrawPoint(e);
 
             const xLong = Math.abs(this._startPoint[0] - p[0]);
@@ -219,10 +220,10 @@ export default class RectOverlay extends Image {
 
                 return;
             }
+            this._endPoint = this._getDrawPoint(e);
+
             this._canDrawShape = true;
             //图形右下角坐标
-
-            this._endPoint = this._getDrawPoint(e);
 
             //支持放大缩小
             let scale = this.group.scale[0];
@@ -559,6 +560,9 @@ export default class RectOverlay extends Image {
 
                 this.currShape = shape;
 
+                //拖拽完之后，删除原有框，重新创建一个框，避免画框重叠飞框
+                this._reCreatePoints(shapePoints);
+
                 // console.log('end', this.position, JSON.stringify(e.target.shape.points), JSON.stringify(shapePoints));
 
                 const rPoints = this._changeToPoints(shapePoints);
@@ -714,6 +718,28 @@ export default class RectOverlay extends Image {
         });
 
         return shape;
+    }
+    _reCreatePoints(points) {
+        let shape = this._createShape(points, this.currShape.data);
+        this.graphic.remove(this.currShape.bound);
+        this.graphic.remove(this.currShape);
+        this._areaShapes.forEach((item, index) => {
+            if (item.data.id === this.currShape.data.id) {
+                this._areaShapes.splice(index, 1);
+            }
+        });
+        this.currShape = shape;
+
+        this._createEditGroup(points, shape);
+
+        this.selectedSub = shape;
+
+        this._areaShapes.push(shape);
+        this.graphic.add(shape);
+
+        this.setSelectedStyle(shape);
+
+        this._startPoint = [];
     }
     _editElementEvent(editNode, group) {
         editNode.on('mouseover', (e) => {
@@ -924,27 +950,9 @@ export default class RectOverlay extends Image {
             //双击框会消失
             if (this._editNode.length > 0) {
 
-                //拖拽完之后，重新创建一个框，删除原有框，原有框在拖拽完之后拖拽事件没有同步
-                const shape = this._createShape(this._editNode, this.currShape.data);
-                this.graphic.remove(this.currShape.bound);
-                this.graphic.remove(this.currShape);
-                this._areaShapes.forEach((item, index) => {
-                    if (item.data.id === this.currShape.data.id) {
-                        this._areaShapes.splice(index, 1);
-                    }
-                });
-                this.currShape = shape;
+                //拖拽完之后，删除原有框,重新创建一个框，原有框在拖拽完之后拖拽事件没有同步
+                this._reCreatePoints(this._editNode);
 
-                this._createEditGroup(this._editNode, shape);
-
-                this.selectedSub = shape;
-
-                this._areaShapes.push(shape);
-                this.graphic.add(shape);
-
-                this.setSelectedStyle(shape);
-
-                this._startPoint = [];
                 // let shapePoints = this._toGlobal(this._editNode, this.currShape);
                 const rPoints = this._changeToPoints(this._editNode);
 
