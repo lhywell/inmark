@@ -196,7 +196,7 @@ export default class BImage extends Init {
                 group.add(circle);
 
                 circle.on('mousedown', (e) => {
-                    this._option.zmousedown = true;
+                    this._option.rotateListen = true;
                 });
 
             } else {
@@ -250,23 +250,23 @@ export default class BImage extends Init {
     }
     _zrClick() {}
     _zrMouseMove(e) {
-        let center = this.getOrigin();
-        let centerX = center[0];
-        let position = [];
+        if (this._option.rotateListen === true) {
+            let center = this.getOrigin();
+            let centerX = center[0];
+            let position = [];
 
-        if (e.event.offsetX >= centerX) {
-            position[0] = e.event.offsetX - centerX;
-        } else {
-            position[0] = -(centerX - e.event.offsetX);
-        }
+            if (e.event.offsetX >= centerX) {
+                position[0] = e.event.offsetX - centerX;
+            } else {
+                position[0] = -(centerX - e.event.offsetX);
+            }
 
-        position[1] = e.event.offsetY - this._option.padding;
+            position[1] = e.event.offsetY - this._option.padding;
+            // 旋转监听
 
-        if (this._option.zmousedown === true) {
 
             let a1 = position[0];
             let b1 = position[1];
-            let center = this.getOrigin();
 
             //求对角线长度
             let a = calcHypotenuse(Math.abs(a1), Math.abs(b1));
@@ -307,7 +307,7 @@ export default class BImage extends Init {
     _zrMouseDown(e) {}
     _zrMouseUp(e) {
         if (this._option.mode === 'auto-rotate') {
-            this._option.zmousedown = false;
+            this._option.rotateListen = false;
         }
     }
     _zrDBClick() {}
