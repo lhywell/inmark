@@ -625,7 +625,7 @@ export default class RectOverlay extends Image {
             });
         });
         shape.on('mouseout', (e) => {
-            if (this.isOpen && e.which === 1) {
+            if (this.isOpen) {
                 this._bindEvent();
             }
         });
