@@ -124,7 +124,7 @@ export default class RectOverlay extends Image {
         //关闭绘制模式
         this.isOpen = false;
 
-        this.dispose();
+        this._unBindEvent();
 
         this.setEdit(false);
 
@@ -581,7 +581,7 @@ export default class RectOverlay extends Image {
 
                 this.tempShape = e.target;
                 // if (this._canDrawShape === false) {
-                //     this.dispose();
+                //     this._unBindEvent();
                 // }
 
             }
@@ -597,7 +597,7 @@ export default class RectOverlay extends Image {
                 if (this._canDrawShape === false && this._isMouseDown === false) {
                     this.tempShape = e.target;
 
-                    this.dispose();
+                    this._unBindEvent();
                 }
 
                 return;

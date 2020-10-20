@@ -3,7 +3,7 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>vue标注</title>
+    <title>生命周期</title>
     <style type="text/css">
     body,
     html {
@@ -40,6 +40,10 @@
         height: 30px;
         border-left: 1px solid #eee;
         margin-right: 20px;
+    }
+
+    .tools div {
+        margin-right: 10px;
     }
 
     .tools i {
@@ -120,54 +124,16 @@
 <body>
     <div id="app">
         <div class="tools" ref="tools">
-            <el-tooltip class="item" effect="dark" content="拖 动" placement="bottom">
-                <i class="iconfont icon-drag" @click="openTools('drag',0)"></i>
-            </el-tooltip>
-            <el-tooltip class="item" effect="dark" content="矩形标注" placement="bottom">
-                <i class="iconfont icon-act" @click="openTools('act',1)"></i>
-            </el-tooltip>
-            <el-tooltip class="item" effect="dark" content="顺时针旋转90" placement="bottom">
-                <i class="iconfont icon-rotate" @click="openTools('rotate',2)"></i>
-            </el-tooltip>
-            <el-tooltip class="item" effect="dark" content="放 大" placement="bottom">
-                <i class="iconfont icon-zoomin" @click="openTools('zoomin',3)"></i>
-            </el-tooltip>
-            <el-tooltip class="item" effect="dark" content="缩 小" placement="bottom">
-                <i class="iconfont icon-zoomout" @click="openTools('zoomout',4)"></i>
-            </el-tooltip>
-            <span></span>
-            <el-tooltip class="item" effect="dark" content="顺时针旋转0.2" placement="bottom">
-                <i class="iconfont icon-rotate" @click="openTools('rotateRight',5)"></i>
-            </el-tooltip>
-            <el-tooltip class="item" effect="dark" content="逆时针旋转0.2" placement="bottom">
-                <i class="iconfont icon-rotate icon-rotate-anti" @click="openTools('rotateLeft',6)"></i>
-            </el-tooltip>
-            <el-tooltip class="item" effect="dark" content="重置旋转" placement="bottom">
-                <i class="el-icon-refresh" @click="openTools('resetRotate',6)"></i>
-            </el-tooltip>
-            <span></span>
-            <el-tooltip class="item" effect="dark" content="删除标记" placement="bottom">
-                <i class="iconfont icon-delete" @click="openTools('delete',7)"></i>
-            </el-tooltip>
-            <span></span>
-            <el-tooltip class="item" effect="dark" content="清空所有标注" placement="bottom">
-                <i class="iconfont icon-clear" @click="openTools('clear',8)"></i>
-            </el-tooltip>
-            <el-tooltip class="item" effect="dark" content="导出图片" placement="bottom">
-                <i class="icon el-icon-download" @click="openTools('export',9)"></i>
-            </el-tooltip>
+            <div><i class="iconfont icon-drag" @click="openTools('drag',0)"></i></div>
+            <div> <i class="iconfont icon-act" @click="openTools('act',1)"></i>
+            </div>
+            <div><i class="iconfont icon-zoomin" @click="openTools('zoomin',3)"></i></div>
             <div @click="setData" style="cursor: pointer;">setData</div>
-            <div @click="newData" style="cursor: pointer;">new</div>
-            <div @click="clear" style="cursor: pointer;">clear</div>
-            <div @click="dispose" style="cursor: pointer;">dispose</div>
+            <div @click="newData" style="cursor: pointer;" class="">新建实例</div>
+            <div @click="clear" style="cursor: pointer;">清屏</div>
+            <div @click="dispose" style="cursor: pointer;">注销</div>
         </div>
         <div class="imageAnnotate" :id="imgId" v-loading="loading"></div>
-        <div class="list" style="">
-            <div v-for="item in markNoteList">
-                <span class="item" @click="seletedSub(item)">{{item.notes}}</span>
-                <span class="item" @click="deleteSub(item)">删除</span>
-            </div>
-        </div>
     </div>
 </body>
 <!-- 引入Vue -->
@@ -194,8 +160,6 @@ let inMapVue = new Vue({
     created() {},
     mounted() {
         this.initImage();
-        let h = document.documentElement.clientHeight;
-        document.querySelector('.list').style.height = h + 'px'
     },
     destroyed() {},
     watch: {},
@@ -207,6 +171,16 @@ let inMapVue = new Vue({
                     item.className = item.className.replace('active', '').trim();
                 }
             })
+        },
+        startRect() {
+            this.reset();
+            // console.log(this.rect)
+            if (this.rect) {
+                this.rect.open();
+            } else {
+                // this.initRect(this.markNoteList);
+                this.rect.open();
+            }
         },
         openTools(x, index) {
             this.classReset();
@@ -228,27 +202,8 @@ let inMapVue = new Vue({
                 this.startZoomOut();
                 this.startDrag();
             }
-            if (x === 'rotateLeft') {
-                this.rotateLeft();
-            }
-            if (x === 'rotateRight') {
-                this.rotateRight();
-            }
-            if (x === 'resetRotate') {
-                this.resetRotate();
-            }
-            if (x === 'delete') {
-                this.startDeleteCurrent();
-            }
-            if (x === 'clear') {
-                this.startDeleteAll();
-            }
-            if (x === 'export') {
-                this.rect && this.rect.exportOut();
-                // console.log(this.ZImage.getBoundingRect())
-            }
-            let ary = this.$refs.tools.getElementsByClassName('iconfont');
-            Array.from(ary)[index].className += ' active';
+            // let ary = this.$refs.tools.getElementsByClassName('iconfont');
+            // Array.from(ary)[index].className += ' active';
         },
         loadComplete() {
             //获得ZImage实例
@@ -311,6 +266,10 @@ let inMapVue = new Vue({
             this.rect = rect;
             this.init = false;
         },
+        startZoomIn() {
+            this.rect && this.rect.close();
+            this.rect.zoomIn();
+        },
         setData() {
             let data = data2.data;
             const markInfo = data.markInfo;
@@ -372,81 +331,13 @@ let inMapVue = new Vue({
                 this.rect.setDrag(true);
             }
         },
-        startRect() {
-            this.reset();
-            // console.log(this.rect)
-            if (this.rect) {
-                this.rect.open();
-            } else {
-                // this.initRect(this.markNoteList);
-                this.rect.open();
-            }
-        },
-        startRotate() {
-            this.image.rotate(90);
-        },
-        rotateRight() {
-            this.image.rotate(0.2);
-            let x = this.image.getRotate();
-            console.log(x)
-        },
-        rotateLeft() {
-            this.image.rotate(-0.2);
-            let x = this.image.getRotate();
-            console.log(x)
-        },
-        resetRotate() {
-            this.image.resetRotate();
-            let x = this.image.getRotate();
-            console.log(x)
-        },
-        startZoomIn() {
-            this.rect && this.rect.close();
-            this.rect.zoomIn();
-        },
-        startZoomOut() {
-            this.rect && this.rect.close();
-            this.rect.zoomOut();
-        },
-        startDeleteCurrent() {
-            this.rect && this.rect.setDrag(false);
-            this.rect && this.rect.close();
-
-            if (this.rect) {
-                let item = this.rect.removeAnnotation();
-
-                if (item) {
-                    let index = this.markNoteList.forEach((x, y) => {
-                        if (item.data.id === x.id) {
-                            this.markNoteList.splice(y, 1);
-                        }
-                    });
-                }
-            }
-
-        },
-        startDeleteAll() {
-            this.reset();
-
-            //删除所有标注
-            this.markNoteList.splice(0);
-            this.rect && this.rect.removeAll();
-        },
-        deleteSub(item) {
-            this.rect && this.rect.removeSub(item);
-        },
-        seletedSub(item) {
-            this.rect && this.rect.setPosition(item);
-
-            this.rect && this.rect.selected(item);
-        },
         clear() {
             // 清除所有对象和画布。
-            this.zr && this.zr.clear();
+            this.image && this.image.clear();
         },
         dispose() {
             // 移除自身。当不再需要使用该实例时，调用该方法以释放内存。
-            this.zr && this.zr.dispose();
+            this.image && this.image.dispose();
         }
     },
 })

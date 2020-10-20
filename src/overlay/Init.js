@@ -42,6 +42,16 @@ export default class Init {
         this.zr.on('mouseup', this._zrMouseUp, this);
         this.zr.on('dblclick', this._zrDBClick, this);
     }
+    _unBindEvent() {
+        //注销事件
+        if (this.zr) {
+            this.zr.off('click', this._zrClick);
+            this.zr.off('mousemove', this._zrMouseMove);
+            this.zr.off('mousedown', this._zrMouseDown);
+            this.zr.off('mouseup', this._zrMouseUp);
+            this.zr.off('dblclick', this._zrDBClick);
+        }
+    }
     _zrClick() {}
     _zrMouseMove() {}
     _zrMouseDown() {}
@@ -86,11 +96,10 @@ export default class Init {
         });
         return array;
     }
-    clear() {
-        this.group && this.group.removeAll();
-        this.dispose();
-        this.zr.clear();
-        this.reset();
+    disposeMove() {
+        this.zr.off('mousedown', this._zrMouseDown);
+        this.zr.off('mousemove', this._zrMouseMove);
+        this.zr.off('click', this._zrClick);
     }
     reset() {
         this.zr = null;
@@ -98,18 +107,15 @@ export default class Init {
         this.group = null;
         this.polygon = null;
     }
-    disposeMove() {
-        this.zr.off('mousedown', this._zrMouseDown);
-        this.zr.off('mousemove', this._zrMouseMove);
-        this.zr.off('click', this._zrClick);
+    clear() {
+        // 清除所有对象和画布。
+        this.group && this.group.removeAll();
+        this._unBindEvent();
+        this.zr && this.zr.clear();
     }
-    close() {}
     dispose() {
-        //注销事件
-        this.zr.off('click', this._zrClick);
-        this.zr.off('mousemove', this._zrMouseMove);
-        this.zr.off('mousedown', this._zrMouseDown);
-        this.zr.off('mouseup', this._zrMouseUp);
-        this.zr.off('dblclick', this._zrDBClick);
+        // 移除自身。当不再需要使用该实例时，调用该方法以释放内存。
+        this.zr && this.zr.dispose();
+        this.reset();
     }
 }
