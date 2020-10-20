@@ -42,6 +42,12 @@ export default class BImage extends Init {
             };
             this._option.mode = opts && opts.mode || 'auto';
 
+            if (opts.style) {
+                this._imgConfig = merge(ImageConfig.style, opts.style);
+            } else {
+                this._imgConfig = ImageConfig.style;
+            }
+
             ImageOption = this._option;
         } else {
             this._option = ImageOption;
@@ -149,9 +155,7 @@ export default class BImage extends Init {
                     data: {
                         type: 'LINE'
                     },
-                    style: {
-                        stroke: '#408AE7'
-                    },
+                    style: this._imgConfig.line,
                     zlevel: 2
                 });
 
@@ -160,14 +164,12 @@ export default class BImage extends Init {
                         x1: this.ctx.canvasWidth / 2,
                         y1: 0,
                         x2: this.ctx.canvasWidth / 2,
-                        y2: this.ctx.canvasHeight
+                        y2: this.ctx.canvasHeight,
                     },
                     data: {
                         type: 'LINE'
                     },
-                    style: {
-                        stroke: '#408AE7'
-                    },
+                    style: this._imgConfig.line,
                     zlevel: 2
                 });
 
@@ -175,15 +177,12 @@ export default class BImage extends Init {
                     shape: {
                         cx: this.ctx.canvasWidth / 2,
                         cy: this._option.padding,
-                        r: 6,
+                        r: this._imgConfig.circle.r,
                     },
                     data: {
                         type: 'CIRCLE'
                     },
-                    style: {
-                        fill: '#408AE7',
-                        stroke: '#3071E3'
-                    },
+                    style: this._imgConfig.circle,
                     cursor: 'crosshair',
                     draggable: false,
                     zlevel: 2
@@ -192,10 +191,11 @@ export default class BImage extends Init {
                 let refresh = new zrender.Image({
                     style: {
                         image: 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/PjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+PHN2ZyB0PSIxNjAyOTM4OTgzNjkxIiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjEwODUiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+PGRlZnM+PHN0eWxlIHR5cGU9InRleHQvY3NzIj48L3N0eWxlPjwvZGVmcz48cGF0aCBkPSJNOTM0LjQgMjA2LjkzM2MtMTcuMDY3LTQuMjY2LTM0LjEzMyA2LjQtMzguNCAyMy40NjdsLTIzLjQ2NyA4Ny40NjdDNzk3Ljg2NyAxODMuNDY3IDY1NC45MzMgOTYgNDk3LjA2NyA5NmMtMjMyLjUzNCAwLTQyMi40IDE4NS42LTQyMi40IDQxNnMxODkuODY2IDQxNiA0MjIuNCA0MTZjMTc5LjIgMCAzMzkuMi0xMTAuOTMzIDM5OC45MzMtMjc1LjIgNi40LTE3LjA2Ny0yLjEzMy0zNC4xMzMtMTkuMi00MC41MzMtMTcuMDY3LTYuNC0zNC4xMzMgMi4xMzMtNDAuNTMzIDE5LjJDNzg1LjA2NyA3NzAuMTMzIDY0OC41MzMgODY0IDQ5Ny4wNjcgODY0Yy0xOTguNCAwLTM1OC40LTE1Ny44NjctMzU4LjQtMzUyczE2Mi4xMzMtMzUyIDM1OC40LTM1MmMxNDUuMDY2IDAgMjc3LjMzMyA4Ny40NjcgMzMwLjY2NiAyMTcuNmwtMTI4LTM2LjI2N2MtMTcuMDY2LTQuMjY2LTM0LjEzMyA2LjQtMzguNCAyMy40NjctNC4yNjYgMTcuMDY3IDYuNCAzNC4xMzMgMjMuNDY3IDM4LjRsMTg1LjYgNDkuMDY3YzIuMTMzIDAgNi40IDIuMTMzIDguNTMzIDIuMTMzIDYuNCAwIDEwLjY2Ny0yLjEzMyAxNy4wNjctNC4yNjcgNi40LTQuMjY2IDEyLjgtMTAuNjY2IDE0LjkzMy0xOS4yTDk2MCAyNDUuMzMzYzAtMTcuMDY2LTguNTMzLTM0LjEzMy0yNS42LTM4LjR6IiBmaWxsPSIjZmZmZmZmIiBwLWlkPSIxMDg2Ij48L3BhdGg+PC9zdmc+',
-                        x: this.ctx.canvasWidth / 2 - 5,
-                        y: 15,
-                        width: 10,
-                        height: 10
+                        x: this.ctx.canvasWidth / 2 - this._imgConfig.circle.r * 1.2 / 2,
+                        y: this._option.padding - this._imgConfig.circle.r * 1.2 / 2,
+                        width: this._imgConfig.circle.r * 1.2,
+                        height: this._imgConfig.circle.r * 1.2,
+                        ...this._imgConfig.circle,
                     },
                     data: {
                         type: 'ROTATEIMAGE'
@@ -204,7 +204,7 @@ export default class BImage extends Init {
                     draggable: false,
                     zlevel: 3
                 });
-                
+
                 // 不放到group,旋转的时候脱离group
                 this.zr.add(xLine);
                 this.zr.add(yLine);
@@ -213,6 +213,9 @@ export default class BImage extends Init {
                 group.add(refresh);
 
                 refresh.on('mousedown', (e) => {
+                    this._option.rotateListen = true;
+                });
+                circle.on('mousedown', (e) => {
                     this._option.rotateListen = true;
                 });
 
@@ -267,7 +270,20 @@ export default class BImage extends Init {
     }
     _zrClick() {}
     _zrMouseMove(e) {
+        // e.target确保在画布内
+        if (!e.event.target) {
+            this._option.rotate = {
+                radians: 0,
+                degrees: 0
+            };
+
+            this._onRotate && this._onRotate(this.getRotate());
+            return;
+        }
         if (this._option.rotateListen === true) {
+            this.image.attr({
+                cursor: 'crosshair'
+            })
             let center = this.getOrigin();
             let centerX = center[0];
             let position = [];
@@ -281,7 +297,6 @@ export default class BImage extends Init {
             position[1] = e.event.offsetY - this._option.padding;
             // 旋转监听
 
-
             let a1 = position[0];
             let b1 = position[1];
 
@@ -292,38 +307,44 @@ export default class BImage extends Init {
 
             let c = calcHypotenuse(Math.abs(a1), Math.abs(b - b1));
 
-            // cosA = (b²+c²-a²)/2bc
-            let cosA_value = cosA(Math.abs(a), Math.abs(b), Math.abs(c));
-            let radians = Math.acos(cosA_value);
-            let degree = Math.acos(cosA_value) * 180 / Math.PI;
+            // 避免鼠标移动到画布外
+            if (!window.isNaN(a) && !window.isNaN(b) && !window.isNaN(c)) {
+                // cosA = (b²+c²-a²)/2bc
+                let cosA_value = cosA(Math.abs(a), Math.abs(b), Math.abs(c));
+                let radians = Math.acos(cosA_value);
+                let degree = Math.acos(cosA_value) * 180 / Math.PI;
+                let outValue;
 
-            let outValue;
+                if (a1 <= 0) {
+                    outValue = 360 - degree;
+                    radians = -Math.PI - (Math.PI - radians);
+                } else {
+                    outValue = degree;
+                    radians = -radians;
+                }
 
-            if (a1 <= 0) {
-                outValue = 360 - degree;
-                radians = -Math.PI - (Math.PI - radians);
-            } else {
-                outValue = degree;
-                radians = -radians;
+                this.group.attr({
+                    rotation: radians,
+                    position: this._reSetPosition(),
+                    origin: this.getOrigin()
+                });
+
+                this._option.rotate = {
+                    radians: radians,
+                    degrees: outValue.toFixed(2)
+                };
+                this._onRotate && this._onRotate(this.getRotate());
             }
 
-            this.group.attr({
-                rotation: radians,
-                position: this._reSetPosition(),
-                origin: this.getOrigin()
-            });
-
-            this._option.rotate = {
-                radians: radians,
-                degrees: outValue.toFixed(2)
-            };
-
-            this._onRotate && this._onRotate(this.getRotate());
         }
     }
     _zrMouseDown(e) {}
     _zrMouseUp(e) {
         if (this._option.mode === 'auto-rotate') {
+            this.image.attr({
+                cursor: 'default'
+            })
+
             this._option.rotateListen = false;
         }
     }

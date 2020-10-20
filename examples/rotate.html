@@ -396,6 +396,17 @@ function initImage() {
         id: imgId,
         mode: 'auto-rotate', //original or auto
         imgUrl: resPath,
+        style: {
+            line: {
+                stroke: '#3175f7',
+            },
+            // 选中颜色
+            circle: {
+                fill: 'rgba(49, 117, 247,.8)',
+                stroke: '#3175f7',
+                r: 6,
+            }
+        },
         event: {
             onLoadComplete: loadComplete,
             onImageDrag: imageDrag,
@@ -550,7 +561,7 @@ function seletedSub(item) {
 }
 
 function onRotate(item) {
-    console.log(item)
+    // console.log(item)
     let dom = document.getElementById('setDegreeText');
     dom.innerHTML = item.degrees;
 }
