@@ -8581,6 +8581,12 @@ var BImage = function (_Init) {
             };
             _this._option.mode = opts && opts.mode || 'auto';
 
+            if (opts.style) {
+                _this._imgConfig = (0, _utils.merge)(_ImageConfig2.default.style, opts.style);
+            } else {
+                _this._imgConfig = _ImageConfig2.default.style;
+            }
+
             ImageOption = _this._option;
         } else {
             _this._option = ImageOption;
@@ -8694,9 +8700,7 @@ var BImage = function (_Init) {
                         data: {
                             type: 'LINE'
                         },
-                        style: {
-                            stroke: '#408AE7'
-                        },
+                        style: _this2._imgConfig.line,
                         zlevel: 2
                     });
 
@@ -8710,9 +8714,7 @@ var BImage = function (_Init) {
                         data: {
                             type: 'LINE'
                         },
-                        style: {
-                            stroke: '#408AE7'
-                        },
+                        style: _this2._imgConfig.line,
                         zlevel: 2
                     });
 
@@ -8720,28 +8722,25 @@ var BImage = function (_Init) {
                         shape: {
                             cx: _this2.ctx.canvasWidth / 2,
                             cy: _this2._option.padding,
-                            r: 6
+                            r: _this2._imgConfig.circle.r
                         },
                         data: {
                             type: 'CIRCLE'
                         },
-                        style: {
-                            fill: '#408AE7',
-                            stroke: '#3071E3'
-                        },
+                        style: _this2._imgConfig.circle,
                         cursor: 'crosshair',
                         draggable: false,
                         zlevel: 2
                     });
 
                     var refresh = new _zrender2.default.Image({
-                        style: {
+                        style: _extends({
                             image: 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/PjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+PHN2ZyB0PSIxNjAyOTM4OTgzNjkxIiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjEwODUiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+PGRlZnM+PHN0eWxlIHR5cGU9InRleHQvY3NzIj48L3N0eWxlPjwvZGVmcz48cGF0aCBkPSJNOTM0LjQgMjA2LjkzM2MtMTcuMDY3LTQuMjY2LTM0LjEzMyA2LjQtMzguNCAyMy40NjdsLTIzLjQ2NyA4Ny40NjdDNzk3Ljg2NyAxODMuNDY3IDY1NC45MzMgOTYgNDk3LjA2NyA5NmMtMjMyLjUzNCAwLTQyMi40IDE4NS42LTQyMi40IDQxNnMxODkuODY2IDQxNiA0MjIuNCA0MTZjMTc5LjIgMCAzMzkuMi0xMTAuOTMzIDM5OC45MzMtMjc1LjIgNi40LTE3LjA2Ny0yLjEzMy0zNC4xMzMtMTkuMi00MC41MzMtMTcuMDY3LTYuNC0zNC4xMzMgMi4xMzMtNDAuNTMzIDE5LjJDNzg1LjA2NyA3NzAuMTMzIDY0OC41MzMgODY0IDQ5Ny4wNjcgODY0Yy0xOTguNCAwLTM1OC40LTE1Ny44NjctMzU4LjQtMzUyczE2Mi4xMzMtMzUyIDM1OC40LTM1MmMxNDUuMDY2IDAgMjc3LjMzMyA4Ny40NjcgMzMwLjY2NiAyMTcuNmwtMTI4LTM2LjI2N2MtMTcuMDY2LTQuMjY2LTM0LjEzMyA2LjQtMzguNCAyMy40NjctNC4yNjYgMTcuMDY3IDYuNCAzNC4xMzMgMjMuNDY3IDM4LjRsMTg1LjYgNDkuMDY3YzIuMTMzIDAgNi40IDIuMTMzIDguNTMzIDIuMTMzIDYuNCAwIDEwLjY2Ny0yLjEzMyAxNy4wNjctNC4yNjcgNi40LTQuMjY2IDEyLjgtMTAuNjY2IDE0LjkzMy0xOS4yTDk2MCAyNDUuMzMzYzAtMTcuMDY2LTguNTMzLTM0LjEzMy0yNS42LTM4LjR6IiBmaWxsPSIjZmZmZmZmIiBwLWlkPSIxMDg2Ij48L3BhdGg+PC9zdmc+',
-                            x: _this2.ctx.canvasWidth / 2 - 5,
-                            y: 15,
-                            width: 10,
-                            height: 10
-                        },
+                            x: _this2.ctx.canvasWidth / 2 - _this2._imgConfig.circle.r * 1.2 / 2,
+                            y: _this2._option.padding - _this2._imgConfig.circle.r * 1.2 / 2,
+                            width: _this2._imgConfig.circle.r * 1.2,
+                            height: _this2._imgConfig.circle.r * 1.2
+                        }, _this2._imgConfig.circle),
                         data: {
                             type: 'ROTATEIMAGE'
                         },
@@ -8757,6 +8756,9 @@ var BImage = function (_Init) {
                     group.add(refresh);
 
                     refresh.on('mousedown', function (e) {
+                        _this2._option.rotateListen = true;
+                    });
+                    circle.on('mousedown', function (e) {
                         _this2._option.rotateListen = true;
                     });
                 } else {
@@ -8812,7 +8814,19 @@ var BImage = function (_Init) {
     }, {
         key: '_zrMouseMove',
         value: function _zrMouseMove(e) {
+            if (!e.event.target) {
+                this._option.rotate = {
+                    radians: 0,
+                    degrees: 0
+                };
+
+                this._onRotate && this._onRotate(this.getRotate());
+                return;
+            }
             if (this._option.rotateListen === true) {
+                this.image.attr({
+                    cursor: 'crosshair'
+                });
                 var center = this.getOrigin();
                 var centerX = center[0];
                 var position = [];
@@ -8835,32 +8849,32 @@ var BImage = function (_Init) {
 
                 var c = (0, _utils.calcHypotenuse)(Math.abs(a1), Math.abs(b - b1));
 
-                var cosA_value = (0, _utils.cosA)(Math.abs(a), Math.abs(b), Math.abs(c));
-                var radians = Math.acos(cosA_value);
-                var degree = Math.acos(cosA_value) * 180 / Math.PI;
+                if (!window.isNaN(a) && !window.isNaN(b) && !window.isNaN(c)) {
+                    var cosA_value = (0, _utils.cosA)(Math.abs(a), Math.abs(b), Math.abs(c));
+                    var radians = Math.acos(cosA_value);
+                    var degree = Math.acos(cosA_value) * 180 / Math.PI;
+                    var outValue = void 0;
 
-                var outValue = void 0;
+                    if (a1 <= 0) {
+                        outValue = 360 - degree;
+                        radians = -Math.PI - (Math.PI - radians);
+                    } else {
+                        outValue = degree;
+                        radians = -radians;
+                    }
 
-                if (a1 <= 0) {
-                    outValue = 360 - degree;
-                    radians = -Math.PI - (Math.PI - radians);
-                } else {
-                    outValue = degree;
-                    radians = -radians;
+                    this.group.attr({
+                        rotation: radians,
+                        position: this._reSetPosition(),
+                        origin: this.getOrigin()
+                    });
+
+                    this._option.rotate = {
+                        radians: radians,
+                        degrees: outValue.toFixed(2)
+                    };
+                    this._onRotate && this._onRotate(this.getRotate());
                 }
-
-                this.group.attr({
-                    rotation: radians,
-                    position: this._reSetPosition(),
-                    origin: this.getOrigin()
-                });
-
-                this._option.rotate = {
-                    radians: radians,
-                    degrees: outValue.toFixed(2)
-                };
-
-                this._onRotate && this._onRotate(this.getRotate());
             }
         }
     }, {
@@ -8870,6 +8884,10 @@ var BImage = function (_Init) {
         key: '_zrMouseUp',
         value: function _zrMouseUp(e) {
             if (this._option.mode === 'auto-rotate') {
+                this.image.attr({
+                    cursor: 'default'
+                });
+
                 this._option.rotateListen = false;
             }
         }
@@ -12502,6 +12520,17 @@ var Init = function () {
             this.zr.on('dblclick', this._zrDBClick, this);
         }
     }, {
+        key: '_unBindEvent',
+        value: function _unBindEvent() {
+            if (this.zr) {
+                this.zr.off('click', this._zrClick);
+                this.zr.off('mousemove', this._zrMouseMove);
+                this.zr.off('mousedown', this._zrMouseDown);
+                this.zr.off('mouseup', this._zrMouseUp);
+                this.zr.off('dblclick', this._zrDBClick);
+            }
+        }
+    }, {
         key: '_zrClick',
         value: function _zrClick() {}
     }, {
@@ -12563,12 +12592,11 @@ var Init = function () {
             return array;
         }
     }, {
-        key: 'clear',
-        value: function clear() {
-            this.group && this.group.removeAll();
-            this.dispose();
-            this.zr.clear();
-            this.reset();
+        key: 'disposeMove',
+        value: function disposeMove() {
+            this.zr.off('mousedown', this._zrMouseDown);
+            this.zr.off('mousemove', this._zrMouseMove);
+            this.zr.off('click', this._zrClick);
         }
     }, {
         key: 'reset',
@@ -12579,23 +12607,17 @@ var Init = function () {
             this.polygon = null;
         }
     }, {
-        key: 'disposeMove',
-        value: function disposeMove() {
-            this.zr.off('mousedown', this._zrMouseDown);
-            this.zr.off('mousemove', this._zrMouseMove);
-            this.zr.off('click', this._zrClick);
+        key: 'clear',
+        value: function clear() {
+            this.group && this.group.removeAll();
+            this._unBindEvent();
+            this.zr && this.zr.clear();
         }
-    }, {
-        key: 'close',
-        value: function close() {}
     }, {
         key: 'dispose',
         value: function dispose() {
-            this.zr.off('click', this._zrClick);
-            this.zr.off('mousemove', this._zrMouseMove);
-            this.zr.off('mousedown', this._zrMouseDown);
-            this.zr.off('mouseup', this._zrMouseUp);
-            this.zr.off('dblclick', this._zrDBClick);
+            this.zr && this.zr.dispose();
+            this.reset();
         }
     }]);
 
@@ -17855,7 +17877,7 @@ var RectOverlay = function (_Image) {
         value: function close() {
             this.isOpen = false;
 
-            this.dispose();
+            this._unBindEvent();
 
             this.setEdit(false);
 
@@ -18296,7 +18318,7 @@ var RectOverlay = function (_Image) {
                     if (_this5._canDrawShape === false && _this5._isMouseDown === false) {
                         _this5.tempShape = e.target;
 
-                        _this5.dispose();
+                        _this5._unBindEvent();
                     }
 
                     return;
@@ -18742,9 +18764,21 @@ exports.default = RectOverlay;
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
-exports.default = {};
+exports.default = {
+    style: {
+        line: {
+            stroke: '#408AE7'
+        },
+
+        circle: {
+            fill: '#408AE7',
+            stroke: '#3071E3',
+            r: 6
+        }
+    }
+};
 
 /***/ }),
 /* 190 */
@@ -18784,7 +18818,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.40";
+var version = "1.0.41";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
