@@ -142,7 +142,15 @@ export default class BImage extends Init {
 
                 this._option.padding = 20;
                 this._option.offsetX = (this.ctx.canvasWidth - this._option.widthImg) / 2;
-                this._option.offsetY = (this.ctx.canvasHeight - this._option.heightImg) / 2 || this._option.padding;
+
+                // 解决图片中心点偏移
+                let y = ((this.ctx.canvasHeight - this._option.heightImg) / 2);
+                if (y === 0) {
+                    this._option.offsetY = this._option.padding
+                } else {
+                    this._option.offsetY = parseFloat(y.toFixed(2)) + this._option.padding
+                }
+
                 this._option.heightImg -= this._option.padding * 2;
 
                 let xLine = new zrender.Line({
