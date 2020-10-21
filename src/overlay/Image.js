@@ -559,13 +559,30 @@ export default class BImage extends Init {
     }
     _convertImageToCanvas(img) {
         let canvas = document.createElement('canvas');
-        canvas.width = this._option.widthImg;
-        canvas.height = this._option.heightImg;
+        canvas.width = 1000;
+        canvas.height = 1000;
 
         let ctx = canvas.getContext('2d');
+        let rectCenterPoint = { x: this._option.widthImg / 2, y: this._option.heightImg / 2 };
 
         let degree = this._option.rotate.degrees;
-        ctx.rotate(this._option.rotate.radians);
+        // canvas修改后的宽高
+        canvas.width = 6000;
+        canvas.height = 6000;
+
+        ctx.rect(0, 0, 6000, 6000);
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 1)';
+        // ctx.globalAlpha = 0;
+        ctx.fill();
+        ctx.strokeStyle = 'green';
+        ctx.strokeRect(0, 0, 6000, 6000);
+
+        // 以中心点旋转角度
+        ctx.translate(rectCenterPoint.x, rectCenterPoint.y);
+        ctx.rotate(-this._option.rotate.radians);
+
+        ctx.translate(-rectCenterPoint.x, -rectCenterPoint.y);
 
         if (degree >= 0 && degree < 90) {
             ctx.drawImage(img, 0, -this._option.heightImg);
@@ -589,9 +606,9 @@ export default class BImage extends Init {
         img.style.background = '#fff';
 
         img.onload = () => {
-            // let canvas = this._convertImageToCanvas(img);
-            // let imgUrl = canvas.toDataURL('image/jpeg');
-            // this.exportImages(imgUrl);
+            let canvas = this._convertImageToCanvas(img);
+            let imgUrl = canvas.toDataURL('image/jpeg');
+            this.exportImages(imgUrl);
         };
     }
     base64ToBlob(code) {
