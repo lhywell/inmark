@@ -8687,7 +8687,14 @@ var BImage = function (_Init) {
 
                     _this2._option.padding = 20;
                     _this2._option.offsetX = (_this2.ctx.canvasWidth - _this2._option.widthImg) / 2;
-                    _this2._option.offsetY = (_this2.ctx.canvasHeight - _this2._option.heightImg) / 2 || _this2._option.padding;
+
+                    var y = (_this2.ctx.canvasHeight - _this2._option.heightImg) / 2;
+                    if (y === 0) {
+                        _this2._option.offsetY = _this2._option.padding;
+                    } else {
+                        _this2._option.offsetY = parseFloat(y.toFixed(2)) + _this2._option.padding;
+                    }
+
                     _this2._option.heightImg -= _this2._option.padding * 2;
 
                     var xLine = new _zrender2.default.Line({
@@ -9122,13 +9129,29 @@ var BImage = function (_Init) {
         key: '_convertImageToCanvas',
         value: function _convertImageToCanvas(img) {
             var canvas = document.createElement('canvas');
-            canvas.width = this._option.widthImg;
-            canvas.height = this._option.heightImg;
+            canvas.width = 1000;
+            canvas.height = 1000;
 
             var ctx = canvas.getContext('2d');
+            var rectCenterPoint = { x: this._option.widthImg / 2, y: this._option.heightImg / 2 };
 
             var degree = this._option.rotate.degrees;
-            ctx.rotate(this._option.rotate.radians);
+
+            canvas.width = 6000;
+            canvas.height = 6000;
+
+            ctx.rect(0, 0, 6000, 6000);
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 1)';
+
+            ctx.fill();
+            ctx.strokeStyle = 'green';
+            ctx.strokeRect(0, 0, 6000, 6000);
+
+            ctx.translate(rectCenterPoint.x, rectCenterPoint.y);
+            ctx.rotate(-this._option.rotate.radians);
+
+            ctx.translate(-rectCenterPoint.x, -rectCenterPoint.y);
 
             if (degree >= 0 && degree < 90) {
                 ctx.drawImage(img, 0, -this._option.heightImg);
@@ -9146,6 +9169,8 @@ var BImage = function (_Init) {
     }, {
         key: 'exportOut',
         value: function exportOut() {
+            var _this3 = this;
+
             var img = new Image();
             img.setAttribute('crossorigin', 'anonymous');
             img.src = this._option.imgUrl;
@@ -9153,7 +9178,11 @@ var BImage = function (_Init) {
             img.height = this._option.heightImg;
             img.style.background = '#fff';
 
-            img.onload = function () {};
+            img.onload = function () {
+                var canvas = _this3._convertImageToCanvas(img);
+                var imgUrl = canvas.toDataURL('image/jpeg');
+                _this3.exportImages(imgUrl);
+            };
         }
     }, {
         key: 'base64ToBlob',
@@ -18818,7 +18847,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.41";
+var version = "1.0.42";
 console.log('inMark v' + version);
 var inMark = {
     version: version,

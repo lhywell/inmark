@@ -146,9 +146,9 @@ export default class BImage extends Init {
                 // 解决图片中心点偏移
                 let y = ((this.ctx.canvasHeight - this._option.heightImg) / 2);
                 if (y === 0) {
-                    this._option.offsetY = this._option.padding
+                    this._option.offsetY = this._option.padding;
                 } else {
-                    this._option.offsetY = parseFloat(y.toFixed(2)) + this._option.padding
+                    this._option.offsetY = parseFloat(y.toFixed(2)) + this._option.padding;
                 }
 
                 this._option.heightImg -= this._option.padding * 2;
@@ -291,7 +291,7 @@ export default class BImage extends Init {
         if (this._option.rotateListen === true) {
             this.image.attr({
                 cursor: 'crosshair'
-            })
+            });
             let center = this.getOrigin();
             let centerX = center[0];
             let position = [];
@@ -351,7 +351,7 @@ export default class BImage extends Init {
         if (this._option.mode === 'auto-rotate') {
             this.image.attr({
                 cursor: 'default'
-            })
+            });
 
             this._option.rotateListen = false;
         }
