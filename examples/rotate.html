@@ -226,7 +226,7 @@
     <link rel="stylesheet" href="./lib/styles/icons.css">
     <!-- 引入bootstrap 样式 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-     <!-- 引入样式 -->
+    <!-- 引入样式 -->
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
 </head>
 
@@ -352,11 +352,9 @@ function openTools(x, _this) {
     }
     if (x === 'zoomin') {
         startZoomIn();
-        startDrag();
     }
     if (x === 'zoomout') {
         startZoomOut();
-        startDrag();
     }
     if (x === 'rotateLeft') {
         rotateLeft();
@@ -475,24 +473,13 @@ function startDrag() {
     reset();
 
     if (image) {
-        rect.setDrag(true);
+        image.setDrag(true);
     }
 }
 
-//开启矩形绘画模式
-function startRect() {
-    reset();
-    // console.log(rect)
-    if (rect) {
-        rect.open();
-    } else {
-        // initRect(markNoteList);
-        rect.open();
-    }
-}
 
 function startRotate() {
-    image.rotate(331);
+    image.rotate(42.98);
     let x = image.getRotate();
     console.log(x)
 }
@@ -516,48 +503,11 @@ function resetRotate() {
 }
 
 function startZoomIn() {
-    rect && rect.close();
-    rect.zoomIn();
+    image.zoomIn();
 }
 
 function startZoomOut() {
-    rect && rect.close();
-    rect.zoomOut();
-}
-
-function startDeleteCurrent() {
-    rect && rect.setDrag(false);
-    rect && rect.close();
-
-    if (rect) {
-        let item = rect.removeAnnotation();
-        if (item) {
-            let index = markNoteList.forEach((x, y) => {
-                if (item.data.id === x.id) {
-                    markNoteList.splice(y, 1);
-                }
-            });
-        }
-    }
-}
-
-function startDeleteAll() {
-    reset();
-
-    //删除所有标注
-    markNoteList.splice(0);
-    rect && rect.removeAll();
-}
-
-function deleteSub(item) {
-    rect && rect.removeSub(item);
-}
-
-function seletedSub(item) {
-    console.log(item)
-
-    rect && rect.selected(item);
-    rect && rect.setPosition(item);
+    image.zoomOut();
 }
 
 function onRotate(item) {
