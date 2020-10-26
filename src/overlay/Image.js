@@ -376,16 +376,19 @@ export default class BImage extends Init {
         this.rotate(0);
     }
     getOrigin() {
-        // const box = this.image.getBoundingRect();
-        this._option.widthImg = this._option.widthImg * this.group.scale[0];
-        this._option.heightImg = this._option.heightImg * this.group.scale[0];
-
-        this._option.offsetX = (this.ctx.canvasWidth - this._option.widthImg) / 2;
-        this._option.offsetY = (this.ctx.canvasHeight - this._option.heightImg) / 2;
-
         if (this._option.mode === 'auto' || this._option.mode === 'auto-rotate') {
+            this._option.widthImg = this._option.widthImg * this.group.scale[0];
+            this._option.heightImg = this._option.heightImg * this.group.scale[0];
+
+            this._option.offsetX = (this.ctx.canvasWidth - this._option.widthImg) / 2;
+            this._option.offsetY = (this.ctx.canvasHeight - this._option.heightImg) / 2;
+
             this._option.origin = [(this._option.widthImg / 2) + this._option.offsetX, (this._option.heightImg / 2) + this._option.offsetY];
         } else if (this._option.mode === 'original') {
+            const box = this.image.getBoundingRect();
+            this._option.widthImg = box.width * this.group.scale[0];
+            this._option.heightImg = box.height * this.group.scale[0];
+
             this._option.origin = [(this._option.widthImg / 2), (this._option.heightImg / 2)];
         }
         return this._option.origin;
