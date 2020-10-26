@@ -201,6 +201,7 @@ export default class BImage extends Init {
                         image: 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/PjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+PHN2ZyB0PSIxNjAyOTM4OTgzNjkxIiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjEwODUiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+PGRlZnM+PHN0eWxlIHR5cGU9InRleHQvY3NzIj48L3N0eWxlPjwvZGVmcz48cGF0aCBkPSJNOTM0LjQgMjA2LjkzM2MtMTcuMDY3LTQuMjY2LTM0LjEzMyA2LjQtMzguNCAyMy40NjdsLTIzLjQ2NyA4Ny40NjdDNzk3Ljg2NyAxODMuNDY3IDY1NC45MzMgOTYgNDk3LjA2NyA5NmMtMjMyLjUzNCAwLTQyMi40IDE4NS42LTQyMi40IDQxNnMxODkuODY2IDQxNiA0MjIuNCA0MTZjMTc5LjIgMCAzMzkuMi0xMTAuOTMzIDM5OC45MzMtMjc1LjIgNi40LTE3LjA2Ny0yLjEzMy0zNC4xMzMtMTkuMi00MC41MzMtMTcuMDY3LTYuNC0zNC4xMzMgMi4xMzMtNDAuNTMzIDE5LjJDNzg1LjA2NyA3NzAuMTMzIDY0OC41MzMgODY0IDQ5Ny4wNjcgODY0Yy0xOTguNCAwLTM1OC40LTE1Ny44NjctMzU4LjQtMzUyczE2Mi4xMzMtMzUyIDM1OC40LTM1MmMxNDUuMDY2IDAgMjc3LjMzMyA4Ny40NjcgMzMwLjY2NiAyMTcuNmwtMTI4LTM2LjI2N2MtMTcuMDY2LTQuMjY2LTM0LjEzMyA2LjQtMzguNCAyMy40NjctNC4yNjYgMTcuMDY3IDYuNCAzNC4xMzMgMjMuNDY3IDM4LjRsMTg1LjYgNDkuMDY3YzIuMTMzIDAgNi40IDIuMTMzIDguNTMzIDIuMTMzIDYuNCAwIDEwLjY2Ny0yLjEzMyAxNy4wNjctNC4yNjcgNi40LTQuMjY2IDEyLjgtMTAuNjY2IDE0LjkzMy0xOS4yTDk2MCAyNDUuMzMzYzAtMTcuMDY2LTguNTMzLTM0LjEzMy0yNS42LTM4LjR6IiBmaWxsPSIjZmZmZmZmIiBwLWlkPSIxMDg2Ij48L3BhdGg+PC9zdmc+',
                         x: this.ctx.canvasWidth / 2 - this._imgConfig.circle.r * 1.2 / 2,
                         y: this._option.padding - this._imgConfig.circle.r * 1.2 / 2,
+
                         width: this._imgConfig.circle.r * 1.2,
                         height: this._imgConfig.circle.r * 1.2,
                         ...this._imgConfig.circle,
@@ -217,8 +218,11 @@ export default class BImage extends Init {
                 this.zr.add(xLine);
                 this.zr.add(yLine);
 
-                group.add(circle);
-                group.add(refresh);
+                let rotateMouse = new zrender.Group();
+                rotateMouse.add(circle);
+                rotateMouse.add(refresh);
+                this._option.rotateMouse = rotateMouse;
+                this.zr.add(rotateMouse);
 
                 refresh.on('mousedown', (e) => {
                     this._option.rotateListen = true;
@@ -293,6 +297,7 @@ export default class BImage extends Init {
                 cursor: 'crosshair'
             });
             let center = this.getOrigin();
+
             let centerX = center[0];
             let position = [];
 
@@ -332,6 +337,12 @@ export default class BImage extends Init {
                 }
 
                 this.group.attr({
+                    rotation: radians,
+                    position: this._reSetPosition(),
+                    origin: this.getOrigin()
+                });
+
+                this._option.rotateMouse.attr({
                     rotation: radians,
                     position: this._reSetPosition(),
                     origin: this.getOrigin()
@@ -383,7 +394,7 @@ export default class BImage extends Init {
             this._option.offsetX = (this.ctx.canvasWidth - this._option.widthImg) / 2;
             this._option.offsetY = (this.ctx.canvasHeight - this._option.heightImg) / 2;
 
-            this._option.origin = [(this._option.widthImg / 2) + this._option.offsetX, (this._option.heightImg / 2) + this._option.offsetY];
+            this._option.origin = [(this.ctx.canvasWidth / 2), (this.ctx.canvasHeight / 2)];
         } else if (this._option.mode === 'original') {
             const box = this.image.getBoundingRect();
             this._option.widthImg = box.width * this.group.scale[0];
