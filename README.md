@@ -27,6 +27,13 @@ $ npm install inmark --save
 ```html
 <!-- 第一步，html页面增加一个dom标签，附上属性id -->
 <div class="imageAnnotate" id="inmarkDOM"></div>
+
+<style>
+.imageAnnotate{
+   width:100%;
+   height:100%;
+}
+</style>
 ```
 
 ```
