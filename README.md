@@ -111,6 +111,7 @@ obj = {
 ```
 image.resetRotate();
 ```
+
 2. 放大缩小
 ```
 <!-- 放大 -->
@@ -262,4 +263,9 @@ polygon.setPosition(item);
 }
 */
 polygon.selected(item);
+```
+
+10. getData返回添加，编辑，拖拽标注框后的标注数据
+```
+polygon.getData();
 ```
