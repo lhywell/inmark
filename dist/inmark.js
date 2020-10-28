@@ -18075,6 +18075,11 @@ var RectOverlay = function (_Image) {
                     this._onCreateComplete && this._onCreateComplete(e, _extends({}, data, {
                         coordinates: points
                     }));
+
+                    this.exportData.push(_extends({}, data, {
+                        coordinates: points
+                    }));
+
                     this.selectedSub = e.target;
                 }
             }
@@ -18086,7 +18091,13 @@ var RectOverlay = function (_Image) {
     }, {
         key: 'setData',
         value: function setData(data) {
+            this.exportData = _zrender2.default.util.clone(data);
             this.setMarkers(data);
+        }
+    }, {
+        key: 'getData',
+        value: function getData() {
+            return this.exportData;
         }
     }, {
         key: '_filterImage',
@@ -18342,6 +18353,12 @@ var RectOverlay = function (_Image) {
                     _this5._onRectDragComplete && _this5._onRectDragComplete(e, _extends({}, e.target.data, {
                         coordinates: rPoints
                     }));
+
+                    _this5.exportData.forEach(function (item) {
+                        if (item.id === e.target.data.id) {
+                            item.coordinates = e.target.data.coordinates;
+                        }
+                    });
                 }
             });
             shape.on('mousemove', function (e) {
@@ -18568,6 +18585,12 @@ var RectOverlay = function (_Image) {
                     _this7._onEditNodeDragComplete && _this7._onEditNodeDragComplete(e, _extends({}, group.bound.data, {
                         coordinates: rPoints
                     }));
+
+                    _this7.exportData.forEach(function (item) {
+                        if (item.id === group.bound.data.id) {
+                            item.coordinates = rPoints;
+                        }
+                    });
                 }
             });
         }
@@ -18744,10 +18767,28 @@ var RectOverlay = function (_Image) {
         key: '_changeToFourPoints',
         value: function _changeToFourPoints(points) {
             var currData = [];
-            currData[0] = [points[0], points[1]];
-            currData[1] = [points[2], points[1]];
-            currData[2] = [points[2], points[3]];
-            currData[3] = [points[0], points[3]];
+            if (points[0] <= points[2] && points[1] <= points[3]) {
+                currData[0] = [points[0], points[1]];
+                currData[1] = [points[2], points[1]];
+                currData[2] = [points[2], points[3]];
+                currData[3] = [points[0], points[3]];
+            } else if (points[0] >= points[2] && points[1] <= points[3]) {
+                currData[0] = [points[2], points[1]];
+                currData[1] = [points[0], points[1]];
+                currData[2] = [points[0], points[3]];
+                currData[3] = [points[2], points[3]];
+            } else if (points[0] > points[2] && points[1] > points[3]) {
+                currData[0] = [points[2], points[3]];
+                currData[1] = [points[0], points[3]];
+                currData[2] = [points[0], points[1]];
+                currData[3] = [points[2], points[1]];
+            } else if (points[0] < points[2] && points[1] > points[3]) {
+                currData[0] = [points[0], points[3]];
+                currData[1] = [points[2], points[3]];
+                currData[2] = [points[2], points[1]];
+                currData[3] = [points[0], points[1]];
+            }
+
             return currData;
         }
     }, {
@@ -18771,26 +18812,6 @@ var RectOverlay = function (_Image) {
                     break;
                 }
             }
-        }
-    }, {
-        key: 'getData',
-        value: function getData() {
-            var _this14 = this;
-
-            var markInfo = [];
-
-            this._areaShapes.forEach(function (item) {
-                var shapePoints = item.shape.points;
-                var twoPoint = _this14._changeToPoints(shapePoints);
-
-                markInfo.push({
-                    'id': item.data.id,
-                    'type': item.data.type,
-                    'notes': item.data.notes,
-                    'coordinates': twoPoint
-                });
-            });
-            return markInfo;
         }
     }, {
         key: 'reset',
@@ -18864,7 +18885,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.45";
+var version = "1.0.46";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
