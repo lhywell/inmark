@@ -1175,7 +1175,7 @@ export default class RectOverlay extends Image {
     }
 
     /**
-     * @description 根据左上角坐标和右下角坐标，组合成四个顶点（坐上角开始顺时针旋转的四个点）坐标集合
+     * @description 根据左上角坐标和右下角坐标，组合成四个顶点（左上角开始顺时针旋转的四个点）坐标集合
      * 
      */
     _changeToFourScalePoints(points, scale) {
@@ -1188,15 +1188,33 @@ export default class RectOverlay extends Image {
 
     }
     /**
-     * @description 根据左上角坐标和右下角坐标，组合成四个顶点（坐上角开始顺时针旋转的四个点）坐标集合
+     * @description 根据左上角坐标和右下角坐标，组合成四个顶点（左上角开始顺时针旋转的四个点）坐标集合
      *
      */
     _changeToFourPoints(points) {
         let currData = [];
-        currData[0] = [points[0], points[1]];
-        currData[1] = [points[2], points[1]];
-        currData[2] = [points[2], points[3]];
-        currData[3] = [points[0], points[3]];
+        if (points[0] <= points[2] && points[1] <= points[3]) {
+            currData[0] = [points[0], points[1]];
+            currData[1] = [points[2], points[1]];
+            currData[2] = [points[2], points[3]];
+            currData[3] = [points[0], points[3]];
+        } else if (points[0] >= points[2] && points[1] <= points[3]) {
+            currData[0] = [points[2], points[1]];
+            currData[1] = [points[0], points[1]];
+            currData[2] = [points[0], points[3]];
+            currData[3] = [points[2], points[3]];
+        } else if (points[0] > points[2] && points[1] > points[3]) {
+            currData[0] = [points[2], points[3]];
+            currData[1] = [points[0], points[3]];
+            currData[2] = [points[0], points[1]];
+            currData[3] = [points[2], points[1]];
+        } else if (points[0] < points[2] && points[1] > points[3]) {
+            currData[0] = [points[0], points[3]];
+            currData[1] = [points[2], points[3]];
+            currData[2] = [points[2], points[1]];
+            currData[3] = [points[0], points[1]];
+        }
+
         return currData;
 
     }
