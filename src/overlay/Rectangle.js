@@ -290,7 +290,7 @@ export default class RectOverlay extends Image {
                 this.exportData.push({
                     ...data,
                     coordinates: points
-                })
+                });
 
                 this.selectedSub = e.target;
             }
@@ -305,7 +305,7 @@ export default class RectOverlay extends Image {
      * @params {Array} data
      */
     setData(data) {
-        this.exportData = zrender.util.clone(data);;
+        this.exportData = zrender.util.clone(data);
         this.setMarkers(data);
     }
     getData() {
@@ -582,9 +582,9 @@ export default class RectOverlay extends Image {
 
                 this.exportData.forEach(item => {
                     if (item.id === e.target.data.id) {
-                        item.coordinates = e.target.data.coordinates
+                        item.coordinates = e.target.data.coordinates;
                     }
-                })
+                });
             }
 
         });
@@ -979,9 +979,9 @@ export default class RectOverlay extends Image {
 
                 this.exportData.forEach(item => {
                     if (item.id === group.bound.data.id) {
-                        item.coordinates = rPoints
+                        item.coordinates = rPoints;
                     }
-                })
+                });
             }
 
         });
@@ -1248,29 +1248,6 @@ export default class RectOverlay extends Image {
                 break;
             }
         }
-    }
-
-    /**
-     * @description 获取标注数据
-     * @param {obj} {id:123}
-     * @example Polygon.addHover({id:123})
-     */
-    getData() {
-        let markInfo = [];
-
-        this._areaShapes.forEach(item => {
-            // debugger;
-            const shapePoints = item.shape.points;
-            const twoPoint = this._changeToPoints(shapePoints);
-
-            markInfo.push({
-                'id': item.data.id,
-                'type': item.data.type,
-                'notes': item.data.notes,
-                'coordinates': twoPoint
-            });
-        });
-        return markInfo;
     }
     reset() {}
 }
