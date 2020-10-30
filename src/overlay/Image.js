@@ -400,7 +400,7 @@ export default class BImage extends Init {
             this._option.widthImg = box.width * this.group.scale[0];
             this._option.heightImg = box.height * this.group.scale[0];
 
-            this._option.origin = [(this._option.widthImg / 2), (this._option.heightImg / 2)];
+            this._option.origin = [(this.ctx.canvasWidth / 2), (this.ctx.canvasHeight / 2)];
         }
         return this._option.origin;
     }
@@ -443,6 +443,15 @@ export default class BImage extends Init {
                 position: this._reSetPosition(),
                 origin: this.getOrigin()
             });
+
+            if (this._option.rotateMouse) {
+                this._option.rotateMouse.attr({
+                    rotation: zero,
+                    position: this._reSetPosition(),
+                    origin: this.getOrigin()
+                });
+            }
+
             this._option.rotate = {
                 radians: 0,
                 degrees: 0
@@ -500,8 +509,8 @@ export default class BImage extends Init {
         });
 
         this._option.rotate = {
-            radians: this.group.rotation,
-            degrees: this.group.rotation / Math.PI * 180
+            radians: this.group.rotation === zero ? 0 : this.group.rotation,
+            degrees: (this.group.rotation === zero ? 0 : this.group.rotation) / Math.PI * 180
         };
 
         this._onRotate && this._onRotate(this.getRotate());
