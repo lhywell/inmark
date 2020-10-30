@@ -8951,7 +8951,7 @@ var BImage = function (_Init) {
                 this._option.widthImg = box.width * this.group.scale[0];
                 this._option.heightImg = box.height * this.group.scale[0];
 
-                this._option.origin = [this._option.widthImg / 2, this._option.heightImg / 2];
+                this._option.origin = [this.ctx.canvasWidth / 2, this.ctx.canvasHeight / 2];
             }
             return this._option.origin;
         }
@@ -8998,6 +8998,15 @@ var BImage = function (_Init) {
                     position: this._reSetPosition(),
                     origin: this.getOrigin()
                 });
+
+                if (this._option.rotateMouse) {
+                    this._option.rotateMouse.attr({
+                        rotation: zero,
+                        position: this._reSetPosition(),
+                        origin: this.getOrigin()
+                    });
+                }
+
                 this._option.rotate = {
                     radians: 0,
                     degrees: 0
@@ -9054,8 +9063,8 @@ var BImage = function (_Init) {
             });
 
             this._option.rotate = {
-                radians: this.group.rotation,
-                degrees: this.group.rotation / Math.PI * 180
+                radians: this.group.rotation === zero ? 0 : this.group.rotation,
+                degrees: (this.group.rotation === zero ? 0 : this.group.rotation) / Math.PI * 180
             };
 
             this._onRotate && this._onRotate(this.getRotate());
@@ -18885,7 +18894,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = "1.0.46";
+var version = "1.0.47";
 console.log('inMark v' + version);
 var inMark = {
     version: version,
