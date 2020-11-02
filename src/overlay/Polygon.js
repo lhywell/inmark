@@ -12,6 +12,7 @@ import Image from './Image.js';
 export default class Polygon extends Image {
     constructor(opts) {
         super();
+
         this.group = this._option.group;
         this.image = this._option.image;
 
@@ -30,15 +31,19 @@ export default class Polygon extends Image {
         this._onEditNodeDrag = opts.event.onEditNodeDrag;
         this._onEditNodeDragComplete = opts.event.onEditNodeDragComplete;
         this._onSelected = opts.event.onSelected;
+        this._onHover = opts.event.onHover;
         this._unSelect = opts.event.unSelect;
         this._imageDrag = opts.event.onImageDrag;
         this._imageDragEnd = opts.event.onImageDragEnd;
 
         this.data = opts.data;
 
-        this._createLimit = 6; //创建的图形宽高最小限制
         this._editWidth = EditRect.shape.width; //拖拽按钮的宽高限制
-        this._styleConfig = PolygonRect.style;
+        if (opts.style) {
+            this._styleConfig = merge(PolygonRect.style, opts.style);
+        } else {
+            this._styleConfig = PolygonRect.style;
+        }
 
         this._isMouseDown = false;
         this._canDrawShape = false;
@@ -46,8 +51,7 @@ export default class Polygon extends Image {
         this._startPoint = [];
         this._endPoint = [];
 
-        this._areaShape = []; //所有的标注图形集合
-        this._edgePoint = [];
+        this._areaShapes = []; //所有的标注图形集合
         this._editNode = [];
         this._editRectStart = [];
         this.position = [0, 0];
@@ -118,8 +122,6 @@ export default class Polygon extends Image {
         //关闭绘制模式
         this.isOpen = false;
 
-        // this.dispose();
-
         this.setEdit(false);
 
         this.group.eachChild((item) => {
@@ -133,7 +135,7 @@ export default class Polygon extends Image {
     setEdit(blean) {
         if (blean) {
             //初始化显示编辑
-            this._areaShape.forEach(item => {
+            this._areaShapes.forEach(item => {
                 item.attr({
                     draggable: true
                 });
@@ -144,7 +146,7 @@ export default class Polygon extends Image {
                 }
             });
         } else {
-            this._areaShape.forEach(item => {
+            this._areaShapes.forEach(item => {
                 item.attr({
                     draggable: false
                 });
@@ -165,16 +167,16 @@ export default class Polygon extends Image {
     _zrDBClick(e) {
         if (e.target && e.target.data.type === 'IMAGE' && this._isMouseDown && this.currShape) {
 
-            const index = this._areaShape.length - 1;
+            const index = this._areaShapes.length - 1;
             const shapePoints = this.currShape.shape.points;
-            // console.log(e, this.currShape)
+
             const points = this._changeToPoints(shapePoints);
             const data = {
                 type: 'Polygon',
                 notes: '-1',
                 id: window.btoa(Math.random()) //编码加密
             };
-            this._areaShape[index].attr({
+            this._areaShapes[index].attr({
                 style: this._styleConfig.selected,
                 data: {
                     ...data
@@ -184,11 +186,17 @@ export default class Polygon extends Image {
 
             if (points.length > 0) {
                 this._createEditGroup(shapePoints, this.currShape);
-
+                console.log(333)
                 this._onCreateComplete && this._onCreateComplete(e, {
                     ...data,
                     coordinates: points
                 });
+
+                this.exportData.push({
+                    ...data,
+                    coordinates: points
+                });
+
                 this.selectedSub = e.target;
             }
             this._isMouseDown = false;
@@ -222,7 +230,6 @@ export default class Polygon extends Image {
         if (this._isMouseDown && this._startPoint && e.target) {
 
             this._canDrawShape = true;
-            //图形右下角坐标
 
             this._endPoint = this._getDrawPoint(e);
 
@@ -248,7 +255,7 @@ export default class Polygon extends Image {
                     notes: '-1'
                 });
                 this.graphic.add(this.currShape);
-                this._areaShape.push(this.currShape);
+                this._areaShapes.push(this.currShape);
             } else {
                 //否则鼠标移动更新当前数据
                 this.currShape.attr({
@@ -298,13 +305,17 @@ export default class Polygon extends Image {
      * @params {Array} data
      */
     setData(data) {
-        this.showMarkers(data);
+        this.exportData = zrender.util.clone(data);
+        this.setMarkers(data);
+    }
+    getData() {
+        return this.exportData;
     }
     /**
      * @description 删除图形，保留图片
      */
     _filterImage() {
-        this._areaShape.splice(0);
+        this._areaShapes.splice(0);
         let save = [];
         this.group.eachChild((x) => {
             if (x.data.type === 'IMAGE') {
@@ -318,11 +329,11 @@ export default class Polygon extends Image {
     /**
      * @description 遍历数据，用边框标记主体内容
      */
-    showMarkers(data) {
+    setMarkers(data) {
         this.removeAll();
         if (data.length > 0) {
             data.forEach((item) => {
-                //矩形
+                //多边形
                 // debugger;
                 if (item.type === 'Polygon') {
 
@@ -336,7 +347,7 @@ export default class Polygon extends Image {
                         if (points.length > 0) {
                             this._createEditGroup(points, shape);
 
-                            this._areaShape.push(shape);
+                            this._areaShapes.push(shape);
                             this.graphic.add(shape);
                         }
                     }
@@ -374,15 +385,27 @@ export default class Polygon extends Image {
         }
     }
     selected(item, options = {}) {
+        if (this.isOpen) {
+            return;
+        }
         this.resetShapeStyle();
-        this._areaShape.forEach(x => {
+        this._areaShapes.forEach(x => {
             if (x.data.id === item.id) {
                 this.currShape = x;
+
+                const shapePoints = this.currShape.shape.points;
+                const points = this._changeToPoints(shapePoints);
+                this._editNode = points;
+
                 this.setSelectedStyle(x, options);
             }
         });
     }
     setPosition(item) {
+        if (this.isOpen) {
+            return;
+        }
+
         let point = this._calculateToRelationpix(item.coordinates);
         let point_center = [(point[0][0] + point[1][0]) / 2, (point[0][1] + point[3][1]) / 2];
 
@@ -479,12 +502,16 @@ export default class Polygon extends Image {
 
         let oldGroup = [];
         shape.on('click', (e) => {
-            this._editNode = this._toShapeDragEnd(e, e.target);
+            if (e.which === 1) {
+                this._editNode = this._toShapeDragEnd(e, e.target);
+            }
         });
         shape.on('dragstart', (e) => {
-            this.currShape = shape;
+            if (e.which === 1) {
+                this.currShape = shape;
 
-            this.tempShape = e.target;
+                this.tempShape = e.target;
+            }
         });
         shape.on('drag', (e) => {
             //拖动多边形与编辑同步
@@ -510,19 +537,30 @@ export default class Polygon extends Image {
         });
 
         shape.on('dragend', (e) => {
-            let shape = e.target;
+            if (e.which === 1) {
+                let shape = e.target;
 
-            this.position = zrender.util.clone(shape.position);
-            //拖动后点坐标
-            let shapePoints = this._toShapeDragEnd(e, shape);
+                this.position = zrender.util.clone(shape.position);
+                //拖动后点坐标
+                let shapePoints = this._toShapeDragEnd(e, shape);
 
-            this.currShape = shape;
+                this.currShape = shape;
 
-            const rPoints = this._changeToPoints(shapePoints);
-            this._onRectDragComplete && this._onRectDragComplete(e, {
-                ...e.target.data,
-                coordinates: rPoints
-            });
+                //拖拽完之后，删除原有框，重新创建一个框，避免画框重叠飞框
+                this._reCreatePoints(shapePoints);
+
+                const rPoints = this._changeToPoints(shapePoints);
+                this._onRectDragComplete && this._onRectDragComplete(e, {
+                    ...e.target.data,
+                    coordinates: rPoints
+                });
+
+                this.exportData.forEach(item => {
+                    if (item.id === e.target.data.id) {
+                        item.coordinates = e.target.data.coordinates;
+                    }
+                });
+            }
         });
         shape.on('mousemove', (e) => {
             if (this.isOpen) {
@@ -539,12 +577,22 @@ export default class Polygon extends Image {
                 shape.attr({
                     cursor: 'default',
                 });
+
                 if (this._canDrawShape === false && this._isMouseDown === false) {
                     this.tempShape = e.target;
 
-                    // this.dispose();
+                    this._unBindEvent();
                 }
+
+                return;
             }
+
+            let shapePoints = this._toGlobal(e.target.shape.points, shape);
+            const rPoints = this._changeToPoints(shapePoints);
+            this._onHover && this._onHover(e, {
+                ...e.target.data,
+                coordinates: rPoints
+            });
         });
         shape.on('mouseout', (e) => {
             if (this.isOpen) {
@@ -553,40 +601,41 @@ export default class Polygon extends Image {
         });
 
         shape.on('mousedown', (e) => {
-            //创建中
-            if (this._isMouseDown && this.creatCount) {
-                this._startPoint[this.creatCount] = this._getDrawPoint(e);
-                this.creatCount++;
-                return;
+            if (e.which === 1) {
+                //创建中
+                if (this._isMouseDown && this.creatCount) {
+                    this._startPoint[this.creatCount] = this._getDrawPoint(e);
+                    this.creatCount++;
+                    return;
+                }
+                //选中某个框
+                this.currShape = e.target;
+                this.tempShape = e.target;
+
+                this.selectedSub = shape;
+                this.resetShapeStyle();
+
+                this.setSelectedStyle(e.target);
+                let shapePoints = this._toGlobal(e.target.shape.points, shape);
+                const rPoints = this._changeToPoints(shapePoints);
+                this._onSelected && this._onSelected(e, {
+                    ...e.target.data,
+                    coordinates: rPoints
+                });
             }
-            //选中某个框
-            this.currShape = e.target;
-            this.tempShape = e.target;
-
-            this.selectedSub = shape;
-            this.resetShapeStyle();
-
-            this.setSelectedStyle(e.target);
-            let shapePoints = this._toGlobal(e.target.shape.points, shape);
-            const rPoints = this._changeToPoints(shapePoints);
-            this._onSelected && this._onSelected(e, {
-                ...e.target.data,
-                coordinates: rPoints
-            });
-
         });
         shape.on('dblclick', (e) => {
             //功能同双击
-            const index = this._areaShape.length - 1;
+            const index = this._areaShapes.length - 1;
             const shapePoints = this.currShape.shape.points;
-            // console.log(e, this.currShape)
+
             const points = this._changeToPoints(shapePoints);
             const data = {
                 type: 'Polygon',
                 notes: '-1',
                 id: window.btoa(Math.random()) //编码加密
             };
-            this._areaShape[index].attr({
+            this._areaShapes[index].attr({
                 style: this._styleConfig.selected,
                 data: {
                     ...data
@@ -611,12 +660,11 @@ export default class Polygon extends Image {
         });
         shape.on('mouseup', (e) => {
             //开启编辑，选中某个框
-            if (this.isOpen && this.selectedSub) {
+            if (this.isOpen && this.selectedSub && e.which === 1) {
 
                 this.currShape.bound && this.currShape.bound.eachChild(item => {
                     item.show();
                 });
-                this.temp = zrender.util.clone(this.currShape.shape.points);
 
                 this._bindEvent();
             }
@@ -624,52 +672,69 @@ export default class Polygon extends Image {
 
         return shape;
     }
+    _reCreatePoints(points) {
+        let shape = this._createShape(points, this.currShape.data);
+        this.graphic.remove(this.currShape.bound);
+        this.graphic.remove(this.currShape);
+        this._areaShapes.forEach((item, index) => {
+            if (item.data.id === this.currShape.data.id) {
+                this._areaShapes.splice(index, 1);
+            }
+        });
+        this.currShape = shape;
+
+        this._createEditGroup(points, shape);
+
+        this.selectedSub = shape;
+
+        this._areaShapes.push(shape);
+        this.graphic.add(shape);
+
+        this.setSelectedStyle(shape);
+
+        this._startPoint = [];
+    }
     _editElementEvent(editNode, group) {
         editNode.on('mouseover', (e) => {});
         editNode.on('mouseout', (e) => {});
 
         editNode.on('mouseup', (e) => {});
         editNode.on('dragstart', (e) => {
+            //e.which鼠标左键，禁止鼠标右键拖动框
+            if (e.which === 3) {
+                group.eachChild(item => {
+                    item.hide();
+                });
+                return;
+            }
+            if (e.which === 1) {
+                let m = this.currShape.transform;
+                let point = this.currShape.shape.points;
+                const oldPoints = zrender.util.clone(point);
 
-            let m = this.currShape.transform;
-            let point = this.currShape.shape.points;
-            const oldPoints = zrender.util.clone(point);
-            // console.log(this.currShape, oldPoints)
+                this.oldPoint = oldPoints;
 
-            this.oldPoint = oldPoints;
-            let width = oldPoints[1][0] - oldPoints[0][0];
-            let height = oldPoints[2][1] - oldPoints[1][1];
-            // let bgDragX, bgDragY;
-            this.obj = {
-                width,
-                height
-            };
-            this.m = zrender.util.clone(this.currShape.transform || []);
+                this.m = zrender.util.clone(this.currShape.transform || []);
+            }
         });
 
         editNode.on('drag', (e) => {
-            // console.log(JSON.stringify(this.currPoint));
             //禁止编辑画框到canvas外
-            if (e.event.target.tagName === 'CANVAS') {
+            if (e.event.target.tagName === 'CANVAS' && e.which === 1) {
                 //框拖拽移动之后，取记录点坐标
-                let oldPoints = zrender.util.clone(this._editNode);
-
-                //框非移动，取拖拽坐标
-                if (oldPoints.length === 0) {
-                    oldPoints = zrender.util.clone(this.currShape.shape.points);
-                }
+                let oldPoints = zrender.util.clone(this.currShape.shape.points);
 
                 let m = this.m;
                 const _side = e.target.data._side;
+                const _index = e.target.data._index;
+                const _afterIndex = e.target.data._afterIndex;
+                const _beforeIndex = e.target.data._beforeIndex;
 
                 if (!m[0]) {
                     m[0] = 1;
                     m[4] = 0;
                     m[5] = 0;
                 }
-                // if (m[4] === this.position[0]) {
-
-                // }
 
                 let bgDragX, bgDragY;
                 if (this.bgDrag.length === 0) {
@@ -683,96 +748,14 @@ export default class Polygon extends Image {
                 let newPoints = [];
                 let offsetX = 0;
                 let offsetY = 0;
-                let width = this.obj.width;
-                let height = this.obj.height;
 
-                switch (_side) {
-                    case 'tl':
-                        offsetX = e.event.offsetX;
-                        offsetY = e.event.offsetY;
-                        newPoints = [
-                            [(offsetX - this._option.offsetM) / m[0] - bgDragX, (offsetY - this._option.offsetN) / m[0] - bgDragY],
-                            [oldPoints[1][0], (offsetY - this._option.offsetN) / m[0] - bgDragY],
-                            oldPoints[2],
-                            [(offsetX - this._option.offsetM) / m[0] - bgDragX, oldPoints[3][1]],
-                        ];
-                        break;
-                        // case 't':
-                        //     offsetY = e.event.offsetY
-                        //     newPoints = [
-                        //         [oldPoints[0][0], offsetY],
-                        //         [oldPoints[1][0], offsetY],
-                        //         oldPoints[2],
-                        //         oldPoints[3]
-                        //     ]
-                        //     break
-                    case 'tr':
-                        offsetX = e.event.offsetX;
-                        offsetY = e.event.offsetY;
+                offsetX = e.event.offsetX;
+                offsetY = e.event.offsetY;
 
-                        newPoints = [
-                            [oldPoints[0][0], (offsetY - this._option.offsetN) / m[0] - bgDragY],
-                            [(offsetX - this._option.offsetM) / m[0] - bgDragX, (offsetY - this._option.offsetN) / m[0] - bgDragY],
-                            [(offsetX - this._option.offsetM) / m[0] - bgDragX, oldPoints[3][1]],
-                            oldPoints[3]
-                        ];
-                        break;
-                        // case 'r':
-                        //     offsetX = e.event.offsetX
-                        //     newPoints = [
-                        //         oldPoints[0],
-                        //         [offsetX, oldPoints[1][1]],
-                        //         [offsetX, oldPoints[2][1]],
-                        //         oldPoints[3]
-                        //     ]
-                        //     break
-                    case 'br':
-                        offsetX = e.event.offsetX;
-                        offsetY = e.event.offsetY;
+                oldPoints[_index] = [(offsetX - this._option.offsetM) / m[0] - bgDragX, (offsetY - this._option.offsetN) / m[0] - bgDragY];
 
-                        // newPoints = [
-                        //     oldPoints[0],
-                        //     [offsetX, oldPoints[1][1]],
-                        //     [offsetX, offsetY],
-                        //     [oldPoints[3][0], offsetY/m[0]]
-                        // ]
-                        newPoints = [
-                            oldPoints[0],
-                            [(offsetX - this._option.offsetM) / m[0] - bgDragX, oldPoints[0][1]],
-                            [(offsetX - this._option.offsetM) / m[0] - bgDragX, (offsetY - this._option.offsetN) / m[0] - bgDragY],
-                            [oldPoints[0][0], (offsetY - this._option.offsetN) / m[0] - bgDragY]
-                        ];
-                        break;
-                        // case 'b':
-                        //     offsetY = e.event.offsetY
-                        //     newPoints = [
-                        //         oldPoints[0],
-                        //         oldPoints[1],
-                        //         [oldPoints[2][0], offsetY],
-                        //         [oldPoints[3][0], offsetY]
-                        //     ]
-                        //     break
-                    case 'bl':
-                        offsetX = e.event.offsetX;
-                        offsetY = e.event.offsetY;
+                newPoints = oldPoints;
 
-                        newPoints = [
-                            [(offsetX - this._option.offsetM) / m[0] - bgDragX, oldPoints[0][1]],
-                            oldPoints[1],
-                            [oldPoints[2][0], (offsetY - this._option.offsetN) / m[0] - bgDragY],
-                            [(offsetX - this._option.offsetM) / m[0] - bgDragX, (offsetY - this._option.offsetN) / m[0] - bgDragY]
-                        ];
-                        break;
-                        // case 'l':
-                        //     offsetX = e.event.offsetX
-                        //     newPoints = [
-                        //         [offsetX, oldPoints[0][1]],
-                        //         oldPoints[1],
-                        //         oldPoints[2],
-                        //         [offsetX, oldPoints[3][1]]
-                        //     ]
-                        //     break
-                }
                 group.removeAll();
 
                 group.attr({
@@ -802,45 +785,23 @@ export default class Polygon extends Image {
 
         });
         editNode.on('dragend', (e) => {
-            let shape = group.bound;
-            // let shapePoints = this._toGlobal(this._editNode, this.currShape);
-            const rPoints = this._changeToPoints(this._editNode);
-
-            this._onEditNodeDragComplete(e, {
-                ...group.bound.data,
-                coordinates: rPoints
-            });
-        });
-        editNode.on('dragend', (e) => {
-            // let shape = group.bound;
             //双击框会消失
             if (this._editNode.length > 0) {
 
                 //拖拽完之后，重新创建一个框，删除原有框，原有框在拖拽完之后拖拽事件没有同步
-                const shape = this._createShape(this._editNode, this.currShape.data);
-                this.graphic.remove(this.currShape.bound);
-                this.graphic.remove(this.currShape);
-                this._areaShape.forEach((item, index) => {
-                    if (item.data.id === this.currShape.data.id) {
-                        this._areaShape.splice(index, 1);
-                    }
-                });
-                this.currShape = shape;
+                this._reCreatePoints(this._editNode);
 
-                this._createEditGroup(this._editNode, shape);
-
-                this._areaShape.push(shape);
-                this.graphic.add(shape);
-
-                this.setSelectedStyle(shape);
-
-                // this._startPoint = [];
-                // let shapePoints = this._toGlobal(this._editNode, this.currShape);
                 const rPoints = this._changeToPoints(this._editNode);
 
                 this._onEditNodeDragComplete && this._onEditNodeDragComplete(e, {
                     ...group.bound.data,
                     coordinates: rPoints
+                });
+
+                this.exportData.forEach(item => {
+                    if (item.id === group.bound.data.id) {
+                        item.coordinates = rPoints;
+                    }
                 });
             }
 
@@ -854,8 +815,12 @@ export default class Polygon extends Image {
 
         //创建多个编辑点
         points.forEach((item, index) => {
+            let x = index;
             editPoint.push({
                 _side: 'editNode_' + index,
+                _index: index,
+                _beforeIndex: index === 0 ? (points.length - 1) : --x,
+                _afterIndex: index === (points.length - 1) ? 0 : ++x,
                 points: points[index]
             });
         });
@@ -870,7 +835,10 @@ export default class Polygon extends Image {
                     height: width
                 },
                 data: {
-                    _side: item._side
+                    _side: item._side,
+                    _index: item._index,
+                    _beforeIndex: item._beforeIndex,
+                    _afterIndex: item._afterIndex,
                 },
                 zlevel: 3
             }));
@@ -886,7 +854,7 @@ export default class Polygon extends Image {
      */
     resetShapeStyle() {
         let stroke = this._styleConfig.default.stroke;
-        this._areaShape.forEach(item => {
+        this._areaShapes.forEach(item => {
             if (item.data.type === 'Polygon') {
                 item.attr({
                     style: {
@@ -910,10 +878,10 @@ export default class Polygon extends Image {
     removeAnnotation() {
         if (this.selectedSub) {
             let obj;
-            this._areaShape.forEach((item, index) => {
+            this._areaShapes.forEach((item, index) => {
                 if (item.data.id === this.selectedSub.data.id) {
                     obj = item;
-                    this._areaShape.splice(index, 1);
+                    this._areaShapes.splice(index, 1);
                 }
             });
             if (obj) {
@@ -933,14 +901,14 @@ export default class Polygon extends Image {
     removeSub(data) {
         const id = data.id;
         let index;
-        this._areaShape.forEach((sub, i) => {
+        this._areaShapes.forEach((sub, i) => {
             if (sub.data.id === id) {
                 index = i;
             }
         });
-        const sub = this._areaShape[index];
+        const sub = this._areaShapes[index];
         if (sub) {
-            this._areaShape.splice(index, 1);
+            this._areaShapes.splice(index, 1);
 
             this.graphic.remove(sub.bound);
             sub.bound = null;
@@ -951,9 +919,9 @@ export default class Polygon extends Image {
      * @删除所有标记
      */
     removeAll() {
-        if (this._areaShape.length > 0) {
+        if (this._areaShapes.length > 0) {
             // debugger;
-            this._areaShape.forEach(item => {
+            this._areaShapes.forEach(item => {
                 if (item.bound) {
                     this.graphic.remove(item.bound);
                     item.bound = null;
@@ -962,7 +930,7 @@ export default class Polygon extends Image {
                 item = null;
             });
         }
-        this._areaShape = [];
+        this._areaShapes = [];
     }
 
     /**
@@ -1022,41 +990,13 @@ export default class Polygon extends Image {
     }
 
     /**
-     * @description 根据左上角坐标和右下角坐标，组合成四个顶点（坐上角开始顺时针旋转的四个点）坐标集合
-     * 
-     */
-    _changeToFourScalePoints(points, scale) {
-        let currData = [];
-        currData[0] = [points[0] / scale, points[1] / scale];
-        currData[1] = [points[2] / scale, points[1] / scale];
-        currData[2] = [points[2] / scale, points[3] / scale];
-        currData[3] = [points[0] / scale, points[3] / scale];
-        return currData;
-
-    }
-    /**
-     * @description 根据左上角坐标和右下角坐标，组合成四个顶点（坐上角开始顺时针旋转的四个点）坐标集合
-     *
-     */
-    _changeToFourPoints(points) {
-        let currData = [];
-        currData[0] = [points[0], points[1]];
-        currData[1] = [points[2], points[1]];
-        currData[2] = [points[2], points[3]];
-        currData[3] = [points[0], points[3]];
-        return currData;
-
-    }
-
-
-    /**
      * @description 高亮标记物 唯一标示为ID
      * @param {obj} {id:123,style:{fill:'red'}}
      * @example Polygon.addHover({id:123,style:{fill:'red'}})
      */
     addHover(data) {
-        for (let i = 0; i < this._areaShape.length; i++) {
-            const curr = this._areaShape[i];
+        for (let i = 0; i < this._areaShapes.length; i++) {
+            const curr = this._areaShapes[i];
             if (curr.data.id == data.id) {
                 this.zr.addHover(curr, data.style);
                 break;
@@ -1070,36 +1010,13 @@ export default class Polygon extends Image {
      * @example Polygon.addHover({id:123})
      */
     removeHover(data) {
-        for (let i = 0; i < this._areaShape.length; i++) {
-            const curr = this._areaShape[i];
+        for (let i = 0; i < this._areaShapes.length; i++) {
+            const curr = this._areaShapes[i];
             if (curr.data.id == data.id) {
                 this.zr.removeHover(curr);
                 break;
             }
         }
-    }
-
-    /**
-     * @description 获取标注数据
-     * @param {obj} {id:123}
-     * @example Polygon.addHover({id:123})
-     */
-    getData() {
-        let markInfo = [];
-
-        this._areaShape.forEach(item => {
-            // debugger;
-            const shapePoints = item.shape.points;
-            const twoPoint = this._changeToPoints(shapePoints);
-
-            markInfo.push({
-                'id': item.data.id,
-                'type': item.data.type,
-                'notes': item.data.notes,
-                'coordinates': twoPoint
-            });
-        });
-        return markInfo;
     }
     reset() {}
 }

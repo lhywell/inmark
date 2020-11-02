@@ -8,7 +8,7 @@ import Image from './Image.js';
 
 /**
  * @constructor
- * @extends module:PolygonOverlay
+ * @extends module:RectOverlay
  * @param {Object} args
  * @param {Object} opts
  */
