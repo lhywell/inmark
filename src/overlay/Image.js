@@ -64,6 +64,13 @@ export default class BImage extends Init {
         this._onRotate = opts && opts.event.onRotate;
         // console.log(this)
 
+        /**
+         * 定义常量, 绘制的模式
+         * @final {Number} DrawingType
+         */
+        window.INMARK_DRAWING_RECTANGLE = 'rectangle'; // 鼠标画矩形模式
+        window.INMARK_DRAWING_POLYGON = 'polygon'; // 鼠标画多边形模式
+
         this.initialize();
     }
     initialize() {
@@ -278,8 +285,42 @@ export default class BImage extends Init {
             this._onComplete && this._onComplete();
 
             this._bindEvent();
+
+            // 设置默认为'手势'可拖动
+            this.setDrag(true);
         };
+
     }
+    setDrawingMode(drawingType) {
+        this._setDrawingMode(drawingType);
+    }
+    _setDrawingMode(drawingType) {
+        this.setDrag(false);
+
+        this._option.drawingType = drawingType;
+
+        switch (drawingType) {
+            case INMARK_DRAWING_POLYGON:
+                this._option.polygonOverlay = this;
+                this._bindPolylineOrPolygon();
+                break;
+            case INMARK_DRAWING_RECTANGLE:
+                this._option.RecOverlay = this;
+                this._bindRectangle();
+                break;
+            case 'hander':
+                // 实例方法
+                this._option.polygonOverlay && this._option.polygonOverlay.close();
+                this._option.RecOverlay && this._option.RecOverlay.close();
+                this.setDrag(true);
+                break;
+        }
+    }
+    getDrawingMode() {
+        return this._option.drawingType;
+    }
+    _bindPolylineOrPolygon() {}
+    _bindRectangle() {}
     _zrClick() {}
     _zrMouseMove(e) {
         // e.target确保在画布内
@@ -540,6 +581,8 @@ export default class BImage extends Init {
         this.zoomStage(times);
     }
     zoomStage(scaleBy) {
+        // this.setDrawingMode('hander');
+
         const oldScale = this.group.scale[0];
         const pos = {
             x: this.ctx.canvasWidth / 2,

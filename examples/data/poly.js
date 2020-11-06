@@ -2,6 +2,16 @@ let data = {
     "code": 0,
     "data": [{
         "coordinates": [
+            [13, 16],
+            [790, 16],
+            [790, 37],
+            [13, 37]
+        ],
+        "text": "\u7ed3\u679c",
+        "type": "Rectangle",
+        "id": "TlRZeU5EQTNMak0wTnpRMU5qVTROak0="
+    }, {
+        "coordinates": [
             [454, 277],
             [452, 315],
             [639, 319],

@@ -104,26 +104,28 @@
             <el-tooltip class="item" effect="dark" content="拖 动" placement="bottom">
                 <i class="iconfont icon-drag" @click="openTools('drag',0)"></i>
             </el-tooltip>
-            <el-tooltip class="item" effect="dark" content="矩形标注" placement="bottom">
-                <i class="iconfont icon-act" @click="openTools('act',1)"></i>
+            <span></span>
+            <el-tooltip class="item" effect="dark" content="放 大" placement="bottom">
+                <i class="iconfont icon-zoomin" @click="openTools('zoomin',1)"></i>
             </el-tooltip>
-            <el-tooltip class="item" effect="dark" content="多边形标注" placement="bottom">
-                <i class="iconfont icon-polygon" @click="openTools('polygon',2)"></i>
+            <el-tooltip class="item" effect="dark" content="缩 小" placement="bottom">
+                <i class="iconfont icon-zoomout" @click="openTools('zoomout',2)"></i>
             </el-tooltip>
+            <span></span>
             <el-tooltip class="item" effect="dark" content="旋 转" placement="bottom">
                 <i class="iconfont icon-rotate" @click="openTools('rotate',3)"></i>
             </el-tooltip>
-            <el-tooltip class="item" effect="dark" content="放 大" placement="bottom">
-                <i class="iconfont icon-zoomin" @click="openTools('zoomin',4)"></i>
+            <span></span>
+            <el-tooltip class="item" effect="dark" content="矩形标注" placement="bottom">
+                <i class="iconfont icon-act" @click="openTools('act',4)"></i>
             </el-tooltip>
-            <el-tooltip class="item" effect="dark" content="缩 小" placement="bottom">
-                <i class="iconfont icon-zoomout" @click="openTools('zoomout',5)"></i>
+            <el-tooltip class="item" effect="dark" content="多边形标注" placement="bottom">
+                <i class="iconfont icon-polygon" @click="openTools('polygon',5)"></i>
             </el-tooltip>
             <span></span>
             <el-tooltip class="item" effect="dark" content="删除标记" placement="bottom">
                 <i class="iconfont icon-delete" @click="openTools('delete',6)"></i>
             </el-tooltip>
-            <span></span>
             <el-tooltip class="item" effect="dark" content="清空所有标注" placement="bottom">
                 <i class="iconfont icon-clear" @click="openTools('clear',7)"></i>
             </el-tooltip>
@@ -172,9 +174,12 @@ let inMapVue = new Vue({
             if (x === 'drag') {
                 this.startDrag();
             }
-            // if (x === 'act') {
-            //     this.startRect();
-            // }
+            if (x === 'act') {
+                this.startRect();
+            }
+            if (x === 'polygon') {
+                this.startPolygon();
+            }
             if (x === 'rotate') {
                 this.startRotate();
             }
@@ -190,14 +195,17 @@ let inMapVue = new Vue({
             if (x === 'clear') {
                 this.startDeleteAll();
             }
-            if (x === 'polygon') {
-                this.startPolygon();
-            }
+
             let ary = this.$refs.tools.getElementsByClassName('iconfont');
             Array.from(ary)[index].className += ' active';
         },
         loadComplete() {
             this.initPolygon(this.markNoteList);
+            this.initRect(this.markNoteList);
+            // this.openTools('drag', 0)
+
+            let ary = this.$refs.tools.getElementsByClassName('iconfont');
+            Array.from(ary)[0].className += ' active';
 
             this.loading = false;
         },
@@ -226,14 +234,31 @@ let inMapVue = new Vue({
                 this.image = image;
                 this.zr = image.getZrender();
 
+
                 this.init = false;
 
             });
         },
+        initRect(data) {
+            let rect = new inMark.Rect({
+                data: data,
+                event: {
+                    onCreateComplete: this.onCreateComplete,
+                    onRectDrag: this.onRectDrag,
+                    onRectDragComplete: this.onRectDragComplete,
+                    onEditNodeDrag: this.onEditNodeDrag,
+                    onEditNodeDragComplete: this.onEditRectDragComplete,
+                    onSelected: this.onSelected,
+                    unSelect: this.unSelect
+                }
+            });
+            // polygon.setData(s);
+            this.rect = rect;
+            this.init = false;
+        },
         initPolygon(data) {
             let polygon = new inMark.Polygon({
                 data: data,
-                isOpen: false,
                 event: {
                     onCreateComplete: this.onCreateComplete,
                     onRectDrag: this.onRectDrag,
@@ -256,6 +281,7 @@ let inMapVue = new Vue({
         onEditNodeDrag(e, obj) {
             // console.log('编辑', e, obj)
         },
+        onEditRectDragComplete() {},
         onEditNodeDragComplete(e, obj) {
             this.markNoteList.forEach(item => {
                 if (item.id === obj.id) {
@@ -265,33 +291,25 @@ let inMapVue = new Vue({
         },
         onSelected(e, data) {},
         reset() {
+            console.log('rest')
             // this.markNoteList.splice(0);
-            this.polygon && this.polygon.setDrag(false);
+            this.image && this.image.setDrag(false);
+            this.rect && this.rect.close();
             this.polygon && this.polygon.close();
         },
         startDrag() {
             this.reset();
             if (this.image) {
-                this.polygon.setDrag(true);
+                this.image && this.image.setDrag(true);
             }
         },
-        // startRect() {
-        //     this.reset();
-        //     // console.log(this.polygon)
-        //     if (this.polygon) {
-        //         this.polygon.open();
-        //     } else {
-        //         this.initPolygon(this.markNoteList);
-        //         this.polygon.open();
-        //     }
-        // },
+        startRect() {
+            if (this.rect) {
+                this.rect.open();
+            }
+        },
         startPolygon() {
-            this.reset();
-            // console.log(this.polygon)
             if (this.polygon) {
-                this.polygon.open();
-            } else {
-                // this.initPolygon(this.markNoteList);
                 this.polygon.open();
             }
         },
@@ -299,12 +317,10 @@ let inMapVue = new Vue({
             this.image.rotate(90);
         },
         startZoomIn() {
-            this.polygon && this.polygon.close();
-            this.polygon.zoomIn();
+            this.image.zoomIn();
         },
         startZoomOut() {
-            this.polygon && this.polygon.close();
-            this.polygon.zoomOut();
+            this.image.zoomOut();
         },
         startDeleteCurrent() {
             this.polygon && this.polygon.setDrag(false);

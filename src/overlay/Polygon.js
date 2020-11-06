@@ -19,7 +19,7 @@ export default class Polygon extends Image {
         this.type = 'POLYGON';
 
         //是否开启绘制模式
-        this.isOpen = opts.isOpen || false;
+        this._option.isOpen = opts.isOpen || false;
 
         // 回调函数
         this._mousemove = opts.event.mousemove;
@@ -61,6 +61,7 @@ export default class Polygon extends Image {
         this.currShape = {};
         this.tempShape = [];
         this.creatCount = 0;
+
         if (this.image) {
             this.image.on('drag', (e) => {
                 //拖动图片与多边形同步
@@ -84,24 +85,15 @@ export default class Polygon extends Image {
             new Error('请传入数组类型');
         }
 
-        if (this.isOpen) {
-            this.open();
-        } else {
-            this.close();
-        }
-    }
-    _createGraphicGroup(points, shape) {
-        //创建编辑图形
-        let group = new zrender.Group();
-        group.data = {
-            type: 'graphicGroup'
-        };
-
-        return group;
     }
     open() {
+        // if (this._option.drawingType !== INMARK_DRAWING_POLYGON) {
+        //     this.close();
+        // }
         //开启绘制模式
-        this.isOpen = true;
+        this._option.isOpen = true;
+
+        this.setDrawingMode(INMARK_DRAWING_POLYGON);
 
         this._bindEvent();
 
@@ -120,7 +112,9 @@ export default class Polygon extends Image {
     }
     close() {
         //关闭绘制模式
-        this.isOpen = false;
+        this._option.isOpen = false;
+
+        this.creatCount = 0;
 
         this.setEdit(false);
 
@@ -131,6 +125,12 @@ export default class Polygon extends Image {
                 });
             }
         });
+
+        if (this._option.drawingType === 'hander') {
+            return;
+        }
+
+        this.setDrawingMode('hander');
     }
     setEdit(blean) {
         if (blean) {
@@ -159,6 +159,15 @@ export default class Polygon extends Image {
             });
         }
     }
+    _createGraphicGroup(points, shape) {
+        //创建编辑图形
+        let group = new zrender.Group();
+        group.data = {
+            type: 'graphicGroup'
+        };
+
+        return group;
+    }
     _zrClick(e) {
         if (e.target && e.target.data.type === 'IMAGE') {
             this.resetShapeStyle();
@@ -186,7 +195,7 @@ export default class Polygon extends Image {
 
             if (points.length > 0) {
                 this._createEditGroup(shapePoints, this.currShape);
-                console.log(333)
+
                 this._onCreateComplete && this._onCreateComplete(e, {
                     ...data,
                     coordinates: points
@@ -209,12 +218,10 @@ export default class Polygon extends Image {
     }
     _zrMouseDown(e) {
         // debugger;
-        if (e.which === 1 && e.target && e.target.data.type === 'IMAGE') {
+        if (e.which === 1 && e.target && e.target.data.type === 'IMAGE' && this._option.isOpen && this._option.drawingType === window.INMARK_DRAWING_POLYGON) {
             //图形左上角坐标
             // this.resetShapeStyle();
-            if (this.isOpen === false) {
-                return;
-            }
+
             this.resetShapeStyle();
 
             this.origin = this._getDrawPoint(e);
@@ -362,7 +369,7 @@ export default class Polygon extends Image {
         shape.attr({
             style: merge(this._styleConfig.selected, options)
         });
-        if (this.isOpen) {
+        if (this._option.isOpen) {
             shape.attr({
                 draggable: true
             });
@@ -385,7 +392,7 @@ export default class Polygon extends Image {
         }
     }
     selected(item, options = {}) {
-        if (this.isOpen) {
+        if (this._option.isOpen) {
             return;
         }
         this.resetShapeStyle();
@@ -402,7 +409,7 @@ export default class Polygon extends Image {
         });
     }
     setPosition(item) {
-        if (this.isOpen) {
+        if (this._option.isOpen) {
             return;
         }
 
@@ -563,7 +570,7 @@ export default class Polygon extends Image {
             }
         });
         shape.on('mousemove', (e) => {
-            if (this.isOpen) {
+            if (this._option.isOpen) {
 
                 shape.attr({
                     cursor: 'default',
@@ -573,7 +580,7 @@ export default class Polygon extends Image {
             }
         });
         shape.on('mouseover', (e) => {
-            if (this.isOpen) {
+            if (this._option.isOpen) {
                 shape.attr({
                     cursor: 'default',
                 });
@@ -595,7 +602,7 @@ export default class Polygon extends Image {
             });
         });
         shape.on('mouseout', (e) => {
-            if (this.isOpen) {
+            if (this._option.isOpen) {
                 this._bindEvent();
             }
         });
@@ -660,7 +667,7 @@ export default class Polygon extends Image {
         });
         shape.on('mouseup', (e) => {
             //开启编辑，选中某个框
-            if (this.isOpen && this.selectedSub && e.which === 1) {
+            if (this._option.isOpen && this.selectedSub && e.which === 1) {
 
                 this.currShape.bound && this.currShape.bound.eachChild(item => {
                     item.show();

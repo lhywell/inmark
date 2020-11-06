@@ -21,7 +21,7 @@ export default class RectOverlay extends Image {
 
         this.type = 'RECTANGLE';
         //是否开启绘制模式
-        this.isOpen = opts.isOpen || false;
+        this._option.isOpen = opts.isOpen || false;
 
         // 回调函数
         this._mousemove = opts.event.mousemove;
@@ -63,6 +63,7 @@ export default class RectOverlay extends Image {
         this.graphic = this._createGraphicGroup();
         this.currShape = {};
         this.tempShape = {};
+
         if (this.image) {
             this.image.on('drag', (e) => {
                 //拖动图片与多边形同步
@@ -85,25 +86,16 @@ export default class RectOverlay extends Image {
         } else {
             new Error('请传入数组类型');
         }
-
-        if (this.isOpen) {
-            this.open();
-        } else {
-            this.close();
-        }
-    }
-    _createGraphicGroup(points, shape) {
-        //创建编辑图形
-        let group = new zrender.Group();
-        group.data = {
-            type: 'graphicGroup'
-        };
-
-        return group;
     }
     open() {
+        // if (this._option.drawingType !== INMARK_DRAWING_RECTANGLE) {
+        //     console.log('rec close')
+        //     this.close();
+        // }
         //开启绘制模式
-        this.isOpen = true;
+        this._option.isOpen = true;
+
+        this.setDrawingMode(INMARK_DRAWING_RECTANGLE);
 
         this._bindEvent();
 
@@ -122,9 +114,7 @@ export default class RectOverlay extends Image {
     }
     close() {
         //关闭绘制模式
-        this.isOpen = false;
-
-        this._unBindEvent();
+        this._option.isOpen = false;
 
         this.setEdit(false);
 
@@ -135,6 +125,12 @@ export default class RectOverlay extends Image {
                 });
             }
         });
+
+        if (this._option.drawingType === 'hander') {
+            return;
+        }
+
+        this.setDrawingMode('hander');
     }
     setEdit(blean) {
         if (blean) {
@@ -163,6 +159,15 @@ export default class RectOverlay extends Image {
             });
         }
     }
+    _createGraphicGroup(points, shape) {
+        //创建编辑图形
+        let group = new zrender.Group();
+        group.data = {
+            type: 'graphicGroup'
+        };
+
+        return group;
+    }
     _zrClick(e) {
         if (e.target && e.target.data.type === 'IMAGE') {
             this.resetShapeStyle();
@@ -171,7 +176,7 @@ export default class RectOverlay extends Image {
     _zrMouseDown(e) {
         //e.which鼠标左键，禁止鼠标右键创建框
         // 创建框
-        if (e.which === 1 && e.target && e.target.data.type === 'IMAGE') {
+        if (e.which === 1 && e.target && e.target.data.type === 'IMAGE' && this._option.isOpen && this._option.drawingType === window.INMARK_DRAWING_RECTANGLE) {
 
             //图形左上角坐标
             this.resetShapeStyle();
@@ -362,7 +367,7 @@ export default class RectOverlay extends Image {
         shape.attr({
             style: merge(this._styleConfig.selected, options)
         });
-        if (this.isOpen) {
+        if (this._option.isOpen) {
             shape.attr({
                 draggable: true
             });
@@ -384,7 +389,7 @@ export default class RectOverlay extends Image {
         }
     }
     selected(item, options = {}) {
-        if (this.isOpen) {
+        if (this._option.isOpen) {
             return;
         }
         this.resetShapeStyle();
@@ -401,7 +406,7 @@ export default class RectOverlay extends Image {
         });
     }
     setPosition(item) {
-        if (this.isOpen) {
+        if (this._option.isOpen) {
             return;
         }
 
@@ -589,7 +594,7 @@ export default class RectOverlay extends Image {
 
         });
         shape.on('mousemove', (e) => {
-            if (this.isOpen) {
+            if (this._option.isOpen) {
 
                 shape.attr({
                     cursor: 'default',
@@ -604,7 +609,7 @@ export default class RectOverlay extends Image {
 
         });
         shape.on('mouseover', (e) => {
-            if (this.isOpen) {
+            if (this._option.isOpen) {
 
                 shape.attr({
                     cursor: 'default',
@@ -640,7 +645,7 @@ export default class RectOverlay extends Image {
             });
         });
         shape.on('mouseout', (e) => {
-            if (this.isOpen) {
+            if (this._option.isOpen) {
                 this._bindEvent();
             }
         });
@@ -704,8 +709,8 @@ export default class RectOverlay extends Image {
 
         shape.on('mouseup', (e) => {
             //开启编辑，选中某个框
-            // console.log('shap-mouseup', this.currShape, this.isOpen, this.selectedSub, this.tempShape.id, this.currShape.id)
-            if (this.isOpen && this.selectedSub && e.which === 1) {
+            // console.log('shap-mouseup', this.currShape, this._option.isOpen, this.selectedSub, this.tempShape.id, this.currShape.id)
+            if (this._option.isOpen && this.selectedSub && e.which === 1) {
                 this._startPoint = [];
 
                 this.currShape.bound && this.currShape.bound.eachChild(item => {
@@ -1038,7 +1043,7 @@ export default class RectOverlay extends Image {
     resetShapeStyle() {
         let stroke = this._styleConfig.default.stroke;
         this._areaShapes.forEach(item => {
-            // if (this.isOpen) {
+            // if (this._option.isOpen) {
             if (item.data.type === 'Rectangle') {
                 item.attr({
                     style: {
