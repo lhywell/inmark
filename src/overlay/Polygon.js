@@ -240,20 +240,18 @@ export default class Polygon extends Image {
 
             this._endPoint = this._getDrawPoint(e);
 
-            //支持放大缩小
-            let scale = this.group.scale[0];
             //直线
             let points;
             if (this.creatCount === 1) {
                 points = [
-                    [this._startPoint[0][0] / scale, this._startPoint[0][1] / scale],
-                    [this._endPoint[0] / scale, this._endPoint[1] / scale]
+                    [(this._startPoint[0][0]) / this._option.setRate, (this._startPoint[0][1]) / this._option.setRate],
+                    [(this._endPoint[0]) / this._option.setRate, (this._endPoint[1]) / this._option.setRate]
                 ];
             } else {
                 let newPoints = zrender.util.clone(this._startPoint);
                 newPoints.push(this._endPoint);
 
-                points = newPoints;
+                points = this._changeToPoints(newPoints);
             }
 
             if (!this.currShape) {
@@ -287,6 +285,7 @@ export default class Polygon extends Image {
         //移动背景图片的偏移
         let x, y;
         let zoom = this.group.scale[0];
+
         let m = e.target && e.target.transform;
         if (e.target && m) {
             zoom = m[0];
@@ -959,28 +958,6 @@ export default class Polygon extends Image {
             array.push([x, y]);
         });
         return array;
-    }
-
-    /**
-     * @description 图中标记位置 换算 图中标记位置图片的绝对位置
-     * @param [Array] [
-     * [270.99741856543324,76.257258115704],
-     * [311.7303565951263,76.257258115704],
-     * [311.7303565951263,152.82686694864623],
-     * [270.99741856543324,152.82686694864623]
-     * ]
-     * @return points  [Array] [14.3503923416, 200.4595489502, 65.8221206665, 290.9818115234] 数组前两个 代表左上角的点，后两个代表右下角的点
-     * 标注的四个顶点在图片中的绝对位置
-     */
-    _changeToTowPoints(points) {
-        const pointsData = [
-            (points[0][0] - this._option.offsetX) / this._option.setRate,
-            (points[0][1] - this._option.offsetY) / this._option.setRate,
-            (points[2][0] - this._option.offsetX) / this._option.setRate,
-            (points[2][1] - this._option.offsetY) / this._option.setRate,
-        ];
-
-        return pointsData;
     }
     _changeToPoints(points) {
         // const pointsData = [
