@@ -93,7 +93,7 @@ export default class Polygon extends Image {
         //开启绘制模式
         this._option.isOpen = true;
 
-        this.setDrawingMode(INMARK_DRAWING_POLYGON);
+        this.setDrawingMode(window.INMARK_DRAWING_POLYGON);
 
         this._bindEvent();
 
@@ -313,6 +313,8 @@ export default class Polygon extends Image {
     setData(data) {
         this.exportData = zrender.util.clone(data);
         this.setMarkers(data);
+
+        this.saveInstance(window.INMARK_DRAWING_POLYGON);
     }
     getData() {
         return this.exportData;

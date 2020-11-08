@@ -91,6 +91,7 @@
         height: 100%;
         position: relative;
     }
+
     canvas:nth-child(1) {
         background: #d2d2d2
     }
@@ -326,26 +327,14 @@ let inMapVue = new Vue({
             this.image.zoomOut();
         },
         startDeleteCurrent() {
-            this.polygon && this.polygon.setDrag(false);
-            this.polygon && this.polygon.close();
-
-            if (this.polygon) {
-                let item = this.polygon.removeAnnotation();
-                if (item) {
-                    let index = this.markNoteList.forEach((x, y) => {
-                        if (item.data.id === x.id) {
-                            this.markNoteList.splice(y, 1);
-                        }
-                    });
-                }
-            }
+            this.image.removeAnnotation();
         },
         startDeleteAll() {
-            this.reset();
+            // this.reset();
 
             //删除所有标注
             this.markNoteList.splice(0);
-            this.polygon && this.polygon.removeAll();
+            this.image.removeAll();
         },
     },
 })

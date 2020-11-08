@@ -291,20 +291,13 @@ export default class BImage extends Init {
         };
 
     }
-    setDrawingMode(drawingType) {
-        this._setDrawingMode(drawingType);
-    }
-    _setDrawingMode(drawingType) {
-        this.setDrag(false);
-
-        this._option.drawingType = drawingType;
-
+    saveInstance(drawingType) {
         switch (drawingType) {
-            case INMARK_DRAWING_POLYGON:
+            case window.INMARK_DRAWING_POLYGON:
                 this._option.polygonOverlay = this;
                 this._bindPolylineOrPolygon();
                 break;
-            case INMARK_DRAWING_RECTANGLE:
+            case window.INMARK_DRAWING_RECTANGLE:
                 this._option.RecOverlay = this;
                 this._bindRectangle();
                 break;
@@ -315,6 +308,16 @@ export default class BImage extends Init {
                 this.setDrag(true);
                 break;
         }
+    }
+    setDrawingMode(drawingType) {
+        this._setDrawingMode(drawingType);
+    }
+    _setDrawingMode(drawingType) {
+        this.setDrag(false);
+
+        this._option.drawingType = drawingType;
+
+        this.saveInstance(drawingType);
     }
     getDrawingMode() {
         return this._option.drawingType;
@@ -470,6 +473,7 @@ export default class BImage extends Init {
         }
     }
     rotate(degree) {
+        this.setDrawingMode('hander');
 
         //正值代表逆时针旋转，负值代表顺时针旋转
         const oldScale = this.group.scale[0];
@@ -581,7 +585,7 @@ export default class BImage extends Init {
         this.zoomStage(times);
     }
     zoomStage(scaleBy) {
-        // this.setDrawingMode('hander');
+        this.setDrawingMode('hander');
 
         const oldScale = this.group.scale[0];
         const pos = {
@@ -625,6 +629,20 @@ export default class BImage extends Init {
     }
     getType() {
         return this.zr.painter.getType();
+    }
+    removeAnnotation() {
+        this.setDrawingMode('hander');
+
+        // 实例方法
+        this._option.polygonOverlay && this._option.polygonOverlay.removeAnnotation();
+        this._option.RecOverlay && this._option.RecOverlay.removeAnnotation();
+    }
+    removeAll() {
+        this.setDrawingMode('hander');
+
+        // 实例方法
+        this._option.polygonOverlay && this._option.polygonOverlay.removeAll();
+        this._option.RecOverlay && this._option.RecOverlay.removeAll();
     }
     _convertImageToCanvas(img) {
         let canvas = document.createElement('canvas');
