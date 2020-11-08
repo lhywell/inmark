@@ -309,6 +309,9 @@ export default class BImage extends Init {
                 break;
         }
     }
+    getData() {
+        return this._option.exportData;
+    }
     setDrawingMode(drawingType) {
         this._setDrawingMode(drawingType);
     }

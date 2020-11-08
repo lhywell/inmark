@@ -174,8 +174,7 @@ export default class Polygon extends Image {
         }
     }
     _zrDBClick(e) {
-        if (e.target && e.target.data.type === 'IMAGE' && this._isMouseDown && this.currShape) {
-
+        if (e.target && this._isMouseDown && this.currShape) {
             const index = this._areaShapes.length - 1;
             const shapePoints = this.currShape.shape.points;
 
@@ -201,11 +200,10 @@ export default class Polygon extends Image {
                     coordinates: points
                 });
 
-                this.exportData.push({
+                this._option.exportData.push({
                     ...data,
                     coordinates: points
                 });
-
                 this.selectedSub = e.target;
             }
             this._isMouseDown = false;
@@ -311,13 +309,10 @@ export default class Polygon extends Image {
      * @params {Array} data
      */
     setData(data) {
-        this.exportData = zrender.util.clone(data);
+        this._option.exportData = zrender.util.clone(data);
         this.setMarkers(data);
 
         this.saveInstance(window.INMARK_DRAWING_POLYGON);
-    }
-    getData() {
-        return this.exportData;
     }
     /**
      * @description 删除图形，保留图片
@@ -563,9 +558,9 @@ export default class Polygon extends Image {
                     coordinates: rPoints
                 });
 
-                this.exportData.forEach(item => {
+                this._option.exportData.forEach(item => {
                     if (item.id === e.target.data.id) {
-                        item.coordinates = e.target.data.coordinates;
+                        item.coordinates = rPoints;
                     }
                 });
             }
@@ -632,40 +627,7 @@ export default class Polygon extends Image {
                 });
             }
         });
-        shape.on('dblclick', (e) => {
-            //功能同双击
-            const index = this._areaShapes.length - 1;
-            const shapePoints = this.currShape.shape.points;
-
-            const points = this._changeToPoints(shapePoints);
-            const data = {
-                type: 'Polygon',
-                notes: '-1',
-                id: window.btoa(Math.random()) //编码加密
-            };
-            this._areaShapes[index].attr({
-                style: this._styleConfig.selected,
-                data: {
-                    ...data
-                }
-            });
-            this._editNode = points;
-
-            if (points.length > 0) {
-                this._createEditGroup(shapePoints, this.currShape);
-
-                this._onCreateComplete && this._onCreateComplete(e, {
-                    ...data,
-                    coordinates: points
-                });
-                this.selectedSub = e.target;
-            }
-            this._isMouseDown = false;
-            this._canDrawShape = false;
-            this._startPoint = [];
-            this._endPoint = [];
-            this.creatCount = 0;
-        });
+        shape.on('dblclick', (e) => {});
         shape.on('mouseup', (e) => {
             //开启编辑，选中某个框
             if (this._option.isOpen && this.selectedSub && e.which === 1) {
@@ -806,7 +768,7 @@ export default class Polygon extends Image {
                     coordinates: rPoints
                 });
 
-                this.exportData.forEach(item => {
+                this._option.exportData.forEach(item => {
                     if (item.id === group.bound.data.id) {
                         item.coordinates = rPoints;
                     }

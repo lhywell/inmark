@@ -292,7 +292,7 @@ export default class RectOverlay extends Image {
                     coordinates: points
                 });
 
-                this.exportData.push({
+                this._option.exportData.push({
                     ...data,
                     coordinates: points
                 });
@@ -310,13 +310,10 @@ export default class RectOverlay extends Image {
      * @params {Array} data
      */
     setData(data) {
-        this.exportData = zrender.util.clone(data);
+        this._option.exportData = zrender.util.clone(data);
         this.setMarkers(data);
 
         this.saveInstance(window.INMARK_DRAWING_RECTANGLE);
-    }
-    getData() {
-        return this.exportData;
     }
     /**
      * @description 删除图形，保留图片
@@ -587,9 +584,10 @@ export default class RectOverlay extends Image {
                     coordinates: rPoints
                 });
 
-                this.exportData.forEach(item => {
+                this._option.exportData.forEach(item => {
                     if (item.id === e.target.data.id) {
-                        item.coordinates = e.target.data.coordinates;
+                        console.log(e.target.data, rPoints)
+                        item.coordinates = rPoints;
                     }
                 });
             }
@@ -984,7 +982,7 @@ export default class RectOverlay extends Image {
                     coordinates: rPoints
                 });
 
-                this.exportData.forEach(item => {
+                this._option.exportData.forEach(item => {
                     if (item.id === group.bound.data.id) {
                         item.coordinates = rPoints;
                     }

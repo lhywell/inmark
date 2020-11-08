@@ -10,6 +10,7 @@
         width: 100%;
         height: 100%;
         margin: 0;
+        padding: 0;
         overflow: hidden;
     }
 
@@ -19,7 +20,6 @@
         height: 100%;
         background-color: #fff;
         z-index: 99999;
-        padding: 5px 20px;
     }
 
     .tools {
@@ -129,8 +129,8 @@
     <div id="app">
         <div class="tools" ref="tools">
             <div><i class="iconfont icon-drag" @click="openTools('drag')"></i></div>
-            <div> <i class="iconfont icon-act" @click="openTools('act')"></i>
-            </div>
+            <div><i class="iconfont icon-act" @click="openTools('act')"></i></div>
+            <div><i class="iconfont icon-polygon" @click="openTools('polygon')"></i></div>
             <div><i class="iconfont icon-zoomin" @click="openTools('zoomin')"></i></div>
             <div><i class="iconfont icon-delete" @click="openTools('delete')"></i></div>
             <div @click="setData" style="cursor: pointer;">setData</div>
@@ -188,6 +188,16 @@ let inMapVue = new Vue({
                 this.rect.open();
             }
         },
+        startPolygon() {
+            this.reset();
+            // console.log(this.rect)
+            if (this.polygon) {
+                this.polygon.open();
+            } else {
+                // this.initRect(this.markNoteList);
+                this.polygon.open();
+            }
+        },
         openTools(x, index) {
             this.classReset();
 
@@ -196,6 +206,9 @@ let inMapVue = new Vue({
             }
             if (x === 'act') {
                 this.startRect();
+            }
+            if (x === 'polygon') {
+                this.startPolygon();
             }
             if (x === 'rotate') {
                 this.startRotate();
@@ -225,6 +238,8 @@ let inMapVue = new Vue({
             this.ZImage = this.image.getImage();
 
             this.initRect(this.markNoteList);
+            this.initPolygon(this.markNoteList);
+
 
             this.loading = false;
         },
@@ -258,6 +273,23 @@ let inMapVue = new Vue({
                 this.init = false;
 
             });
+        },
+        initPolygon(data) {
+            let polygon = new inMark.Polygon({
+                data: data,
+                event: {
+                    onCreateComplete: this.onCreateComplete,
+                    onRectDrag: this.onRectDrag,
+                    onRectDragComplete: this.onRectDragComplete,
+                    onEditNodeDrag: this.onEditNodeDrag,
+                    onEditNodeDragComplete: this.onEditNodeDragComplete,
+                    onSelected: this.onSelected,
+                    unSelect: this.unSelect
+                }
+            });
+            // polygon.setData(s);
+            this.polygon = polygon;
+            this.init = false;
         },
         initRect(data) {
             // return;
@@ -347,7 +379,7 @@ let inMapVue = new Vue({
             }
         },
         clear() {
-            // 清除所有对象和画布。
+            // 清除所有对象和画布,保留canvas。
             this.image && this.image.clear();
         },
         dispose() {
@@ -355,7 +387,7 @@ let inMapVue = new Vue({
             this.image && this.image.dispose();
         },
         getData() {
-            let result = this.rect.getData();
+            let result = this.image.getData();
             console.log(result)
         }
     },
