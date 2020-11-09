@@ -173,56 +173,14 @@ export default class Polygon extends Image {
             this.resetShapeStyle();
         }
     }
-    _zrDBClick(e) {
-        if (e.target && this._isMouseDown && this.currShape) {
-            const index = this._areaShapes.length - 1;
-            const shapePoints = this.currShape.shape.points;
 
-            const points = this._changeToPoints(shapePoints);
-            const data = {
-                type: 'Polygon',
-                notes: '-1',
-                id: window.btoa(Math.random()) //编码加密
-            };
-            this._areaShapes[index].attr({
-                style: this._styleConfig.selected,
-                data: {
-                    ...data
-                }
-            });
-            this._editNode = points;
-
-            if (points.length > 0) {
-                this._createEditGroup(shapePoints, this.currShape);
-
-                this._onCreateComplete && this._onCreateComplete(e, {
-                    ...data,
-                    coordinates: points
-                });
-
-                this._option.exportData.push({
-                    ...data,
-                    coordinates: points
-                });
-                this.selectedSub = e.target;
-            }
-            this._isMouseDown = false;
-            this._canDrawShape = false;
-            this._startPoint = [];
-            this._endPoint = [];
-            this.creatCount = 0;
-        }
-
-    }
     _zrMouseDown(e) {
         // debugger;
         if (e.which === 1 && e.target && e.target.data.type === 'IMAGE' && this._option.isOpen && this._option.drawingType === window.INMARK_DRAWING_POLYGON) {
-            //图形左上角坐标
-            // this.resetShapeStyle();
-
             this.resetShapeStyle();
 
             this.origin = this._getDrawPoint(e);
+            //创建多边形第一个点
             this._startPoint[this.creatCount] = this.origin;
 
             this.creatCount++;
@@ -238,18 +196,24 @@ export default class Polygon extends Image {
 
             this._endPoint = this._getDrawPoint(e);
 
-            //直线
+
             let points;
             if (this.creatCount === 1) {
+                //直线
                 points = [
                     [(this._startPoint[0][0]) / this._option.setRate, (this._startPoint[0][1]) / this._option.setRate],
                     [(this._endPoint[0]) / this._option.setRate, (this._endPoint[1]) / this._option.setRate]
                 ];
             } else {
+                //多边形
                 let newPoints = zrender.util.clone(this._startPoint);
                 newPoints.push(this._endPoint);
 
                 points = this._changeToPoints(newPoints);
+
+                if (points[points.length - 1].toString() === points[points.length - 2].toString()) {
+                    return;
+                }
             }
 
             if (!this.currShape) {
@@ -272,6 +236,52 @@ export default class Polygon extends Image {
                 notes: '-1',
                 coordinates: rPoints
             });
+        }
+
+    }
+    _zrDBClick(e) {
+        // 避免两点双击
+        if (this.creatCount <= 3) {
+            this.creatCount--;
+            this._startPoint.splice(this._startPoint.length - 1);
+            return;
+        }
+        //创建多边形结束
+        if (e.target && this._isMouseDown && this.currShape) {
+            const index = this._areaShapes.length - 1;
+            const shapePoints = this.currShape.shape.points;
+            const points = this._changeToPoints(shapePoints);
+            const data = {
+                type: 'Polygon',
+                notes: '-1',
+                id: window.btoa(Math.random()) //编码加密
+            };
+            this._areaShapes[index].attr({
+                style: this._styleConfig.selected,
+                data: {
+                    ...data
+                }
+            });
+            this._editNode = points;
+            if (points.length > 0) {
+                this._createEditGroup(shapePoints, this.currShape);
+
+                this._onCreateComplete && this._onCreateComplete(e, {
+                    ...data,
+                    coordinates: points
+                });
+
+                this._option.exportData.push({
+                    ...data,
+                    coordinates: points
+                });
+                this.selectedSub = e.target;
+            }
+            this._isMouseDown = false;
+            this._canDrawShape = false;
+            this._startPoint = [];
+            this._endPoint = [];
+            this.creatCount = 0;
         }
 
     }
@@ -605,7 +615,8 @@ export default class Polygon extends Image {
 
         shape.on('mousedown', (e) => {
             if (e.which === 1) {
-                //创建中
+                //创建多边形的其他点
+
                 if (this._isMouseDown && this.creatCount) {
                     this._startPoint[this.creatCount] = this._getDrawPoint(e);
                     this.creatCount++;
