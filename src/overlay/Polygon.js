@@ -246,7 +246,7 @@ export default class Polygon extends Image {
     }
     _zrDBClick(e) {
         // 避免两点双击
-        if (this.creatCount <= 3) {
+        if (this.creatCount <= 3 && this._isMouseDown === true) {
             this.creatCount--;
             this._startPoint.splice(this._startPoint.length - 1);
             return;
