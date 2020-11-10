@@ -46,7 +46,6 @@ export default class Polygon extends Image {
         }
 
         this._isMouseDown = false;
-        this._canDrawShape = false;
 
         this._startPoint = [];
         this._endPoint = [];
@@ -200,10 +199,7 @@ export default class Polygon extends Image {
         //e.target=undefined 禁止拖动到浏览器外边
         if (this._isMouseDown && this._startPoint && e.target) {
 
-            this._canDrawShape = true;
-
             this._endPoint = this._getDrawPoint(e);
-
 
             let points;
             if (this.creatCount === 1) {
@@ -288,7 +284,6 @@ export default class Polygon extends Image {
                 this.selectedSub = e.target;
             }
             this._isMouseDown = false;
-            this._canDrawShape = false;
             this._startPoint = [];
             this._endPoint = [];
             this.creatCount = 0;
@@ -618,7 +613,8 @@ export default class Polygon extends Image {
                     cursor: 'default',
                 });
 
-                if (this._canDrawShape === false && this._isMouseDown === false) {
+                if (this._isMouseDown === false) {
+
                     this.tempShape = e.target;
 
                     this._unBindEvent();
