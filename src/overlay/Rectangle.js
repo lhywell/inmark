@@ -61,7 +61,7 @@ export default class RectOverlay extends Image {
         this.origin = [];
         this.bgDrag = [];
         this.graphic = this._createGraphicGroup();
-        this.currShape = {};
+        // this._option.currentShape = {};
         this.tempShape = {};
 
         if (this.image) {
@@ -88,12 +88,10 @@ export default class RectOverlay extends Image {
         }
     }
     open() {
-        // if (this._option.drawingType !== INMARK_DRAWING_RECTANGLE) {
-        //     console.log('rec close')
-        //     this.close();
-        // }
         //开启绘制模式
         this._option.isOpen = true;
+
+        this.resetAllStyle();
 
         this.setDrawingMode(window.INMARK_DRAWING_RECTANGLE);
 
@@ -108,9 +106,9 @@ export default class RectOverlay extends Image {
                 });
             }
         });
-        if (this.currShape && this.currShape.position) {
-            this.setSelectedStyle(this.currShape);
-        }
+        // if (this._option.currentShape && this._option.currentShape.position) {
+        //     this.setSelectedStyle(this._option.currentShape);
+        // }
     }
     close() {
         //关闭绘制模式
@@ -183,7 +181,7 @@ export default class RectOverlay extends Image {
             this.origin = this._getDrawPoint(e);
             this._startPoint = this.origin;
             this._isMouseDown = true;
-            this.currShape = null;
+            this._option.currentShape = null;
         }
     }
     _getDrawPoint(e) {
@@ -240,21 +238,21 @@ export default class RectOverlay extends Image {
             //     [this._startPoint[0] / scale, this._startPoint[1] / scale],
             //     [this._endPoint[0] / scale, this._endPoint[1] / scale]
             // ]
-            if (!this.currShape) {
+            if (!this._option.currentShape) {
                 //如果不存在 则创建一个新的
-                this.currShape = this._createShape(points, {
+                this._option.currentShape = this._createShape(points, {
                     notes: '-1'
                 });
-                this.graphic.add(this.currShape);
-                this._areaShapes.push(this.currShape);
+                this.graphic.add(this._option.currentShape);
+                this._areaShapes.push(this._option.currentShape);
             } else {
                 //否则鼠标移动更新当前数据
-                this.currShape.attr({
+                this._option.currentShape.attr({
                     shape: {
                         points: points
                     }
                 });
-                // console.log('mosemove', this.currShape)
+                // console.log('mosemove', this._option.currentShape)
             }
             const rPoints = this._changeToPoints(points);
             this._onCreate && this._onCreate(e, {
@@ -266,10 +264,10 @@ export default class RectOverlay extends Image {
     }
     _zrMouseUp(e) {
         //新增图形回调函数
-        if (this._isMouseDown && this.currShape) {
+        if (this._isMouseDown && this._option.currentShape) {
             const index = this._areaShapes.length - 1;
-            const shapePoints = this.currShape.shape.points;
-            // console.log(e, this.currShape)
+            const shapePoints = this._option.currentShape.shape.points;
+            // console.log(e, this._option.currentShape)
             const points = this._changeToPoints(shapePoints);
             const data = {
                 type: 'Rectangle',
@@ -285,7 +283,7 @@ export default class RectOverlay extends Image {
             this._editNode = points;
 
             if (points.length > 0) {
-                this._createEditGroup(shapePoints, this.currShape);
+                this._createEditGroup(shapePoints, this._option.currentShape);
 
                 this._onCreateComplete && this._onCreateComplete(e, {
                     ...data,
@@ -394,9 +392,9 @@ export default class RectOverlay extends Image {
         this.resetShapeStyle();
         this._areaShapes.forEach(x => {
             if (x.data.id === item.id) {
-                this.currShape = x;
+                this._option.currentShape = x;
 
-                const shapePoints = this.currShape.shape.points;
+                const shapePoints = this._option.currentShape.shape.points;
                 const points = this._changeToPoints(shapePoints);
                 this._editNode = points;
 
@@ -522,7 +520,7 @@ export default class RectOverlay extends Image {
         });
         shape.on('dragstart', (e) => {
             if (e.which === 1) {
-                this.currShape = shape;
+                this._option.currentShape = shape;
 
                 this.tempShape = e.target;
             }
@@ -549,9 +547,9 @@ export default class RectOverlay extends Image {
             //移动过程中，重新记录坐标点
             this._editNode = this._toShapeDragEnd(e, e.target);
 
-            this.currShape = e.target;
+            this._option.currentShape = e.target;
             // console.log('guocheng', JSON.stringify(this.currPoint));
-            // console.log('drag', this.currShape)
+            // console.log('drag', this._option.currentShape)
             let shapePoints = this._toGlobal(e.target.shape.points, shape);
             const rPoints = this._changeToPoints(shapePoints);
             this._onRectDrag && this._onRectDrag(e, {
@@ -571,7 +569,7 @@ export default class RectOverlay extends Image {
                 //拖动后点坐标
                 let shapePoints = this._toShapeDragEnd(e, shape);
 
-                this.currShape = shape;
+                this._option.currentShape = shape;
 
                 //拖拽完之后，删除原有框，重新创建一个框，避免画框重叠飞框
                 this._reCreatePoints(shapePoints);
@@ -586,7 +584,6 @@ export default class RectOverlay extends Image {
 
                 this._option.exportData.forEach(item => {
                     if (item.id === e.target.data.id) {
-                        console.log(e.target.data, rPoints)
                         item.coordinates = rPoints;
                     }
                 });
@@ -629,7 +626,7 @@ export default class RectOverlay extends Image {
             //     });
             //     return;
             // }
-            // this.currShape = e.target;
+            // this._option.currentShape = e.target;
             // this.tempShape = e.target;
 
             // this.selectedSub = shape;
@@ -652,13 +649,13 @@ export default class RectOverlay extends Image {
         shape.on('mousedown', (e) => {
             if (e.which === 1) {
                 //选中某个框
-                // this.currShape = e.target;
-                this.currShape = e.target;
+                // this._option.currentShape = e.target;
+                this._option.currentShape = e.target;
                 this.tempShape = e.target;
-                // console.log(this.currShape, JSON.stringify(this.currShape.shape.points))
+                // console.log(this._option.currentShape, JSON.stringify(this._option.currentShape.shape.points))
 
                 this.selectedSub = shape;
-                this.resetShapeStyle();
+                this.resetAllStyle();
 
                 this.setSelectedStyle(e.target);
                 // if (this.getDrag() === true) {
@@ -709,20 +706,20 @@ export default class RectOverlay extends Image {
 
         shape.on('mouseup', (e) => {
             //开启编辑，选中某个框
-            // console.log('shap-mouseup', this.currShape, this._option.isOpen, this.selectedSub, this.tempShape.id, this.currShape.id)
+            // console.log('shap-mouseup', this._option.currentShape, this._option.isOpen, this.selectedSub, this.tempShape.id, this._option.currentShape.id)
             if (this._option.isOpen && this.selectedSub && e.which === 1) {
                 this._startPoint = [];
 
-                this.currShape.bound && this.currShape.bound.eachChild(item => {
+                this._option.currentShape.bound && this._option.currentShape.bound.eachChild(item => {
                     item.show();
                 });
-                // this.temp = zrender.util.clone(this.currShape.shape.points);
+                // this.temp = zrender.util.clone(this._option.currentShape.shape.points);
 
-                // this.currShape = e.target;
+                // this._option.currentShape = e.target;
 
                 // this.temp = e.target;
-                // console.log('mouseup', this.currShape)
-                // if (!this.currShape) {
+                // console.log('mouseup', this._option.currentShape)
+                // if (!this._option.currentShape) {
                 //     if (oldGroup.length > 0) {
                 //         oldGroup.forEach(item => {
                 //             item.removeAll();
@@ -741,15 +738,15 @@ export default class RectOverlay extends Image {
         return shape;
     }
     _reCreatePoints(points) {
-        let shape = this._createShape(points, this.currShape.data);
-        this.graphic.remove(this.currShape.bound);
-        this.graphic.remove(this.currShape);
+        let shape = this._createShape(points, this._option.currentShape.data);
+        this.graphic.remove(this._option.currentShape.bound);
+        this.graphic.remove(this._option.currentShape);
         this._areaShapes.forEach((item, index) => {
-            if (item.data.id === this.currShape.data.id) {
+            if (item.data.id === this._option.currentShape.data.id) {
                 this._areaShapes.splice(index, 1);
             }
         });
-        this.currShape = shape;
+        this._option.currentShape = shape;
 
         this._createEditGroup(points, shape);
 
@@ -782,9 +779,9 @@ export default class RectOverlay extends Image {
 
         });
         editNode.on('dragstart', (e) => {
-            // console.log(JSON.stringify(this.currShape.shape.points));
+            // console.log(JSON.stringify(this._option.currentShape.shape.points));
             // let shape = group.bound;
-            // this.currShape = shape;
+            // this._option.currentShape = shape;
             //e.which鼠标左键，禁止鼠标右键拖动框
             if (e.which === 3) {
                 group.eachChild(item => {
@@ -793,10 +790,10 @@ export default class RectOverlay extends Image {
                 return;
             }
             if (e.which === 1) {
-                let m = this.currShape.transform;
-                let point = this.currShape.shape.points;
+                let m = this._option.currentShape.transform;
+                let point = this._option.currentShape.shape.points;
                 const oldPoints = zrender.util.clone(point);
-                // console.log(this.currShape, JSON.stringify(oldPoints))
+                // console.log(this._option.currentShape, JSON.stringify(oldPoints))
 
                 this.oldPoint = oldPoints;
                 let width = oldPoints[1][0] - oldPoints[0][0];
@@ -806,7 +803,7 @@ export default class RectOverlay extends Image {
                     width,
                     height
                 };
-                this.m = zrender.util.clone(this.currShape.transform || []);
+                this.m = zrender.util.clone(this._option.currentShape.transform || []);
             }
 
         });
@@ -819,9 +816,9 @@ export default class RectOverlay extends Image {
 
                 // //框非移动，取拖拽坐标
                 // if (oldPoints.length === 0) {
-                //     oldPoints = zrender.util.clone(this.currShape.shape.points);
+                //     oldPoints = zrender.util.clone(this._option.currentShape.shape.points);
                 // }
-                let oldPoints = zrender.util.clone(this.currShape.shape.points);
+                let oldPoints = zrender.util.clone(this._option.currentShape.shape.points);
 
                 let m = this.m;
                 const _side = e.target.data._side;
@@ -946,7 +943,7 @@ export default class RectOverlay extends Image {
 
                 // let x = this._toLocal(newPoints, group.bound)
                 // console.log('new', JSON.stringify(newPoints), this.zr)
-                this.currShape.attr({
+                this._option.currentShape.attr({
                     scale: [1, 1],
                     shape: {
                         points: newPoints,
@@ -974,7 +971,7 @@ export default class RectOverlay extends Image {
                 //拖拽完之后，删除原有框,重新创建一个框，原有框在拖拽完之后拖拽事件没有同步
                 this._reCreatePoints(this._editNode);
 
-                // let shapePoints = this._toGlobal(this._editNode, this.currShape);
+                // let shapePoints = this._toGlobal(this._editNode, this._option.currentShape);
                 const rPoints = this._changeToPoints(this._editNode);
 
                 this._onEditNodeDragComplete && this._onEditNodeDragComplete(e, {
@@ -1042,8 +1039,8 @@ export default class RectOverlay extends Image {
      */
     resetShapeStyle() {
         let stroke = this._styleConfig.default.stroke;
+
         this._areaShapes.forEach(item => {
-            // if (this._option.isOpen) {
             if (item.data.type === 'Rectangle') {
                 item.attr({
                     style: {
@@ -1052,7 +1049,6 @@ export default class RectOverlay extends Image {
                     },
                     draggable: false
                 });
-
 
                 item.bound && item.bound.eachChild(x => {
                     x.hide();

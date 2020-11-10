@@ -40,6 +40,7 @@ export default class BImage extends Init {
                 radians: 0,
                 degrees: 0
             };
+            this._option.currentShape = {};
             this._option.mode = opts && opts.mode || 'auto';
 
             if (opts.style) {
@@ -302,12 +303,18 @@ export default class BImage extends Init {
                 this._bindRectangle();
                 break;
             case 'hander':
-                // 实例方法
+                this._option.polygonOverlay && this._option.polygonOverlay.resetShapeStyle();
                 this._option.polygonOverlay && this._option.polygonOverlay.close();
+                this._option.RecOverlay && this._option.RecOverlay.resetShapeStyle();
                 this._option.RecOverlay && this._option.RecOverlay.close();
+
                 this.setDrag(true);
                 break;
         }
+    }
+    resetAllStyle() {
+        this._option.polygonOverlay && this._option.polygonOverlay.resetShapeStyle();
+        this._option.RecOverlay && this._option.RecOverlay.resetShapeStyle();
     }
     getData() {
         return this._option.exportData;
