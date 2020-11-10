@@ -211,13 +211,15 @@ export default class Polygon extends Image {
             } else {
                 //多边形
                 let newPoints = zrender.util.clone(this._startPoint);
-                newPoints.push(this._endPoint);
+
+                let len = newPoints.length - 1;
+                if (JSON.stringify(newPoints[len]) !== JSON.stringify(this._endPoint)) {
+                    newPoints.push(this._endPoint);
+                }
 
                 points = this._changeToPoints(newPoints);
 
-                if (points[points.length - 1].toString() === points[points.length - 2].toString()) {
-                    return;
-                }
+
             }
 
             if (!this._option.currentShape) {
@@ -268,7 +270,6 @@ export default class Polygon extends Image {
                 }
             });
             this._editNode = points;
-
             if (points.length > 0) {
                 this._createEditGroup(points, this._option.currentShape);
 
