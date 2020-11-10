@@ -403,7 +403,9 @@ export default class RectOverlay extends Image {
         if (this._option.isOpen) {
             return;
         }
-
+        if (item.coordinates.length !== 4) {
+            return;
+        }
         let point = this._calculateToRelationpix(item.coordinates);
         let point_center = [(point[0][0] + point[1][0]) / 2, (point[0][1] + point[3][1]) / 2];
 
