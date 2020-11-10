@@ -58,7 +58,7 @@ export default class Polygon extends Image {
         this.origin = [];
         this.bgDrag = [];
         this.graphic = this._createGraphicGroup();
-        this.currShape = {};
+        // this._option.currentShape = {};
         this.tempShape = [];
         this.creatCount = 0;
 
@@ -93,6 +93,8 @@ export default class Polygon extends Image {
         //开启绘制模式
         this._option.isOpen = true;
 
+        this.resetAllStyle();
+
         this.setDrawingMode(window.INMARK_DRAWING_POLYGON);
 
         this._bindEvent();
@@ -106,9 +108,9 @@ export default class Polygon extends Image {
                 });
             }
         });
-        if (this.currShape && this.currShape.position) {
-            this.setSelectedStyle(this.currShape);
-        }
+        // if (this._option.currentShape && this._option.currentShape.position) {
+        //     this.setSelectedStyle(this._option.currentShape);
+        // }
     }
     close() {
         //关闭绘制模式
@@ -173,7 +175,6 @@ export default class Polygon extends Image {
             this.resetShapeStyle();
         }
     }
-
     _zrMouseDown(e) {
         // debugger;
         if (e.which === 1 && e.target && e.target.data.type === 'IMAGE' && this._option.isOpen && this._option.drawingType === window.INMARK_DRAWING_POLYGON) {
@@ -185,7 +186,7 @@ export default class Polygon extends Image {
 
             this.creatCount++;
             this._isMouseDown = true;
-            this.currShape = null;
+            this._option.currentShape = null;
         }
     }
     _zrMouseMove(e) {
@@ -216,16 +217,16 @@ export default class Polygon extends Image {
                 }
             }
 
-            if (!this.currShape) {
+            if (!this._option.currentShape) {
                 //如果不存在 则创建一个新的
-                this.currShape = this._createShape(points, {
+                this._option.currentShape = this._createShape(points, {
                     notes: '-1'
                 });
-                this.graphic.add(this.currShape);
-                this._areaShapes.push(this.currShape);
+                this.graphic.add(this._option.currentShape);
+                this._areaShapes.push(this._option.currentShape);
             } else {
                 //否则鼠标移动更新当前数据
-                this.currShape.attr({
+                this._option.currentShape.attr({
                     shape: {
                         points: points
                     }
@@ -247,9 +248,9 @@ export default class Polygon extends Image {
             return;
         }
         //创建多边形结束
-        if (e.target && this._isMouseDown && this.currShape) {
+        if (e.target && this._isMouseDown && this._option.currentShape) {
             const index = this._areaShapes.length - 1;
-            const shapePoints = this.currShape.shape.points;
+            const shapePoints = this._option.currentShape.shape.points;
             const points = this._changeToPoints(shapePoints);
             const data = {
                 type: 'Polygon',
@@ -263,8 +264,9 @@ export default class Polygon extends Image {
                 }
             });
             this._editNode = points;
+
             if (points.length > 0) {
-                this._createEditGroup(shapePoints, this.currShape);
+                this._createEditGroup(points, this._option.currentShape);
 
                 this._onCreateComplete && this._onCreateComplete(e, {
                     ...data,
@@ -288,6 +290,21 @@ export default class Polygon extends Image {
     _zrMouseUp(e) {
         //新增图形回调函数
 
+    }
+    _resetPoints(points) {
+        // 顺时针输出
+        if (points[0][0] <= points[1][0]) {
+            return points;
+        } else {
+            let i = 0;
+            let p = points[0];
+            let ary = []
+            for (let i = points.length - 1, len = points.length - 1; i > 0; i--) {
+                ary.push(points[i]);
+            }
+            ary.unshift(p);
+            return ary;
+        }
     }
     _getDrawPoint(e) {
         //移动背景图片的偏移
@@ -404,9 +421,9 @@ export default class Polygon extends Image {
         this.resetShapeStyle();
         this._areaShapes.forEach(x => {
             if (x.data.id === item.id) {
-                this.currShape = x;
+                this._option.currentShape = x;
 
-                const shapePoints = this.currShape.shape.points;
+                const shapePoints = this._option.currentShape.shape.points;
                 const points = this._changeToPoints(shapePoints);
                 this._editNode = points;
 
@@ -521,7 +538,7 @@ export default class Polygon extends Image {
         });
         shape.on('dragstart', (e) => {
             if (e.which === 1) {
-                this.currShape = shape;
+                this._option.currentShape = shape;
 
                 this.tempShape = e.target;
             }
@@ -539,7 +556,7 @@ export default class Polygon extends Image {
             //移动过程中，重新记录坐标点
             this._editNode = this._toShapeDragEnd(e, e.target);
 
-            this.currShape = e.target;
+            this._option.currentShape = e.target;
 
             let shapePoints = this._toGlobal(e.target.shape.points, shape);
             const rPoints = this._changeToPoints(shapePoints);
@@ -557,7 +574,7 @@ export default class Polygon extends Image {
                 //拖动后点坐标
                 let shapePoints = this._toShapeDragEnd(e, shape);
 
-                this.currShape = shape;
+                this._option.currentShape = shape;
 
                 //拖拽完之后，删除原有框，重新创建一个框，避免画框重叠飞框
                 this._reCreatePoints(shapePoints);
@@ -616,18 +633,18 @@ export default class Polygon extends Image {
         shape.on('mousedown', (e) => {
             if (e.which === 1) {
                 //创建多边形的其他点
-
                 if (this._isMouseDown && this.creatCount) {
                     this._startPoint[this.creatCount] = this._getDrawPoint(e);
                     this.creatCount++;
                     return;
                 }
+
                 //选中某个框
-                this.currShape = e.target;
+                this._option.currentShape = e.target;
                 this.tempShape = e.target;
 
                 this.selectedSub = shape;
-                this.resetShapeStyle();
+                this.resetAllStyle();
 
                 this.setSelectedStyle(e.target);
                 let shapePoints = this._toGlobal(e.target.shape.points, shape);
@@ -643,7 +660,7 @@ export default class Polygon extends Image {
             //开启编辑，选中某个框
             if (this._option.isOpen && this.selectedSub && e.which === 1) {
 
-                this.currShape.bound && this.currShape.bound.eachChild(item => {
+                this._option.currentShape.bound && this._option.currentShape.bound.eachChild(item => {
                     item.show();
                 });
 
@@ -654,15 +671,15 @@ export default class Polygon extends Image {
         return shape;
     }
     _reCreatePoints(points) {
-        let shape = this._createShape(points, this.currShape.data);
-        this.graphic.remove(this.currShape.bound);
-        this.graphic.remove(this.currShape);
+        let shape = this._createShape(points, this._option.currentShape.data);
+        this.graphic.remove(this._option.currentShape.bound);
+        this.graphic.remove(this._option.currentShape);
         this._areaShapes.forEach((item, index) => {
-            if (item.data.id === this.currShape.data.id) {
+            if (item.data.id === this._option.currentShape.data.id) {
                 this._areaShapes.splice(index, 1);
             }
         });
-        this.currShape = shape;
+        this._option.currentShape = shape;
 
         this._createEditGroup(points, shape);
 
@@ -689,13 +706,13 @@ export default class Polygon extends Image {
                 return;
             }
             if (e.which === 1) {
-                let m = this.currShape.transform;
-                let point = this.currShape.shape.points;
+                let m = this._option.currentShape.transform;
+                let point = this._option.currentShape.shape.points;
                 const oldPoints = zrender.util.clone(point);
 
                 this.oldPoint = oldPoints;
 
-                this.m = zrender.util.clone(this.currShape.transform || []);
+                this.m = zrender.util.clone(this._option.currentShape.transform || []);
             }
         });
 
@@ -703,7 +720,7 @@ export default class Polygon extends Image {
             //禁止编辑画框到canvas外
             if (e.event.target.tagName === 'CANVAS' && e.which === 1) {
                 //框拖拽移动之后，取记录点坐标
-                let oldPoints = zrender.util.clone(this.currShape.shape.points);
+                let oldPoints = zrender.util.clone(this._option.currentShape.shape.points);
 
                 let m = this.m;
                 const _side = e.target.data._side;
@@ -744,7 +761,7 @@ export default class Polygon extends Image {
                     scale: [1, 1]
                 });
 
-                this.currShape.attr({
+                this._option.currentShape.attr({
                     scale: [1, 1],
                     shape: {
                         points: newPoints,
@@ -835,7 +852,8 @@ export default class Polygon extends Image {
      */
     resetShapeStyle() {
         let stroke = this._styleConfig.default.stroke;
-        this._areaShapes.forEach(item => {
+
+        this._areaShapes.forEach((item) => {
             if (item.data.type === 'Polygon') {
                 item.attr({
                     style: {
@@ -945,7 +963,8 @@ export default class Polygon extends Image {
         points.forEach(item => {
             array.push([(item[0] - this._option.offsetX) / this._option.setRate, (item[1] - this._option.offsetY) / this._option.setRate]);
         });
-        return array;
+
+        return this._resetPoints(array);
     }
 
     /**
