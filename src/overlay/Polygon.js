@@ -55,7 +55,6 @@ export default class Polygon extends Image {
         this._editNode = [];
         this._editRectStart = [];
         this.position = [0, 0];
-        this.origin = [];
         this.bgDrag = [];
         this.graphic = this._createGraphicGroup();
         // this._option.currentShape = {};
@@ -171,22 +170,30 @@ export default class Polygon extends Image {
         return group;
     }
     _zrClick(e) {
+
         if (e.target && e.target.data.type === 'IMAGE') {
             this.resetShapeStyle();
         }
     }
     _zrMouseDown(e) {
         // debugger;
-        if (e.which === 1 && e.target && e.target.data.type === 'IMAGE' && this._option.isOpen && this._option.drawingType === window.INMARK_DRAWING_POLYGON) {
-            this.resetShapeStyle();
-
-            this.origin = this._getDrawPoint(e);
+        if (e.which === 1 && e.target && this._option.isOpen && this._option.drawingType === window.INMARK_DRAWING_POLYGON) {
             //创建多边形第一个点
-            this._startPoint[this.creatCount] = this.origin;
+            if (this.creatCount !== 0 && this._isMouseDown === true) {
+                this.creatCount++;
+                this._startPoint.push(this._getDrawPoint(e));
+            }
 
-            this.creatCount++;
-            this._isMouseDown = true;
-            this._option.currentShape = null;
+            if (this.creatCount === 0 && this._isMouseDown === false && e.target.data.type === 'IMAGE') {
+                this.resetShapeStyle();
+
+                this._startPoint[this.creatCount] = this._getDrawPoint(e);
+
+                this.creatCount++;
+                this._isMouseDown = true;
+                this._option.currentShape = null;
+            }
+
         }
     }
     _zrMouseMove(e) {
@@ -220,7 +227,8 @@ export default class Polygon extends Image {
             if (!this._option.currentShape) {
                 //如果不存在 则创建一个新的
                 this._option.currentShape = this._createShape(points, {
-                    notes: '-1'
+                    notes: '-1',
+                    type: 'Polygon'
                 });
                 this.graphic.add(this._option.currentShape);
                 this._areaShapes.push(this._option.currentShape);
@@ -545,29 +553,32 @@ export default class Polygon extends Image {
         });
         shape.on('drag', (e) => {
             //拖动多边形与编辑同步
-            let group = shape.bound;
-            group.attr({
-                position: group.bound.position
-            });
-            group.eachChild(item => {
-                item.hide();
-            });
+            if (this._isMouseDown === false) {
 
-            //移动过程中，重新记录坐标点
-            this._editNode = this._toShapeDragEnd(e, e.target);
+                let group = shape.bound;
+                group.attr({
+                    position: group.bound.position
+                });
+                group.eachChild(item => {
+                    item.hide();
+                });
 
-            this._option.currentShape = e.target;
+                //移动过程中，重新记录坐标点
+                this._editNode = this._toShapeDragEnd(e, e.target);
 
-            let shapePoints = this._toGlobal(e.target.shape.points, shape);
-            const rPoints = this._changeToPoints(shapePoints);
-            this._onRectDrag && this._onRectDrag(e, {
-                ...e.target.data,
-                coordinates: rPoints
-            });
+                this._option.currentShape = e.target;
+
+                let shapePoints = this._toGlobal(e.target.shape.points, shape);
+                const rPoints = this._changeToPoints(shapePoints);
+                this._onRectDrag && this._onRectDrag(e, {
+                    ...e.target.data,
+                    coordinates: rPoints
+                });
+            }
         });
 
         shape.on('dragend', (e) => {
-            if (e.which === 1) {
+            if (e.which === 1 && this._isMouseDown === false) {
                 let shape = e.target;
 
                 this.position = zrender.util.clone(shape.position);
@@ -575,7 +586,6 @@ export default class Polygon extends Image {
                 let shapePoints = this._toShapeDragEnd(e, shape);
 
                 this._option.currentShape = shape;
-
                 //拖拽完之后，删除原有框，重新创建一个框，避免画框重叠飞框
                 this._reCreatePoints(shapePoints);
 
@@ -631,14 +641,7 @@ export default class Polygon extends Image {
         });
 
         shape.on('mousedown', (e) => {
-            if (e.which === 1) {
-                //创建多边形的其他点
-                if (this._isMouseDown && this.creatCount) {
-                    this._startPoint[this.creatCount] = this._getDrawPoint(e);
-                    this.creatCount++;
-                    return;
-                }
-
+            if (e.which === 1 && this._isMouseDown === false) {
                 //选中某个框
                 this._option.currentShape = e.target;
                 this.tempShape = e.target;

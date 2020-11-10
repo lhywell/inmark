@@ -58,7 +58,6 @@ export default class RectOverlay extends Image {
         this._editNode = [];
         this._editRectStart = [];
         this.position = [0, 0];
-        this.origin = [];
         this.bgDrag = [];
         this.graphic = this._createGraphicGroup();
         // this._option.currentShape = {};
@@ -175,11 +174,9 @@ export default class RectOverlay extends Image {
         //e.which鼠标左键，禁止鼠标右键创建框
         // 创建框
         if (e.which === 1 && e.target && e.target.data.type === 'IMAGE' && this._option.isOpen && this._option.drawingType === window.INMARK_DRAWING_RECTANGLE) {
-
             //图形左上角坐标
             this.resetShapeStyle();
-            this.origin = this._getDrawPoint(e);
-            this._startPoint = this.origin;
+            this._startPoint = this._getDrawPoint(e);
             this._isMouseDown = true;
             this._option.currentShape = null;
         }
@@ -211,7 +208,6 @@ export default class RectOverlay extends Image {
     _zrMouseMove(e) {
         //e.target=undefined 禁止拖动到浏览器外边
         if (this._isMouseDown && this._startPoint && e.target) {
-
             let p = this._getDrawPoint(e);
 
             const xLong = Math.abs(this._startPoint[0] - p[0]);
@@ -241,7 +237,8 @@ export default class RectOverlay extends Image {
             if (!this._option.currentShape) {
                 //如果不存在 则创建一个新的
                 this._option.currentShape = this._createShape(points, {
-                    notes: '-1'
+                    notes: '-1',
+                    type: 'Rectangle'
                 });
                 this.graphic.add(this._option.currentShape);
                 this._areaShapes.push(this._option.currentShape);
@@ -591,8 +588,8 @@ export default class RectOverlay extends Image {
 
         });
         shape.on('mousemove', (e) => {
-            if (this._option.isOpen) {
 
+            if (this._option.isOpen) {
                 shape.attr({
                     cursor: 'default',
                 });
@@ -647,6 +644,10 @@ export default class RectOverlay extends Image {
             }
         });
         shape.on('mousedown', (e) => {
+            // 创建多边形，与矩形重叠引起问题
+            if (this._option.polygonOverlay && this._option.polygonOverlay._isMouseDown) {
+                return;
+            }
             if (e.which === 1) {
                 //选中某个框
                 // this._option.currentShape = e.target;
@@ -782,6 +783,11 @@ export default class RectOverlay extends Image {
             // console.log(JSON.stringify(this._option.currentShape.shape.points));
             // let shape = group.bound;
             // this._option.currentShape = shape;
+            // 创建多边形，与矩形重叠引起问题
+            if (this._option.polygonOverlay && this._option.polygonOverlay._isMouseDown) {
+                return;
+            }
+
             //e.which鼠标左键，禁止鼠标右键拖动框
             if (e.which === 3) {
                 group.eachChild(item => {
@@ -809,6 +815,11 @@ export default class RectOverlay extends Image {
         });
 
         editNode.on('drag', (e) => {
+            // 创建多边形，与矩形重叠引起问题
+            if (this._option.polygonOverlay && this._option.polygonOverlay._isMouseDown) {
+                return;
+            }
+
             //禁止编辑画框到canvas外
             if (e.event.target.tagName === 'CANVAS' && e.which === 1) {
                 //框拖拽移动之后，取记录点坐标
@@ -964,6 +975,11 @@ export default class RectOverlay extends Image {
             }
         });
         editNode.on('dragend', (e) => {
+            // 创建多边形，与矩形重叠引起问题
+            if (this._option.polygonOverlay && this._option.polygonOverlay._isMouseDown) {
+                return;
+            }
+
             // let shape = group.bound;
             //双击框会消失
             if (this._editNode.length > 0) {
