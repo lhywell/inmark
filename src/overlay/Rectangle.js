@@ -422,15 +422,9 @@ export default class RectOverlay extends Image {
             bgDragX = this.bgDrag[0];
             bgDragY = this.bgDrag[1];
         }
-
         this.group.attr({
-            position: [(-point_center[0] - bgDragX) * scale + canvas_width / 2, (-point_center[1] - bgDragY) * scale + canvas_height / 2]
+            position: [(-point_center[0] - bgDragX) * scale + canvas_width / 2 * scale, (-point_center[1] - bgDragY) * scale + canvas_height / 2 * scale]
         });
-
-        // 如果 origin 发生变化，需要重新分解矩阵更新 position 和 scale
-        this.group.update();
-        this.group.decomposeTransform();
-        this.group.dirty();
     }
     _createEditGroup(points, shape) {
         //创建编辑图形
