@@ -237,7 +237,7 @@ export default class RectOverlay extends Image {
             if (!this._option.currentShape) {
                 //如果不存在 则创建一个新的
                 this._option.currentShape = this._createShape(points, {
-                    notes: '-1',
+                    notes: '',
                     type: 'Rectangle'
                 });
                 this.graphic.add(this._option.currentShape);
@@ -253,7 +253,7 @@ export default class RectOverlay extends Image {
             }
             const rPoints = this._changeToPoints(points);
             this._onCreate && this._onCreate(e, {
-                notes: '-1',
+                notes: '',
                 coordinates: rPoints
             });
 
@@ -268,7 +268,7 @@ export default class RectOverlay extends Image {
             const points = this._changeToPoints(shapePoints);
             const data = {
                 type: 'Rectangle',
-                notes: '-1',
+                notes: '',
                 id: window.btoa(Math.random()) //编码加密
             };
             this._areaShapes[index].attr({

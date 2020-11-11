@@ -225,7 +225,7 @@ export default class Polygon extends Image {
             if (!this._option.currentShape) {
                 //如果不存在 则创建一个新的
                 this._option.currentShape = this._createShape(points, {
-                    notes: '-1',
+                    notes: '',
                     type: 'Polygon'
                 });
                 this.graphic.add(this._option.currentShape);
@@ -240,7 +240,7 @@ export default class Polygon extends Image {
             }
             const rPoints = this._changeToPoints(points);
             this._onCreate && this._onCreate(e, {
-                notes: '-1',
+                notes: '',
                 coordinates: rPoints
             });
         }
@@ -260,7 +260,7 @@ export default class Polygon extends Image {
             const points = this._changeToPoints(shapePoints);
             const data = {
                 type: 'Polygon',
-                notes: '-1',
+                notes: '',
                 id: window.btoa(Math.random()) //编码加密
             };
             this._areaShapes[index].attr({
