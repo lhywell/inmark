@@ -91,6 +91,23 @@
         position: relative;
     }
 
+    .list {
+        position: absolute;
+        right: 0;
+        top: 0;
+        overflow-y: scroll;
+    }
+
+    .list .item {
+        font-size: 13px;
+        cursor: pointer;
+        color: blue;
+    }
+
+    .icon-rotate-anti {
+        transform: scaleX(-1);
+    }
+
     canvas:nth-child(1) {
         background: #d2d2d2
     }
@@ -134,6 +151,12 @@
             </el-tooltip>
         </div>
         <div class="imageAnnotate" :id="imgId" v-loading="loading"></div>
+        <div class="list" style="">
+            <div v-for="item in markNoteList">
+                <span class="item" @click="seletedSub(item)">{{item.notes}}</span>
+                <span class="item" @click="deleteSub(item)">删除</span>
+            </div>
+        </div>
     </div>
 </body>
 <!-- 引入Vue -->
@@ -276,7 +299,9 @@ let inMapVue = new Vue({
             this.polygon = polygon;
             this.init = false;
         },
-        onCreateComplete(e, obj) {},
+        onCreateComplete(e, obj) {
+            console.log(this.image.getData())
+        },
         onRectDrag(e, obj) {
             // console.log('拖动',e,obj)
         },
@@ -334,6 +359,15 @@ let inMapVue = new Vue({
             //删除所有标注
             this.markNoteList.splice(0);
             this.image.removeAll();
+        },
+        deleteSub(item) {
+            this.image && this.image.removeSub(item);
+        },
+        seletedSub(item) {
+            this.image && this.image.setPosition(item);
+
+            this.image && this.image.selected(item);
+
         },
     },
 })

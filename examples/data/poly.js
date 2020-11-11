@@ -7,7 +7,7 @@ let data = {
             [790, 37],
             [13, 37]
         ],
-        "text": "\u7ed3\u679c",
+        "notes": "123",
         "type": "Rectangle",
         "id": "TlRZeU5EQTNMak0wTnpRMU5qVTROak0="
     }, {
@@ -17,7 +17,7 @@ let data = {
             [639, 319],
             [640, 283]
         ],
-        "text": "\u7ed3\u679c",
+        "notes": "2342",
         "type": "Polygon",
         "id": "NTYyNDA3LjM0NzQ1NjU4NjM="
     }, {
@@ -27,9 +27,21 @@ let data = {
             [342, 309],
             [343, 271]
         ],
-        "text": "\u7ed3\u679c",
+        "notes": "45345",
         "type": "Polygon",
         "id": "NTYyNDA3LjM0NzQ1NjU4N22="
+    }, {
+        "coordinates": [
+            [910, 1342],
+            [1090, 1353],
+            [1080, 1507],
+            [933, 1561],
+            [739, 1521],
+            [741, 1378]
+        ],
+        "notes": "67356",
+        "type": "Polygon",
+        "id": "MC4yNTcxNDcxNDIyMzI1MDY3="
     }],
     "message": "Success"
 }

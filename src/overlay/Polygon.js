@@ -443,9 +443,37 @@ export default class Polygon extends Image {
         if (this._option.isOpen) {
             return;
         }
+        if (item.coordinates.length === 0) {
+            return;
+        }
 
         let point = this._calculateToRelationpix(item.coordinates);
-        let point_center = [(point[0][0] + point[1][0]) / 2, (point[0][1] + point[3][1]) / 2];
+
+        let minWidth = 0,
+            maxWidth = 0,
+            minHeight = 0,
+            maxHeight = 0;
+        point.forEach(x => {
+            if (maxWidth <= x[0]) {
+                maxWidth = x[0];
+            }
+            if (maxHeight <= x[1]) {
+                maxHeight = x[1];
+            }
+        })
+
+        minWidth = maxWidth;
+        minHeight = maxHeight;
+        point.forEach(x => {
+            if (x[0] < minWidth) {
+                minWidth = x[0];
+            }
+            if (x[1] < minHeight) {
+                minHeight = x[1];
+            }
+        })
+
+        let point_center = [(maxWidth + minWidth) / 2, (maxHeight + minHeight) / 2];
 
         let scale = this.group.scale[0];
         let canvas_width = this.zr.painter._width;
@@ -460,15 +488,9 @@ export default class Polygon extends Image {
             bgDragX = this.bgDrag[0];
             bgDragY = this.bgDrag[1];
         }
-
         this.group.attr({
-            position: [(-point_center[0] - bgDragX) * scale + canvas_width / 2, (-point_center[1] - bgDragY) * scale + canvas_height / 2]
+            position: [(-point_center[0] - bgDragX) * scale + canvas_width / 2 * scale, (-point_center[1] - bgDragY) * scale + canvas_height / 2 * scale]
         });
-
-        // 如果 origin 发生变化，需要重新分解矩阵更新 position 和 scale
-        this.group.update();
-        this.group.decomposeTransform();
-        this.group.dirty();
     }
     _createEditGroup(points, shape) {
         //创建编辑图形

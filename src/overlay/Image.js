@@ -675,6 +675,20 @@ export default class BImage extends Init {
         this._option.polygonOverlay && this._option.polygonOverlay.removeAll();
         this._option.RecOverlay && this._option.RecOverlay.removeAll();
     }
+    selected(item, options = {}) {
+        if (item.type === 'Rectangle') {
+            this._option.RecOverlay && this._option.RecOverlay.selected(item, options);
+        } else if (item.type === 'Polygon') {
+            this._option.polygonOverlay && this._option.polygonOverlay.selected(item, options);
+        }
+    }
+    setPosition(item) {
+        if (item.type === 'Rectangle') {
+            this._option.RecOverlay && this._option.RecOverlay.setPosition(item);
+        } else if (item.type === 'Polygon') {
+            this._option.polygonOverlay && this._option.polygonOverlay.setPosition(item);
+        }
+    }
     _convertImageToCanvas(img) {
         let canvas = document.createElement('canvas');
         canvas.width = 1000;
