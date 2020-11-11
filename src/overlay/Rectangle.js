@@ -305,7 +305,6 @@ export default class RectOverlay extends Image {
      * @params {Array} data
      */
     setData(data) {
-        this._option.exportData = zrender.util.clone(data);
         this.setMarkers(data);
 
         this.saveInstance(window.INMARK_DRAWING_RECTANGLE);
@@ -330,6 +329,9 @@ export default class RectOverlay extends Image {
      */
     setMarkers(data) {
         this.removeAll();
+
+        this._option.exportData = zrender.util.clone(data);
+
         if (data.length > 0) {
             data.forEach((item) => {
                 //矩形
@@ -1130,7 +1132,9 @@ export default class RectOverlay extends Image {
                 item = null;
             });
         }
-        this._areaShapes = [];
+        this._areaShapes.splice(0);
+
+        this._option.exportData.splice(0);
     }
 
     /**

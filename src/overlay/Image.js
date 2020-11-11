@@ -42,6 +42,7 @@ export default class BImage extends Init {
             };
             this._option.currentShape = {};
             this._option.mode = opts && opts.mode || 'auto';
+            this._option.exportData = [];
 
             if (opts.style) {
                 this._imgConfig = merge(ImageConfig.style, opts.style);
@@ -647,11 +648,16 @@ export default class BImage extends Init {
         this._option.polygonOverlay && this._option.polygonOverlay.removeAnnotation();
         this._option.RecOverlay && this._option.RecOverlay.removeAnnotation();
 
+        this._option.exportData.forEach((item, index) => {
+            if (item.id === this._option.removeItem.data.id) {
+                this._option.exportData.splice(index, 1);
+            }
+        });
+
         return this._option.removeItem;
     }
     removeAll() {
         this.setDrawingMode('hander');
-
         // 实例方法
         this._option.polygonOverlay && this._option.polygonOverlay.removeAll();
         this._option.RecOverlay && this._option.RecOverlay.removeAll();
