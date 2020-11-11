@@ -282,17 +282,18 @@ export default class RectOverlay extends Image {
             if (points.length > 0) {
                 this._createEditGroup(shapePoints, this._option.currentShape);
 
-                this._onCreateComplete && this._onCreateComplete(e, {
-                    ...data,
-                    coordinates: points
-                });
-
                 this._option.exportData.push({
                     ...data,
                     coordinates: points
                 });
 
                 this.selectedSub = e.target;
+
+                this._onCreateComplete && this._onCreateComplete(e, {
+                    ...data,
+                    coordinates: points
+                });
+
             }
         }
         this._isMouseDown = false;
@@ -572,16 +573,18 @@ export default class RectOverlay extends Image {
                 // console.log('end', this.position, JSON.stringify(e.target.shape.points), JSON.stringify(shapePoints));
 
                 const rPoints = this._changeToPoints(shapePoints);
-                this._onRectDragComplete && this._onRectDragComplete(e, {
-                    ...e.target.data,
-                    coordinates: rPoints
-                });
 
                 this._option.exportData.forEach(item => {
                     if (item.id === e.target.data.id) {
                         item.coordinates = rPoints;
                     }
                 });
+
+                this._onRectDragComplete && this._onRectDragComplete(e, {
+                    ...e.target.data,
+                    coordinates: rPoints
+                });
+
             }
 
         });
@@ -988,15 +991,15 @@ export default class RectOverlay extends Image {
                 // let shapePoints = this._toGlobal(this._editNode, this._option.currentShape);
                 const rPoints = this._changeToPoints(this._editNode);
 
-                this._onEditNodeDragComplete && this._onEditNodeDragComplete(e, {
-                    ...group.bound.data,
-                    coordinates: rPoints
-                });
-
                 this._option.exportData.forEach(item => {
                     if (item.id === group.bound.data.id) {
                         item.coordinates = rPoints;
                     }
+                });
+
+                this._onEditNodeDragComplete && this._onEditNodeDragComplete(e, {
+                    ...group.bound.data,
+                    coordinates: rPoints
                 });
             }
 

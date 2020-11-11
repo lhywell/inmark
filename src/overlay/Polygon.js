@@ -273,16 +273,18 @@ export default class Polygon extends Image {
             if (points.length > 0) {
                 this._createEditGroup(points, this._option.currentShape);
 
+                this._option.exportData.push({
+                    ...data,
+                    coordinates: points
+                });
+
+                this.selectedSub = e.target;
+
                 this._onCreateComplete && this._onCreateComplete(e, {
                     ...data,
                     coordinates: points
                 });
 
-                this._option.exportData.push({
-                    ...data,
-                    coordinates: points
-                });
-                this.selectedSub = e.target;
             }
             this._isMouseDown = false;
             this._startPoint = [];
@@ -588,16 +590,18 @@ export default class Polygon extends Image {
                 this._reCreatePoints(shapePoints);
 
                 const rPoints = this._changeToPoints(shapePoints);
-                this._onRectDragComplete && this._onRectDragComplete(e, {
-                    ...e.target.data,
-                    coordinates: rPoints
-                });
 
                 this._option.exportData.forEach(item => {
                     if (item.id === e.target.data.id) {
                         item.coordinates = rPoints;
                     }
                 });
+
+                this._onRectDragComplete && this._onRectDragComplete(e, {
+                    ...e.target.data,
+                    coordinates: rPoints
+                });
+
             }
         });
         shape.on('mousemove', (e) => {
@@ -793,15 +797,15 @@ export default class Polygon extends Image {
 
                 const rPoints = this._changeToPoints(this._editNode);
 
-                this._onEditNodeDragComplete && this._onEditNodeDragComplete(e, {
-                    ...group.bound.data,
-                    coordinates: rPoints
-                });
-
                 this._option.exportData.forEach(item => {
                     if (item.id === group.bound.data.id) {
                         item.coordinates = rPoints;
                     }
+                });
+
+                this._onEditNodeDragComplete && this._onEditNodeDragComplete(e, {
+                    ...group.bound.data,
+                    coordinates: rPoints
                 });
             }
 
