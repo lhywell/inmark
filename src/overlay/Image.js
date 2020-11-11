@@ -641,6 +641,19 @@ export default class BImage extends Init {
     getType() {
         return this.zr.painter.getType();
     }
+    removeSub(item) {
+        this.setDrawingMode('hander');
+
+        // 实例方法
+        this._option.polygonOverlay && this._option.polygonOverlay.removeSub(item);
+        this._option.RecOverlay && this._option.RecOverlay.removeSub(item);
+
+        this._option.exportData.forEach((sub, index) => {
+            if (sub.id === item.id) {
+                this._option.exportData.splice(index, 1);
+            }
+        });
+    }
     removeAnnotation() {
         this.setDrawingMode('hander');
 
