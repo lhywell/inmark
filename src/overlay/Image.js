@@ -67,7 +67,7 @@ export default class BImage extends Init {
 
         /**
          * 定义常量, 绘制的模式
-         * @final {Number} DrawingType
+         * @final {String} DrawingType
          */
         window.INMARK_DRAWING_RECTANGLE = 'rectangle'; // 鼠标画矩形模式
         window.INMARK_DRAWING_POLYGON = 'polygon'; // 鼠标画多边形模式
@@ -646,6 +646,8 @@ export default class BImage extends Init {
         // 实例方法
         this._option.polygonOverlay && this._option.polygonOverlay.removeAnnotation();
         this._option.RecOverlay && this._option.RecOverlay.removeAnnotation();
+
+        return this._option.removeItem;
     }
     removeAll() {
         this.setDrawingMode('hander');

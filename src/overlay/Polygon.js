@@ -890,7 +890,9 @@ export default class Polygon extends Image {
                 this.selectedSub = null;
             }
 
-            return obj;
+            this._option.removeItem = obj;
+
+            return this._option.removeItem;
         }
     }
     /**
