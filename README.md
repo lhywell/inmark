@@ -85,7 +85,23 @@ image.dispose();
 
 #### 实例方法
 
-1. 旋转
+1. 拖拽
+
+```
+image.setDrag(true);//开启拖拽
+
+image.setDrag(false);//关闭拖拽
+```
+
+2. 放大缩小
+```
+<!-- 放大 -->
+image.zoomIn();
+<!-- 缩小 -->
+image.zoomOut();
+```
+
+3. 旋转
 
 ###### 设置旋转角度
 
@@ -112,17 +128,32 @@ obj = {
 image.resetRotate();
 ```
 
-2. 放大缩小
-```
-<!-- 放大 -->
-image.zoomIn();
-<!-- 缩小 -->
-image.zoomOut();
-```
-
-3. 得到最新创建，编辑，拖拽标注后的数据
+4. 得到最新创建，编辑，拖拽标注后的数据
 ```
 image.getData();
+```
+
+5. 点击选中某个标注，删除当前标记，返回删除的对象
+```
+image.removeAnnotation();
+```
+
+6. 删除指定对象标注
+```
+/* 对象类型
+*item = {
+    coordinates: [[558.3230798626577,41.847382529992984],[664.28253473271,41.847382529992984],[664.28253473271,70.51483886948435],[558.3230798626577,70.51483886948435]],//左上角，右上角，左下角，右下角坐标，坐标x,y轴像素值
+    id: "06216",//唯一id
+    notes: "Nike Hong Kong Limited",//标注描述字符串
+    type: "Rectangle" //类型为矩形"Rectangle" or 多边形 "Polygon"
+}
+*/
+image.removeSub(item);
+```
+
+7. 删除所有标注
+```
+image.removeAll();
 ```
 
 #### 设置css样式
@@ -184,15 +215,7 @@ onSelected：选中某个矩形
 
 #### 实例方法
 
-1. 拖拽
-
-```
-rect.setDrag(true);//开启拖拽
-
-rect.setDrag(false);//关闭拖拽
-```
-
-2. 设置标注数据setData
+1. 设置标注数据setData
 ```
 /** 数组类型
 * let markNoteList = [{
@@ -205,45 +228,14 @@ rect.setDrag(false);//关闭拖拽
 rect.setData(markNoteList);
 ```
 
-3. 开启关闭矩形绘画
+2. 开启关闭矩形绘画
 ```
 rect.open();//开启矩形绘画
 
 rect.close();//关闭矩形绘画
 ```
-4. 放大缩小,继承自Image实例
-```
-<!-- 放大 -->
-rect.zoomIn();
-<!-- 缩小 -->
-rect.zoomOut();
-```
 
-5. 点击选中某个标注，删除当前标记，返回删除的对象
-```
-rect.removeAnnotation();
-```
-
-
-6. 删除指定对象标注
-```
-/* 对象类型
-*item = {
-    coordinates: [[558.3230798626577,41.847382529992984],[664.28253473271,41.847382529992984],[664.28253473271,70.51483886948435],[558.3230798626577,70.51483886948435]],//左上角，右上角，左下角，右下角坐标，坐标x,y轴像素值
-    id: "06216",//唯一id
-    notes: "Nike Hong Kong Limited",//标注描述字符串
-    type: "Rectangle" //类型为矩形
-}
-*/
-rect.removeSub(item);
-```
-
-7. 删除所有标注
-```
-rect.removeAll();
-```
-
-8. 定位标注到canvas中心
+3. 定位标注到canvas中心
 ```
 /* 对象类型
 *item = {
@@ -256,22 +248,17 @@ rect.removeAll();
 rect.setPosition(item);
 ```
 
-9. 选中标注并高亮
+4. 选中标注并高亮
 ```
 /* 对象类型
 *item = {
-    coordinates: [[558.3230798626577,41.847382529992984],[664.28253473271,41.847382529992984],[664.28253473271,70.51483886948435],[558.3230798626577,70.51483886948435]],//左上角，右上角，左下角，右下角坐标，坐标x,y轴像素值
+    coordinates: [[558.3230798626577,41.847382529992984],[664.28253473271,41.847382529992984],[664.28253473271,70.51483886948435],[558.3230798626577,70.51483886948435]],//坐标x,y轴像素值
     id: "06216",//唯一id
     notes: "Nike Hong Kong Limited",//标注描述字符串
-    type: "Rectangle" //类型为矩形
+    type: "Polygon" //类型为矩形
 }
 */
 rect.selected(item);
-```
-
-10. getData返回添加，编辑，拖拽标注框后的标注数据
-```
-rect.getData();
 ```
 
 ----------
@@ -295,26 +282,11 @@ let polygon = new inMark.Polygon({
 });
 ```
 方法同矩形
-polygon.setDrag(true);//开启拖拽
-
-polygon.setDrag(false);
 
 polygon.setData(markNoteList);
 
-polygon.open();//开启矩形绘画
+polygon.open();//开启多边形绘画
 
-polygon.close();//关闭矩形绘画
-
-polygon.zoomIn();
-
-polygon.zoomOut();
-
-polygon.removeAnnotation();
-
-polygon.removeSub(item);
-
-polygon.removeAll();
+polygon.close();//关闭多边形绘画
 
 polygon.selected(item);
-
-polygon.getData();
