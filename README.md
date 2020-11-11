@@ -40,7 +40,7 @@ $ npm install inmark --save
 <!-- 生成实例 -->
 let image = new inMark.Image({
     id: 'inmarkDOM',
-    mode: 'original', //original or auto
+    mode: 'original', //original or auto or auto-rotate
     imgUrl: 'http://url',
     event: {
         onLoadComplete: loadComplete,
@@ -51,10 +51,10 @@ let image = new inMark.Image({
 
 let zr = image.getZrender();//返回zrender实例
 let group = image.getGroup();//返回group,zrender.group
-let img = image.getImage();//返回图片实例
+let img = image.getImage();//返回zrender图片实例
 ```
 #### 配置属性
-id：字符串类型，dom唯一id,用来生成canvs
+id：字符串类型，Dom依赖唯一的名称id,用来生成canvas容器
 
 mode：字符串类型，设置渲染模式，
 默认为‘auto’，进行图片大小等比例缩放适应canvas容器，
@@ -120,6 +120,11 @@ image.zoomIn();
 image.zoomOut();
 ```
 
+3. 得到最新创建，编辑，拖拽标注后的数据
+```
+image.getData();
+```
+
 #### 设置css样式
 ```html
 <!-- 图片背景填色 -->
@@ -134,9 +139,8 @@ canvas:nth-child(1){
 ###  矩形
 ```
 <!-- 生成实例 -->
-let polygon = new inMark.Rect({
+let rect = new inMark.Rect({
     data: data,
-    isOpen: false,
     event: {
         onCreate: onCreate,
         onImageDrag: onImageDrag,
@@ -183,9 +187,9 @@ onSelected：选中某个矩形
 1. 拖拽
 
 ```
-this.polygon.setDrag(true);//开启拖拽
+rect.setDrag(true);//开启拖拽
 
-this.polygon.setDrag(false);//关闭拖拽
+rect.setDrag(false);//关闭拖拽
 ```
 
 2. 设置标注数据setData
@@ -198,26 +202,26 @@ this.polygon.setDrag(false);//关闭拖拽
     type: "Rectangle" //类型为矩形
 }]
 **/ 
-polygon.setData(markNoteList);
+rect.setData(markNoteList);
 ```
 
 3. 开启关闭矩形绘画
 ```
-polygon.open();//开启矩形绘画
+rect.open();//开启矩形绘画
 
-polygon.close();//关闭矩形绘画
+rect.close();//关闭矩形绘画
 ```
 4. 放大缩小,继承自Image实例
 ```
 <!-- 放大 -->
-polygon.zoomIn();
+rect.zoomIn();
 <!-- 缩小 -->
-polygon.zoomOut();
+rect.zoomOut();
 ```
 
 5. 点击选中某个标注，删除当前标记，返回删除的对象
 ```
-polygon.removeAnnotation();
+rect.removeAnnotation();
 ```
 
 
@@ -231,12 +235,12 @@ polygon.removeAnnotation();
     type: "Rectangle" //类型为矩形
 }
 */
-polygon.removeSub(item);
+rect.removeSub(item);
 ```
 
 7. 删除所有标注
 ```
-polygon.removeAll();
+rect.removeAll();
 ```
 
 8. 定位标注到canvas中心
@@ -249,7 +253,7 @@ polygon.removeAll();
     type: "Rectangle" //类型为矩形
 }
 */
-polygon.setPosition(item);
+rect.setPosition(item);
 ```
 
 9. 选中标注并高亮
@@ -262,10 +266,55 @@ polygon.setPosition(item);
     type: "Rectangle" //类型为矩形
 }
 */
-polygon.selected(item);
+rect.selected(item);
 ```
 
 10. getData返回添加，编辑，拖拽标注框后的标注数据
 ```
-polygon.getData();
+rect.getData();
 ```
+
+----------
+###  多边形
+```
+<!-- 生成实例 -->
+let polygon = new inMark.Polygon({
+    data: data,
+    event: {
+        onCreate: onCreate,
+        onImageDrag: onImageDrag,
+        onImageDragEnd: onImageDragEnd,
+        onCreateComplete:onCreateComplete,
+        onRectDrag: onRectDrag,
+        onRectDragComplete:onRectDragComplete,
+        onEditNodeDrag:onEditNodeDrag,
+        onEditNodeDragComplete:onEditNodeDragComplete,
+        onSelected:onSelected,
+        unSelect:unSelect
+    }
+});
+```
+方法同矩形
+polygon.setDrag(true);//开启拖拽
+
+polygon.setDrag(false);
+
+polygon.setData(markNoteList);
+
+polygon.open();//开启矩形绘画
+
+polygon.close();//关闭矩形绘画
+
+polygon.zoomIn();
+
+polygon.zoomOut();
+
+polygon.removeAnnotation();
+
+polygon.removeSub(item);
+
+polygon.removeAll();
+
+polygon.selected(item);
+
+polygon.getData();
