@@ -4,14 +4,14 @@
   "description": "Image mark",
   "main": "dist/inmark.min.js",
   "scripts": {
-    "start": "node openServer.js",
-    "dev": "webpack --watch --config webpack.inmark.dev.js & npm run start",
-    "dist:dev": "webpack --color --config webpack.inmark.js",
-    "dist:prod": "webpack --color --config webpack.inmark.pro.js",
+    "start": "node scripts/openServer.js",
+    "dev": "webpack --watch --config scripts/webpack.inmark.dev.js & npm run start",
+    "dist:dev": "webpack --color --config scripts/webpack.inmark.js",
+    "dist:prod": "webpack --color --config scripts/webpack.inmark.pro.js",
     "build": "rimraf dist && npm run dist:dev && npm run dist:prod",
     "lint": "eslint --fix --ext .js src",
     "test": "npm run lint",
-    "karma": "npm run lint && karma start karma.inmark.test.js",
+    "karma": "npm run lint && karma start scripts/karma.inmark.test.js",
     "prepublish": "npm run build"
   },
   "repository": {

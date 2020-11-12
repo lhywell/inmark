@@ -3,19 +3,19 @@
  */
 const path = require('path');
 const webpack = require('webpack');
-const version = require('./package.json').version;
+const version = require('../package.json').version;
 const option = {
   entry: {
     inmark: './src/main.js'
   },
   output: {
-    path: path.join(__dirname, './dist'),
+    path: path.join(__dirname, '../dist'),
     libraryTarget: 'umd',
     library: 'inMark',
     umdNamedDefine: true,
     filename: '[name].js'
   },
-  // devtool:'eval-source-map',
+  devtool:'eval-source-map',
   module: {
     rules: [{
         test: /\.js$/,

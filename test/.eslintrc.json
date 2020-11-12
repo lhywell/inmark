@@ -1,9 +1,0 @@
-{
-
-    "env": {
-        "mocha": true
-
-    },
-    "extends": "eslint:recommended"
-
-}
