@@ -13,7 +13,7 @@ const option = {
     libraryTarget: 'umd',
     library: 'inMark',
     umdNamedDefine: true,
-    filename: '[name].js'
+    filename: '[name].webpack.js'
   },
   devtool:'eval-source-map',
   module: {
