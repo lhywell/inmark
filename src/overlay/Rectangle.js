@@ -389,7 +389,7 @@ export default class RectOverlay extends Image {
         if (this._option.isOpen) {
             return;
         }
-        this.resetShapeStyle();
+        this.resetAllStyle();
         this._areaShapes.forEach(x => {
             if (x.data.id === item.id) {
                 this._option.currentShape = x;

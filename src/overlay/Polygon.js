@@ -304,7 +304,7 @@ export default class Polygon extends Image {
         } else {
             let i = 0;
             let p = points[0];
-            let ary = []
+            let ary = [];
             for (let i = points.length - 1, len = points.length - 1; i > 0; i--) {
                 ary.push(points[i]);
             }
@@ -426,7 +426,7 @@ export default class Polygon extends Image {
         if (this._option.isOpen) {
             return;
         }
-        this.resetShapeStyle();
+        this.resetAllStyle();
         this._areaShapes.forEach(x => {
             if (x.data.id === item.id) {
                 this._option.currentShape = x;
@@ -460,7 +460,7 @@ export default class Polygon extends Image {
             if (maxHeight <= x[1]) {
                 maxHeight = x[1];
             }
-        })
+        });
 
         minWidth = maxWidth;
         minHeight = maxHeight;
@@ -471,7 +471,7 @@ export default class Polygon extends Image {
             if (x[1] < minHeight) {
                 minHeight = x[1];
             }
-        })
+        });
 
         let point_center = [(maxWidth + minWidth) / 2, (maxHeight + minHeight) / 2];
 
