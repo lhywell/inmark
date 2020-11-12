@@ -1,4 +1,4 @@
 if (!global || !global._babelPolyfill) {
-  require('babel-polyfill')
+  require('@babel/polyfill')
 }
 export default {};
