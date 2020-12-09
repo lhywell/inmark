@@ -43,7 +43,8 @@ export default {
             runtimeHelpers: true
         }),
         replace({
-            VERSION: JSON.stringify(version)
+            VERSION: JSON.stringify(version),
+            ENV: JSON.stringify(process.env.NODE_ENV || 'development')
         }),
         terser()
     ],
