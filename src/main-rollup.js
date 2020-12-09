@@ -9,7 +9,8 @@ import Polygon from './overlay/Polygon.js';
 import * as utils from './common/utils';
 
 // https://www.npmjs.com/package/livereload
-if (ENV !== 'production') {
+let env = ENV;
+if (env !== 'production') {
     document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] +
         ':35729/livereload.js?snipver=1"></script>')
 
