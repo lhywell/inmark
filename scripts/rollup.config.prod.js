@@ -15,7 +15,7 @@ import babel from 'rollup-plugin-babel'
 import commonjs from 'rollup-plugin-commonjs'
 import replace from 'rollup-plugin-replace'
 
-import { uglify } from 'rollup-plugin-uglify'
+import { terser } from 'rollup-plugin-terser'
 
 export default {
     input: rlv('./src/main-rollup.js'),
@@ -45,6 +45,6 @@ export default {
         replace({
             VERSION: JSON.stringify(version)
         }),
-        uglify()
+        terser()
     ],
 };

@@ -318,10 +318,7 @@ let inMapVue = new Vue({
             this.rect.zoomIn();
         },
         setData() {
-            let data = data2.data;
-            const markInfo = data.markInfo;
 
-            this.markNoteList = JSON.parse(markInfo);
 
             /** this.markNoteList
             *[{
@@ -331,7 +328,19 @@ let inMapVue = new Vue({
                 type: "Rectangle"
             }]
             **/
-            this.rect && this.rect.setData(this.markNoteList);
+            console.log(this.rect, this.image)
+            if (this.rect == null) {
+                this.initImage();
+            } else {
+
+                let data = data2.data;
+                const markInfo = data.markInfo;
+
+                this.markNoteList = JSON.parse(markInfo);
+
+                this.rect && this.rect.setData(this.markNoteList);
+            }
+
         },
         newData() {
             this.initImage();
@@ -380,7 +389,8 @@ let inMapVue = new Vue({
         },
         clear() {
             // 清除所有对象和画布,保留canvas。
-            this.image && this.image.clear();
+            this.rect && this.rect.clear();
+            this.rect = null;
         },
         dispose() {
             // 移除自身。当不再需要使用该实例时，调用该方法以释放内存。
