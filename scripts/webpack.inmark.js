@@ -33,7 +33,8 @@ const option = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      VERSION: JSON.stringify(version)
+      VERSION: JSON.stringify(version),
+      ENV: JSON.stringify(process.env.NODE_ENV || 'development')
     }),
   ]
 };
