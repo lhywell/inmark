@@ -198,7 +198,7 @@ function loadComplete() {
     ZImage = image.getImage();
 
     data.data[0].forEach(x => {
-
+        // 依赖框的宽度，高度计算字体大小，位置
         x.forEach(y => {
             textList.push({
                 id: window.btoa(Math.random()),

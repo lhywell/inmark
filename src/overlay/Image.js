@@ -663,6 +663,24 @@ export default class BImage extends Init {
 
         return this;
     }
+    zoomSlider(scale) {
+        this.setDrawingMode('hander');
+
+        this.group.attr({
+            position: [0, 0],
+            scale: [scale, scale],
+            origin: this.getOrigin()
+        });
+
+        let d = this.group.getLocalTransform();
+
+        this._option.offsetM = d[4];
+        this._option.offsetN = d[5];
+
+        this._option.scale = scale;
+
+        return this;
+    }
     getOffCanvas() {
         // 获取离屏canvas
         return this.zr.painter.getRenderedCanvas({

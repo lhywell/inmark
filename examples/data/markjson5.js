@@ -37,8 +37,7 @@ let data = {
         "proName": "任务17-20191223耿傲",
         "resName": "合同222520193000007634的副本-9",
         // "resPath": "https://ocr-data.cdn.bailian-ai.com/test/0909/20200928/origin/银行业金融机构法人名单_176.jpg",
-        "resPath": "https://ocr-data.cdn.bailian-ai.com/test/cwn123123/20201020/origin/HBL-REX-%E5%88%A9%E4%B8%B0_1_rt_rt_rt_rt.jpg",
-        // "resPath": "https://ocr-data.cdn.bailian-ai.com/test/%E6%97%8B%E8%BD%AC%E6%B5%8B%E8%AF%95%E6%95%B0%E6%8D%AE/20201020/origin/c_9d04d8fb-5420-401c-be9a-331c7a6ad2f2_rt_rt_rt_rt_rt_rt_rt_rt_rt.jpg",
+        "resPath": "https://ocr-data.cdn.bailian-ai.com/test/%E6%97%8B%E8%BD%AC%E6%B5%8B%E8%AF%95%E6%95%B0%E6%8D%AE/20201020/origin/c_9d04d8fb-5420-401c-be9a-331c7a6ad2f2_rt_rt_rt_rt_rt_rt_rt_rt_rt.jpg",
         "reviewStatus": "1_通过"
     },
     "msg": "success",
