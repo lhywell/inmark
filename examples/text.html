@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>js原生语法-文字</title>
+    <style type="text/css">
+    body,
+    html {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+    }
+
+    #app {
+
+        width: 100%;
+        height: 100%;
+        background-color: #fff;
+        z-index: 99999;
+    }
+
+    .tools {
+        width: 100%;
+        height: 40px;
+        background: #fff;
+        z-index: 2;
+        text-align: center;
+        border-bottom: 1px solid #EEEEEE;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .tools span {
+        display: inline-block;
+        width: 1px;
+        height: 30px;
+        border-left: 1px solid #eee;
+        margin-right: 20px;
+    }
+
+    .tools i {
+        float: left;
+        font-size: 17px;
+        color: #444444;
+        margin-right: 22px;
+        cursor: pointer;
+    }
+
+    .tools i:nth-child(1) {
+        margin-left: 20px;
+    }
+
+    .tools i:hover {
+        color: #044CA1;
+
+    }
+
+    .tools .active {
+        color: #044CA1;
+    }
+
+    .tools .icon-rotate {
+        font-size: 22px;
+    }
+
+    .tools .icon-up:before {
+        border: 1px solid #444444;
+        border-radius: 2px;
+    }
+
+    .tools .icon-down:before {
+        border: 1px solid #444444;
+        border-radius: 2px;
+    }
+
+    .tools .icon-up.active:before,
+    .tools .icon-down.active:before {
+        border: 1px solid #044CA1;
+    }
+
+    .tools .icon-up:hover:before,
+    .tools .icon-down:hover:before {
+        border: 1px solid #044CA1;
+    }
+
+    .imageAnnotate {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+
+    .list {
+        position: absolute;
+        right: 0;
+        top: 0;
+        overflow-y: scroll;
+    }
+
+    .list .item {
+        font-size: 13px;
+        cursor: pointer;
+        color: blue;
+    }
+
+    .icon-rotate-anti {
+        transform: scaleX(-1);
+    }
+
+    .loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: #fff;
+        opacity: 0.9;
+        width: 100%;
+        height: 100%;
+        display: none;
+    }
+
+    canvas:nth-child(1) {
+        background: #fff
+    }
+    </style>
+    <!-- 标注数据 -->
+    <script src="./data/text.js"></script>
+    <!-- 引入icon 样式 -->
+    <link rel="stylesheet" href="./lib/styles/icons.css">
+    <!-- 引入bootstrap 样式 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+
+<body>
+    <div id="app">
+        <div class="imageAnnotate" id="inmarkDOM"></div>
+        <div class="loading"></div>
+    </div>
+    </div>
+</body>
+<!-- 引入jquery -->
+<script src="./lib/jquery.js"></script>
+<!-- 引入popper -->
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<!-- 引入bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+<!-- 引入inmark -->
+<script src="../dist/inmark.dev.js"></script>
+<script>
+let zr = null,
+    ZImage = null,
+    init = true,
+    imgId = '',
+    loading = false,
+    textList = [],
+    recList = [],
+    image = null,
+    text = null,
+    rect = null,
+    percentage = 0,
+    time = 0;
+
+// 初始图片
+initImage();
+
+function initImage() {
+    const resPath = 'https://by.oss1.bailian-ai.com/general/20201126/202011262159569/origin/002.jpg';
+    // const resPath = 'https://by.oss1.bailian-ai.com/general/20201127/202011271739419/origin/%E6%B5%B7%E8%BF%90%E6%8F%90%E5%8D%95_1.jpg';
+    // const resPath = 'https://by.oss1.bailian-ai.com/demo/20200817/202008171437235/origin/CVDS490001_1.jpg?time=20201229';
+
+    imgId = 'inmarkDOM';
+
+    $('.loading').show();
+
+    // 生成图片实例
+    image = new inMark.Image({
+        id: imgId,
+        mode: 'original', //original or auto
+        imgUrl: resPath,
+        event: {
+            onLoadComplete: loadComplete,
+            onImageDrag: imageDrag,
+            onImageDragEnd: onImageDragEnd_image,
+        }
+    });
+
+    zr = image.getZrender();
+    group = image.getGroup();
+
+    init = false;
+}
+
+function loadComplete() {
+    //获得ZImage实例
+    ZImage = image.getImage();
+
+    data.data[0].forEach(x => {
+
+        x.forEach(y => {
+            textList.push({
+                id: window.btoa(Math.random()),
+                type: 'Text',
+                word: y.words,
+                width: y.width,
+                height: y.height,
+                position: [y.leftUp.x, y.leftUp.y]
+            })
+
+            let rect = transformRect(y);
+            recList.push(rect);
+        })
+    })
+
+    // 初始文字
+    initText();
+
+    // 初始框
+    initRect(recList);
+
+    $('.loading').hide();
+}
+
+
+
+function transformRect(x) {
+    let path = [
+        [x.leftUp.x, x.leftUp.y],
+        [x.rightUp.x, x.rightUp.y],
+        [x.rightDown.x, x.rightDown.y],
+        [x.leftDown.x, x.leftDown.y]
+    ];
+
+    let item = {
+        id: window.btoa(Math.random()),
+        type: "Rectangle",
+        coordinates: path,
+        notes: ''
+    };
+    return item;
+}
+
+
+
+function initText() {
+
+    text = new inMark.Text({
+        id: 'inmarkDOM',
+        style: {
+            textFill: '#000'
+        },
+        data: textList
+    });
+
+}
+
+// 画矩形
+function initRect(data) {
+    // return;
+    rect = new inMark.Rect({
+        data: data,
+        isOpen: false,
+        style: {
+            default: {
+                fill: 'rgba(49, 117, 247,.5)',
+                stroke: '#3175f7',
+                // stroke: '#FFA200',
+                lineWidth: 1,
+                lineDash: [0, 0],
+                strokeNoScale: true
+            },
+            // 选中颜色
+            selected: {
+                fill: 'rgba(49, 117, 247,.8)',
+                stroke: '#3175f7',
+                lineWidth: 1,
+                lineDash: [0, 0],
+                strokeNoScale: true
+            }
+        },
+        event: {
+            onCreate: onCreate,
+            onImageDrag: onImageDrag,
+            onImageDragEnd: onImageDragEnd,
+            onCreateComplete: onCreateComplete,
+            onRectDrag: onRectDrag,
+            onRectDragComplete: onRectDragComplete,
+            onEditNodeDrag: onEditNodeDrag,
+            onEditNodeDragComplete: onEditNodeDragComplete,
+            onSelected: onSelected,
+            onHover: onHover,
+            unSelect: unSelect
+        }
+    });
+    // rect.setData(s);
+
+    init = false;
+
+    startDrag();
+}
+
+// 设置数据
+function setData() {
+    let data = data2.data;
+    const markInfo = data.markInfo;
+
+    markNoteList = JSON.parse(markInfo);
+
+    rect && rect.setData(markNoteList);
+}
+
+function imageDrag(e) {
+    // console.log(e)
+}
+
+function onImageDrag(e) {
+    // console.log(e)
+}
+
+function onImageDragEnd(e) {
+    // console.log(e)
+}
+
+function onImageDragEnd_image(e) {
+    // console.log(e)
+}
+
+function onCreate(e, obj) {
+    // console.log('create', e, obj)
+}
+
+function onCreateComplete(e, obj) {}
+
+function onRectDrag(e, obj) {
+    // console.log('拖动',e,obj)
+}
+
+function onRectDragComplete(e, obj) {}
+
+function onEditNodeDrag(e, obj) {
+    // console.log('编辑', e, obj)
+}
+
+function onEditNodeDragComplete(e, obj) {
+    markNoteList.forEach(item => {
+        if (item.id === obj.id) {
+            item.coordinates = obj.coordinates;
+        }
+    })
+}
+
+function onSelected(e, data) {}
+
+function onHover(e, data) {
+    // rect && rect.selected(data, {
+    //     fill: 'rgba(49, 117, 247,.8)',
+    //     stroke: '#3175f7',
+    //     lineWidth: 1,
+    //     lineDash: [0, 0],
+    //     strokeNoScale: true
+    // });
+}
+
+function unSelect(e, data) {}
+
+//重置拖拽
+function reset() {
+    // markNoteList.splice(0);
+    rect && rect.setDrag(false);
+    rect && rect.close();
+}
+
+//开启拖拽
+function startDrag() {
+    reset();
+
+    if (image) {
+        rect.setDrag(true);
+    }
+}
+
+//开启矩形绘画模式
+function startRect() {
+    reset();
+    // console.log(rect)
+    if (rect) {
+        rect.open();
+    } else {
+        // initRect(markNoteList);
+        rect.open();
+    }
+}
+
+function startRotate() {
+    image.rotate(90);
+}
+
+function rotateRight() {
+    image.rotate(0.2);
+    let x = image.getRotate();
+    console.log(x)
+}
+
+function rotateLeft() {
+    image.rotate(-0.2);
+    let x = image.getRotate();
+    console.log(x)
+}
+
+function resetRotate() {
+    image.resetRotate();
+    let x = image.getRotate();
+    console.log(x)
+}
+
+function startZoomIn() {
+    rect && rect.close();
+    rect.zoomIn();
+}
+
+function startZoomOut() {
+    rect && rect.close();
+    rect.zoomOut();
+}
+
+function startDeleteCurrent() {
+    rect && rect.setDrag(false);
+    rect && rect.close();
+
+    if (rect) {
+        let item = rect.removeAnnotation();
+        if (item) {
+            let index = markNoteList.forEach((x, y) => {
+                if (item.data.id === x.id) {
+                    markNoteList.splice(y, 1);
+                }
+            });
+        }
+    }
+}
+
+function startDeleteAll() {
+    reset();
+
+    //删除所有标注
+    markNoteList.splice(0);
+    rect && rect.removeAll();
+}
+
+function deleteSub(item) {
+    rect && rect.removeSub(item);
+}
+
+function seletedSub(item) {
+    console.log(item)
+    // rect && rect.setPosition(item);
+
+    rect && rect.selected(item);
+}
+</script>
+
+</html>

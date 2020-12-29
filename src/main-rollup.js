@@ -5,6 +5,7 @@ import Init from './overlay/Init.js';
 import Image from './overlay/Image.js';
 import Rect from './overlay/Rectangle.js';
 import Polygon from './overlay/Polygon.js';
+import Text from './overlay/Text.js';
 
 import * as utils from './common/utils';
 
@@ -24,7 +25,8 @@ const inMark = {
     Init,
     Image,
     Rect,
-    Polygon
+    Polygon,
+    Text
 };
 export {
     version,
@@ -32,6 +34,7 @@ export {
     Init,
     Image,
     Rect,
-    Polygon
+    Polygon,
+    Text
 };
 export default inMark;
