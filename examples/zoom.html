@@ -129,14 +129,8 @@
             <el-tooltip class="item" effect="dark" content="顺时针旋转90" placement="bottom">
                 <i class="iconfont icon-rotate" @click="openTools('rotate',2)"></i>
             </el-tooltip>
-            <el-tooltip class="item" effect="dark" content="放 大" placement="bottom">
-                <i class="iconfont icon-zoomin" @click="openTools('zoomin',3)"></i>
-            </el-tooltip>
-            <el-tooltip class="item" effect="dark" content="缩 小" placement="bottom">
-                <i class="iconfont icon-zoomout" @click="openTools('zoomout',4)"></i>
-            </el-tooltip>
             <div class="block" style="width:200px">
-                <el-slider v-model="slideValue" :marks="slideMarks" :min="30" :max="200" @input="sliderChange">
+                <el-slider v-model="slideValue" :format-tooltip="formatTooltip" :marks="slideMarks" :min="30" :max="200" @input="sliderChange">
                 </el-slider>
             </div>
             <span></span>
@@ -323,7 +317,7 @@ let inMapVue = new Vue({
             // rect.setData(s);
 
             this.rect = rect;
-            console.log('22222')
+            // console.log('22222')
             this.init = false;
         },
         setData() {
@@ -463,11 +457,14 @@ let inMapVue = new Vue({
             // 移除自身。当不再需要使用该实例时，调用该方法以释放内存。
             this.zr && this.zr.dispose();
         },
-        sliderChange(e) {
-            let s = e / 100;
+        formatTooltip(val) {
+            return val + '%';
+        },
+        sliderChange(val) {
+            let result = val / 100;
 
             this.$nextTick(() => {
-                this.rect && this.rect.zoomSlider(s);
+                this.rect && this.rect.zoomSlider(result);
             })
 
         }
