@@ -43,6 +43,7 @@ export default class BImage extends Init {
             this._option.currentShape = {};
             this._option.mode = opts && opts.mode || 'auto';
             this._option.exportData = [];
+            this.handlers = {}; //存储事件的对象 
 
             if (opts.style) {
                 this._imgConfig = merge(ImageConfig.style, opts.style);
@@ -60,10 +61,10 @@ export default class BImage extends Init {
         this._editWidth = EditRect.shape.width;
 
         // 回调函数
-        this._imageDrag = opts && opts.event.onImageDrag;
-        this._imageDragEnd = opts && opts.event.onImageDragEnd;
-        this._onComplete = opts && opts.event.onLoadComplete;
-        this._onRotate = opts && opts.event.onRotate;
+        this._onImageDrag = opts && opts.event && opts.event.onImageDrag;
+        this._onImageDragEnd = opts && opts.event && opts.event.onImageDragEnd;
+        this._onLoadComplete = opts && opts.event && opts.event.onLoadComplete;
+        this._onRotate = opts && opts.event && opts.event.onRotate;
         // console.log(this)
 
         /**
@@ -104,6 +105,29 @@ export default class BImage extends Init {
     }
     getDrag() {
         return this._option.draggable;
+    }
+    addEventListener(type, handler) {
+        let x = '_' + type;
+        if (typeof this.handlers[x] == 'undefined') {
+            this.handlers[x] = [];
+        }
+
+        this.handlers[x].push(handler); //将要触发的函数压入事件函数命名的数组中
+    }
+    removeEventListener(type, handler) {
+        let x = '_' + type;
+        if (!this.handlers[x]) return;
+        var handlers = this.handlers[x];
+        if (handler == undefined) {
+            handlers.length = 0; //不传某个具体函数时，解绑所有
+        } else if (handlers.length) {
+            for (var i = 0; i < handlers.length; i++) {
+                if (handlers[i] == handler) {
+                    //解绑单个
+                    this.handlers[x].splice(i, 1);
+                }
+            }
+        }
     }
     /**
      * @description 在画布中渲染图片
@@ -278,13 +302,16 @@ export default class BImage extends Init {
             this.zr.add(group);
 
             this.image.on('drag', (e) => {
-                this._imageDrag && this._imageDrag(e);
+                this._onImageDrag && this._onImageDrag(e);
+                this.handlers['_onImageDrag'] && this.handlers['_onImageDrag'][0](e);
             });
             this.image.on('dragend', (e) => {
-                this._imageDragEnd && this._imageDragEnd(e);
+                this._onImageDragEnd && this._onImageDragEnd(e);
+                this.handlers['_onImageDragEnd'] && this.handlers['_onImageDragEnd'][0](e);
             });
 
-            this._onComplete && this._onComplete();
+            this.handlers['_onLoadComplete'] && this.handlers['_onLoadComplete'][0]();
+            this._onLoadComplete && this._onLoadComplete();
 
             this._bindEvent();
 
@@ -345,6 +372,8 @@ export default class BImage extends Init {
             };
 
             this._onRotate && this._onRotate(this.getRotate());
+            this.handlers['_onRotate'] && this.handlers['_onRotate'][0](this.getRotate());
+
             return;
         }
         if (this._option.rotateListen === true) {
@@ -408,6 +437,7 @@ export default class BImage extends Init {
                     degrees: outValue.toFixed(2)
                 };
                 this._onRotate && this._onRotate(this.getRotate());
+                this.handlers['_onRotate'] && this.handlers['_onRotate'][0](this.getRotate());
             }
 
         }
@@ -570,6 +600,7 @@ export default class BImage extends Init {
         };
 
         this._onRotate && this._onRotate(this.getRotate());
+        this.handlers['_onRotate'] && this.handlers['_onRotate'][0](this.getRotate());
     }
     _limitAttributes(newAttrs) {
         const box = this.image.getBoundingRect();

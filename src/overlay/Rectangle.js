@@ -24,19 +24,19 @@ export default class RectOverlay extends Image {
         this._option.isOpen = opts.isOpen || false;
 
         // 回调函数
-        this._mousemove = opts.event.mousemove;
-        this._mouseout = opts.event.mouseout;
-        this._onCreate = opts.event.onCreate;
-        this._onCreateComplete = opts.event.onCreateComplete;
-        this._onRectDrag = opts.event.onRectDrag;
-        this._onRectDragComplete = opts.event.onRectDragComplete;
-        this._onEditNodeDrag = opts.event.onEditNodeDrag;
-        this._onEditNodeDragComplete = opts.event.onEditNodeDragComplete;
-        this._onSelected = opts.event.onSelected;
-        this._onHover = opts.event.onHover;
-        this._unSelect = opts.event.unSelect;
-        this._imageDrag = opts.event.onImageDrag;
-        this._imageDragEnd = opts.event.onImageDragEnd;
+        // this._mousemove = opts && opts.event && opts.event.mousemove;
+        // this._mouseout = opts && opts.event && opts.event.mouseout;
+        this._onCreate = opts && opts.event && opts.event.onCreate;
+        this._onCreateComplete = opts && opts.event && opts.event.onCreateComplete;
+        this._onRectDrag = opts && opts.event && opts.event.onRectDrag;
+        this._onRectDragComplete = opts && opts.event && opts.event.onRectDragComplete;
+        this._onEditNodeDrag = opts && opts.event && opts.event.onEditNodeDrag;
+        this._onEditNodeDragComplete = opts && opts.event && opts.event.onEditNodeDragComplete;
+        this._onSelected = opts && opts.event && opts.event.onSelected;
+        this._onHover = opts && opts.event && opts.event.onHover;
+        this._unSelect = opts && opts.event && opts.event.unSelect;
+        this._onImageDrag = opts && opts.event && opts.event.onImageDrag;
+        this._onImageDragEnd = opts && opts.event && opts.event.onImageDragEnd;
 
         this.data = opts.data;
 
@@ -62,11 +62,15 @@ export default class RectOverlay extends Image {
         this.graphic = this._createGraphicGroup();
         // this._option.currentShape = {};
         this.tempShape = {};
+        this.handlers = {}; //存储事件的对象 
 
         if (this.image) {
             this.image.on('drag', (e) => {
                 //拖动图片与多边形同步
-                this._imageDrag && this._imageDrag(e);
+                this._onImageDrag && this._onImageDrag(e);
+
+                this.handlers['_onImageDrag'] && this.handlers['_onImageDrag'][0](e);
+
                 if (this.getDrag() === true) {
                     let array = e.target.position;
                     this.graphic.attr({
@@ -77,7 +81,9 @@ export default class RectOverlay extends Image {
             });
             this.image.on('dragend', (e) => {
                 //拖动图片与多边形同步
-                this._imageDragEnd && this._imageDragEnd(e);
+                this._onImageDragEnd && this._onImageDragEnd(e);
+
+                this.handlers['_onImageDragEnd'] && this.handlers['_onImageDragEnd'][0](e);
             });
         }
         if (typeof this.data === 'object') {
@@ -154,6 +160,30 @@ export default class RectOverlay extends Image {
                     });
                 }
             });
+        }
+    }
+    addEventListener(type, handler) {
+        let x = '_' + type;
+        if (typeof this.handlers[x] == 'undefined') {
+            this.handlers[x] = [];
+        }
+
+        this.handlers[x].push(handler); //将要触发的函数压入事件函数命名的数组中
+    }
+    //事件解绑
+    removeEventListener(type, handler) {
+        let x = '_' + type;
+        if (!this.handlers[x]) return;
+        var handlers = this.handlers[x];
+        if (handler == undefined) {
+            handlers.length = 0; //不传某个具体函数时，解绑所有
+        } else if (handlers.length) {
+            for (var i = 0; i < handlers.length; i++) {
+                if (handlers[i] == handler) {
+                    //解绑单个
+                    this.handlers[x].splice(i, 1);
+                }
+            }
         }
     }
     _createGraphicGroup(points, shape) {
@@ -252,6 +282,11 @@ export default class RectOverlay extends Image {
                 // console.log('mosemove', this._option.currentShape)
             }
             const rPoints = this._changeToPoints(points);
+
+            this.handlers['_onCreate'] && this.handlers['_onCreate'][0](e, {
+                notes: '',
+                coordinates: rPoints
+            });
             this._onCreate && this._onCreate(e, {
                 notes: '',
                 coordinates: rPoints
@@ -291,6 +326,11 @@ export default class RectOverlay extends Image {
 
                 this._onCreateComplete && this._onCreateComplete(e, {
                     ...data,
+                    coordinates: points
+                });
+
+                this.handlers['_onCreateComplete'] && this.handlers['_onCreateComplete'][0](e, {
+                    notes: '',
                     coordinates: points
                 });
 
@@ -548,6 +588,13 @@ export default class RectOverlay extends Image {
             // console.log('drag', this._option.currentShape)
             let shapePoints = this._toGlobal(e.target.shape.points, shape);
             const rPoints = this._changeToPoints(shapePoints);
+
+
+            this.handlers['_onRectDrag'] && this.handlers['_onRectDrag'][0](e, {
+                ...e.target.data,
+                coordinates: rPoints
+            });
+
             this._onRectDrag && this._onRectDrag(e, {
                 ...e.target.data,
                 coordinates: rPoints
@@ -578,6 +625,11 @@ export default class RectOverlay extends Image {
                     if (item.id === e.target.data.id) {
                         item.coordinates = rPoints;
                     }
+                });
+
+                this.handlers['_onRectDragComplete'] && this.handlers['_onRectDragComplete'][0](e, {
+                    ...e.target.data,
+                    coordinates: rPoints
                 });
 
                 this._onRectDragComplete && this._onRectDragComplete(e, {
@@ -634,6 +686,12 @@ export default class RectOverlay extends Image {
 
             let shapePoints = this._toGlobal(e.target.shape.points, shape);
             const rPoints = this._changeToPoints(shapePoints);
+
+            this.handlers['_onHover'] && this.handlers['_onHover'][0](e, {
+                ...e.target.data,
+                coordinates: rPoints
+            });
+
             this._onHover && this._onHover(e, {
                 ...e.target.data,
                 coordinates: rPoints
@@ -699,6 +757,12 @@ export default class RectOverlay extends Image {
                 // }
                 let shapePoints = this._toGlobal(e.target.shape.points, shape);
                 const rPoints = this._changeToPoints(shapePoints);
+
+                this.handlers['_onSelected'] && this.handlers['_onSelected'][0](e, {
+                    ...e.target.data,
+                    coordinates: rPoints
+                });
+
                 this._onSelected && this._onSelected(e, {
                     ...e.target.data,
                     coordinates: rPoints
@@ -967,6 +1031,11 @@ export default class RectOverlay extends Image {
                 // this._array = x;
                 const rPoints = this._changeToPoints(newPoints);
 
+                this.handlers['_onEditNodeDrag'] && this.handlers['_onEditNodeDrag'][0](e, {
+                    ...group.bound.data,
+                    coordinates: rPoints
+                });
+
                 this._onEditNodeDrag && this._onEditNodeDrag(e, {
                     ...group.bound.data,
                     coordinates: rPoints
@@ -995,6 +1064,11 @@ export default class RectOverlay extends Image {
                     if (item.id === group.bound.data.id) {
                         item.coordinates = rPoints;
                     }
+                });
+
+                this.handlers['_onEditNodeDragComplete'] && this.handlers['_onEditNodeDragComplete'][0](e, {
+                    ...group.bound.data,
+                    coordinates: rPoints
                 });
 
                 this._onEditNodeDragComplete && this._onEditNodeDragComplete(e, {
