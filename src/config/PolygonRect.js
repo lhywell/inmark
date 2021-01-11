@@ -13,7 +13,8 @@ export default {
             // stroke: '#FFA200',
             lineWidth: 1,
             lineDash: [0, 0],
-            strokeNoScale: true
+            strokeNoScale: true,
+            zlevel: 2
         },
         //选中颜色
         selected: {

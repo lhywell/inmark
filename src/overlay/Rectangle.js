@@ -542,7 +542,7 @@ export default class RectOverlay extends Image {
             draggable: false,
             style: this._styleConfig.default,
             // scale: scale,
-            zlevel: 2
+            zlevel: this._styleConfig.default.zlevel
         });
 
         let oldGroup = [];
@@ -1116,7 +1116,7 @@ export default class RectOverlay extends Image {
                 data: {
                     _side: item._side
                 },
-                zlevel: 3
+                zlevel: this._styleConfig.default.zlevel + 1
             }));
             this._editElementEvent(editNode, group);
 

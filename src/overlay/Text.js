@@ -34,6 +34,8 @@ export default class TextOverlay extends Image {
         this._onHover = opts && opts.event && opts.event.onHover;
         this._onImageDrag = opts && opts.event && opts.event.onImageDrag;
         this._onImageDragEnd = opts && opts.event && opts.event.onImageDragEnd;
+        this._onSelected = opts && opts.event && opts.event.onSelected;
+        this._onHover = opts && opts.event && opts.event.onHover;
 
         this.data = opts.data;
 
@@ -158,6 +160,25 @@ export default class TextOverlay extends Image {
             if (item.type === 'Text') {
 
                 let shape = this._setShapeWidth(item);
+
+                shape.on('mouseover', (e) => {
+                    this.handlers['_onHover'] && this.handlers['_onHover'][0](e, {
+                        ...e.target.data
+                    });
+                    this._onHover && this._onHover(e, {
+                        ...e.target.data
+                    });
+                });
+                shape.on('mousedown', (e) => {
+                    this.handlers['_onSelected'] && this.handlers['_onSelected'][0](e, {
+                        ...e.target.data
+                    });
+
+                    this._onSelected && this._onSelected(e, {
+                        ...e.target.data
+                    });
+                });
+
                 this._setShapeHeight(shape, item);
 
                 this.graphic.add(shape);
@@ -209,8 +230,9 @@ export default class TextOverlay extends Image {
                 text: obj.word,
                 fontSize: obj.fontSize
             },
+            data: obj,
             position: obj.position,
-            zlevel: 4
+            zlevel: this._styleConfig.zlevel
         });
         return t;
     }

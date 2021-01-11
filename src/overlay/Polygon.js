@@ -591,7 +591,7 @@ export default class Polygon extends Image {
             cursor: 'default',
             draggable: false,
             style: this._styleConfig.default,
-            zlevel: 2
+            zlevel: this._styleConfig.default.zlevel
         });
 
         let oldGroup = [];
@@ -933,7 +933,7 @@ export default class Polygon extends Image {
                     _beforeIndex: item._beforeIndex,
                     _afterIndex: item._afterIndex,
                 },
-                zlevel: 3
+                zlevel: this._styleConfig.default.zlevel + 1
             }));
             this._editElementEvent(editNode, group);
 

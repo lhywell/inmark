@@ -12,7 +12,8 @@ export default {
             fontSize: 12,
             fontFamily: 'serif',
             fontWeight: 'normal',
-            textFill: '#000000'
+            textFill: '#000000',
+            zlevel: 2
         }
     },
     event: {

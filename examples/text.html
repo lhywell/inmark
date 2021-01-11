@@ -249,14 +249,19 @@ function initText() {
     text = new inMark.Text({
         id: 'inmarkDOM',
         style: {
-            textFill: '#000'
+            textFill: '#FF3535',
+            zlevel: 1
+        },
+        event: {
+            onSelected: onSelectedText,
+            onHover: onHoverText,
         },
         data: textList
     });
 
 }
 
-// 画矩形
+// 画矩形,zlevel值取决于哪个canvas层级高
 function initRect(data) {
     // return;
     rect = new inMark.Rect({
@@ -264,16 +269,17 @@ function initRect(data) {
         isOpen: false,
         style: {
             default: {
-                fill: 'rgba(49, 117, 247,.5)',
-                stroke: '#3175f7',
+                fill: 'rgba(49, 117, 247,0)',
+                stroke: '#3C7EFF',
                 // stroke: '#FFA200',
-                lineWidth: 1,
+                lineWidth: 2,
                 lineDash: [0, 0],
-                strokeNoScale: true
+                strokeNoScale: true,
+                zlevel: 2
             },
             // 选中颜色
             selected: {
-                fill: 'rgba(49, 117, 247,.8)',
+                fill: 'rgba(60, 126, 255,.3)',
                 stroke: '#3175f7',
                 lineWidth: 1,
                 lineDash: [0, 0],
@@ -309,6 +315,14 @@ function setData() {
     markNoteList = JSON.parse(markInfo);
 
     rect && rect.setData(markNoteList);
+}
+
+function onSelectedText(e) {
+    console.log(e)
+}
+
+function onHoverText(e) {
+    console.log(e)
 }
 
 function imageDrag(e) {
@@ -351,7 +365,9 @@ function onEditNodeDragComplete(e, obj) {
     })
 }
 
-function onSelected(e, data) {}
+function onSelected(e, data) {
+    console.log(e, data, 22)
+}
 
 function onHover(e, data) {
     // rect && rect.selected(data, {
