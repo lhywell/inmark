@@ -224,7 +224,6 @@ function loadComplete() {
 }
 
 
-
 function transformRect(x) {
     let path = [
         [x.leftUp.x, x.leftUp.y],
@@ -247,16 +246,21 @@ function transformRect(x) {
 function initText() {
 
     text = new inMark.Text({
-        id: 'inmarkDOM',
         style: {
             textFill: '#FF3535',
-            zlevel: 1
+            zlevel: 2
         },
         event: {
             onSelected: onSelectedText,
             onHover: onHoverText,
         },
-        data: textList
+        data: []
+    });
+
+    text.setData(textList);
+
+    text && text.setOptionStyle({
+        textFill: '#00ff8b'
     });
 
 }
@@ -265,17 +269,17 @@ function initText() {
 function initRect(data) {
     // return;
     rect = new inMark.Rect({
-        data: data,
+        data: [],
         isOpen: false,
         style: {
             default: {
-                fill: 'rgba(49, 117, 247,0)',
+                fill: 'rgba(49, 117, 247,0.1)',
                 stroke: '#3C7EFF',
                 // stroke: '#FFA200',
-                lineWidth: 2,
+                lineWidth: 1,
                 lineDash: [0, 0],
                 strokeNoScale: true,
-                zlevel: 2
+                zlevel: 3
             },
             // 选中颜色
             selected: {
@@ -300,11 +304,26 @@ function initRect(data) {
             unSelect: unSelect
         }
     });
-    // rect.setData(s);
+
 
     init = false;
 
     startDrag();
+
+    rect.setData(data);
+
+    rect && rect.setOptionStyle({
+        fill: 'rgba(49, 117, 247,0)',
+        stroke: 'rgba(60,126,255,0.60)',
+        zlevel: 3
+    });
+
+    rect.addEventListener('onHover', function(e, data) {
+        rect && rect.selected(data, {
+            fill: 'rgba(60,126,255,0.30)',
+            stroke: '#3C7EFF'
+        });
+    });
 }
 
 // 设置数据

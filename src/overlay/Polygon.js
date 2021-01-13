@@ -59,6 +59,9 @@ export default class Polygon extends Image {
         this.creatCount = 0;
         this.handlers = {}; //存储事件的对象 
 
+        this.zlevel = this._styleConfig.default.zlevel;
+        this.DIYStyle = {};
+
         if (this.image) {
             this.image.on('drag', (e) => {
                 //拖动图片与多边形同步
@@ -381,6 +384,13 @@ export default class Polygon extends Image {
         this.saveInstance(window.INMARK_DRAWING_POLYGON);
     }
     /**
+     * @description 设置当前的图层的zlevel值,值相同的在同一个图层
+     * @params {Number} index
+     */
+    setZIndex(index) {
+        this.zlevel = index;
+    }
+    /**
      * @description 删除图形，保留图片
      */
     _filterImage() {
@@ -451,7 +461,7 @@ export default class Polygon extends Image {
                         width: w,
                         height: w
                     },
-                    zlevel: 3
+                    zlevel: this.zlevel + 1
                 });
             });
         }
@@ -591,7 +601,7 @@ export default class Polygon extends Image {
             cursor: 'default',
             draggable: false,
             style: this._styleConfig.default,
-            zlevel: this._styleConfig.default.zlevel
+            zlevel: this.zlevel
         });
 
         let oldGroup = [];
@@ -933,7 +943,7 @@ export default class Polygon extends Image {
                     _beforeIndex: item._beforeIndex,
                     _afterIndex: item._afterIndex,
                 },
-                zlevel: this._styleConfig.default.zlevel + 1
+                zlevel: this.zlevel + 1
             }));
             this._editElementEvent(editNode, group);
 
@@ -943,17 +953,32 @@ export default class Polygon extends Image {
 
     setSilent(bol) {}
     /**
+     * @description 设置当前样式
+     */
+    setOptionStyle(style) {
+        this.DIYStyle = style;
+        this._areaShapes.forEach(item => {
+            console.log(item)
+            if (item.data.type === 'POLYGON') {
+                item.attr({
+                    style: {
+                        ...this._styleConfig.default,
+                        ...style
+                    }
+                });
+            }
+        });
+    }
+    /**
      * @description 重置标记样式
      */
     resetShapeStyle() {
-        let stroke = this._styleConfig.default.stroke;
-
         this._areaShapes.forEach((item) => {
             if (item.data.type === 'Polygon') {
                 item.attr({
                     style: {
                         ...this._styleConfig.default,
-                        stroke: stroke
+                        ...this.DIYStyle
                     },
                     draggable: false
                 });

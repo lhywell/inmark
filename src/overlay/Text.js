@@ -27,7 +27,7 @@ export default class TextOverlay extends Image {
         //是否开启绘制模式
         this._option.isOpen = opts.isOpen || false;
         this.graphic = this._createGraphicGroup();
-
+        this._areaShapes = [];
         // 回调函数
         // this._mousemove = opts && opts.event && opts.event.mousemove;
         // this._mouseout = opts && opts.event && opts.event.mouseout;        this._onSelected = opts && opts.event && opts.event.onSelected;
@@ -44,8 +44,10 @@ export default class TextOverlay extends Image {
         } else {
             this._styleConfig = TextConfig.style.default;
         }
+        this.zlevel = this._styleConfig.zlevel;
 
         this.handlers = {}; //存储事件的对象 
+        this.DIYStyle = {};
 
         if (this.image) {
             this.image.on('drag', (e) => {
@@ -156,6 +158,8 @@ export default class TextOverlay extends Image {
         this._setTexts(data);
     }
     _setTexts(data) {
+        this.removeAll();
+
         data.forEach(item => {
             if (item.type === 'Text') {
 
@@ -181,10 +185,67 @@ export default class TextOverlay extends Image {
 
                 this._setShapeHeight(shape, item);
 
+                this._areaShapes.push(shape);
                 this.graphic.add(shape);
             }
         })
-        this.zr.add(this.graphic);
+        this.group.add(this.graphic);
+        this.zr.add(this.group);
+    }
+    /**
+     * @description 设置当前的图层的zlevel值,值相同的在同一个图层
+     * @params {Number} index
+     */
+    setZIndex(index) {
+        this.zlevel = index;
+    }
+    /**
+     * @删除所有文字
+     */
+    removeAll() {
+        if (this._areaShapes.length > 0) {
+            // debugger;
+            this._areaShapes.forEach(item => {
+                this.graphic.remove(item);
+                item = null;
+            });
+        }
+        this._areaShapes.splice(0);
+
+        this._option.exportData.splice(0);
+    }
+    /**
+     * @description 设置当前样式
+     */
+    setOptionStyle(style) {
+        this.DIYStyle = style;
+        this._areaShapes.forEach(item => {
+            console.log(item)
+            if (item.data.type === 'Text') {
+                item.attr({
+                    style: {
+                        ...this._styleConfig.default,
+                        ...style
+                    }
+                });
+            }
+        });
+    }
+    /**
+     * @description 重置标记样式
+     */
+    resetShapeStyle() {
+        this._areaShapes.forEach(item => {
+            if (item.data.type === 'Text') {
+                item.attr({
+                    style: {
+                        ...this._styleConfig.default,
+                        ...this.DIYStyle
+                    },
+                    draggable: false
+                });
+            }
+        });
     }
     _setShapeHeight(shape, item) {
         let obj = shape.getBoundingRect();
@@ -232,7 +293,7 @@ export default class TextOverlay extends Image {
             },
             data: obj,
             position: obj.position,
-            zlevel: this._styleConfig.zlevel
+            zlevel: this.zlevel
         });
         return t;
     }

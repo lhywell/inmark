@@ -295,7 +295,7 @@ export default class BImage extends Init {
             this._option.center = [this._option.offsetX + (this._option.widthImg / 2), this._option.offsetY + this._option.heightImg / 2];
 
             this.image = image;
-
+            // this.image.setAttribute('data-name', 'sssss');
             this._option.image = image;
 
             group.add(image);

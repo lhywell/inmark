@@ -63,7 +63,8 @@ export default class RectOverlay extends Image {
         // this._option.currentShape = {};
         this.tempShape = {};
         this.handlers = {}; //存储事件的对象 
-
+        this.zlevel = this._styleConfig.default.zlevel;
+        this.DIYStyle = {};
         if (this.image) {
             this.image.on('drag', (e) => {
                 //拖动图片与多边形同步
@@ -351,6 +352,13 @@ export default class RectOverlay extends Image {
         this.saveInstance(window.INMARK_DRAWING_RECTANGLE);
     }
     /**
+     * @description 设置当前的图层的zlevel值,值相同的在同一个图层
+     * @params {Number} index
+     */
+    setZIndex(index) {
+        this.zlevel = index;
+    }
+    /**
      * @description 删除图形，保留图片
      */
     _filterImage() {
@@ -420,7 +428,7 @@ export default class RectOverlay extends Image {
                         width: w,
                         height: w
                     },
-                    zlevel: 3
+                    zlevel: this.zlevel + 1
                 });
             });
         }
@@ -542,7 +550,7 @@ export default class RectOverlay extends Image {
             draggable: false,
             style: this._styleConfig.default,
             // scale: scale,
-            zlevel: this._styleConfig.default.zlevel
+            zlevel: this.zlevel
         });
 
         let oldGroup = [];
@@ -1116,7 +1124,7 @@ export default class RectOverlay extends Image {
                 data: {
                     _side: item._side
                 },
-                zlevel: this._styleConfig.default.zlevel + 1
+                zlevel: this.zlevel + 1
             }));
             this._editElementEvent(editNode, group);
 
@@ -1126,17 +1134,31 @@ export default class RectOverlay extends Image {
 
     setSilent(bol) {}
     /**
-     * @description 重置标记样式
+     * @description 设置当前样式
      */
-    resetShapeStyle() {
-        let stroke = this._styleConfig.default.stroke;
-
+    setOptionStyle(style) {
+        this.DIYStyle = style;
         this._areaShapes.forEach(item => {
             if (item.data.type === 'Rectangle') {
                 item.attr({
                     style: {
                         ...this._styleConfig.default,
-                        stroke: stroke
+                        ...style
+                    }
+                });
+            }
+        });
+    }
+    /**
+     * @description 重置标记样式
+     */
+    resetShapeStyle() {
+        this._areaShapes.forEach(item => {
+            if (item.data.type === 'Rectangle') {
+                item.attr({
+                    style: {
+                        ...this._styleConfig.default,
+                        ...this.DIYStyle
                     },
                     draggable: false
                 });
