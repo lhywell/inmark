@@ -1,6 +1,6 @@
 {
   "name": "inmark",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "Image mark",
   "main": "dist/inmark.min.js",
   "scripts": {
