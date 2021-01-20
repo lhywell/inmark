@@ -35,10 +35,8 @@ export default class TextOverlay extends Image {
         this._onImageDrag = opts && opts.event && opts.event.onImageDrag;
         this._onImageDragEnd = opts && opts.event && opts.event.onImageDragEnd;
         this._onSelected = opts && opts.event && opts.event.onSelected;
-        this._onHover = opts && opts.event && opts.event.onHover;
 
         this.data = opts.data;
-
         if (opts.style) {
             this._styleConfig = merge(TextConfig.style.default, opts.style);
         } else {

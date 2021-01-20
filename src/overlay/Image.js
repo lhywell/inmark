@@ -666,11 +666,19 @@ export default class BImage extends Init {
     zoomSlider(scale) {
         this.setDrawingMode('hander');
 
-        this.group.attr({
-            position: [0, 0],
-            scale: [scale, scale],
-            origin: this.getOrigin()
-        });
+        if (scale === 1) {
+            // 先放大再还原到100%比例，拖动图片会触发无限放大或缩小
+            this.group.attr({
+                scale: [1.001, 1.001],
+                origin: this.getOrigin()
+            });
+        } else {
+            this.group.attr({
+                position: [0, 0],
+                scale: [scale, scale],
+                origin: this.getOrigin()
+            });
+        }
 
         let d = this.group.getLocalTransform();
 
