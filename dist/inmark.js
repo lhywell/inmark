@@ -27994,11 +27994,21 @@
 	    key: "zoomSlider",
 	    value: function zoomSlider(scale) {
 	      this.setDrawingMode('hander');
-	      this.group.attr({
-	        position: [0, 0],
-	        scale: [scale, scale],
-	        origin: this.getOrigin()
-	      });
+
+	      if (scale === 1) {
+	        // 先放大再还原到100%比例，拖动图片会触发无限放大或缩小
+	        this.group.attr({
+	          scale: [1.001, 1.001],
+	          origin: this.getOrigin()
+	        });
+	      } else {
+	        this.group.attr({
+	          position: [0, 0],
+	          scale: [scale, scale],
+	          origin: this.getOrigin()
+	        });
+	      }
+
 	      var d = this.group.getLocalTransform();
 	      this._option.offsetM = d[4];
 	      this._option.offsetN = d[5];
@@ -30953,7 +30963,6 @@
 	    _this._onImageDrag = opts && opts.event && opts.event.onImageDrag;
 	    _this._onImageDragEnd = opts && opts.event && opts.event.onImageDragEnd;
 	    _this._onSelected = opts && opts.event && opts.event.onSelected;
-	    _this._onHover = opts && opts.event && opts.event.onHover;
 	    _this.data = opts.data;
 
 	    if (opts.style) {
@@ -31254,7 +31263,7 @@
 
 	// rollup编译入口
 
-	var version$1 = "1.1.5";
+	var version$1 = "1.1.6";
 	console.log("inMark v".concat(version$1));
 	var inMark = {
 	  version: version$1,
