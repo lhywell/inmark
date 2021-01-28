@@ -75,46 +75,8 @@ export default class TextOverlay extends Image {
             new Error('请传入数组类型');
         }
     }
-    open() {
-        //开启绘制模式
-        this._option.isOpen = true;
-
-        this.resetAllStyle();
-
-        this.setDrawingMode(window.INMARK_DRAWING_RECTANGLE);
-
-        this._bindEvent();
-
-        this.setEdit(true);
-
-        this.group.eachChild((item) => {
-            if (item.data.type === 'IMAGE') {
-                item.attr({
-                    'cursor': 'crosshair'
-                });
-            }
-        });
-    }
-    close() {
-        //关闭绘制模式
-        this._option.isOpen = false;
-
-        this.setEdit(false);
-
-        this.group.eachChild((item) => {
-            if (item.data.type === 'IMAGE') {
-                item.attr({
-                    'cursor': 'default'
-                });
-            }
-        });
-
-        if (this._option.drawingType === 'hander') {
-            return;
-        }
-
-        this.setDrawingMode('hander');
-    }
+    open() {}
+    close() {}
     addEventListener(type, handler) {
         let x = '_' + type;
         if (typeof this.handlers[x] == 'undefined') {
@@ -215,10 +177,10 @@ export default class TextOverlay extends Image {
     /**
      * @description 设置当前样式
      */
-    setOptionStyle(style) {
+    setOptionStyle(style, selectedStyle) {
         this.DIYStyle = style;
+        this._styleConfig.selected = selectedStyle;
         this._areaShapes.forEach(item => {
-            console.log(item)
             if (item.data.type === 'Text') {
                 item.attr({
                     style: {
