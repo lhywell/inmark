@@ -555,6 +555,9 @@ export default class RectOverlay extends Image {
 
         let oldGroup = [];
         shape.on('click', (e) => {
+            if (this.getDrawingMode() !== 'rectangle') {
+                return;
+            }
             if (e.which === 1) {
                 // console.log('click', e.target)
                 //点击重新设置坐标点
@@ -563,6 +566,9 @@ export default class RectOverlay extends Image {
 
         });
         shape.on('dragstart', (e) => {
+            if (this.getDrawingMode() !== 'rectangle') {
+                return;
+            }
             if (e.which === 1) {
                 this._option.currentShape = shape;
 
@@ -571,6 +577,9 @@ export default class RectOverlay extends Image {
             // console.log('start', e.target.position, JSON.stringify(e.target.shape.points));
         });
         shape.on('drag', (e) => {
+            if (this.getDrawingMode() !== 'rectangle') {
+                return;
+            }
             //拖动多边形与编辑同步
             let group = shape.bound;
             group.attr({
@@ -613,6 +622,9 @@ export default class RectOverlay extends Image {
 
         // })
         shape.on('dragend', (e) => {
+            if (this.getDrawingMode() !== 'rectangle') {
+                return;
+            }
             if (e.which === 1) {
                 let shape = e.target;
 
@@ -649,7 +661,9 @@ export default class RectOverlay extends Image {
 
         });
         shape.on('mousemove', (e) => {
-
+            if (this.getDrawingMode() !== 'rectangle') {
+                return;
+            }
             if (this._option.isOpen) {
                 shape.attr({
                     cursor: 'default',
@@ -664,6 +678,9 @@ export default class RectOverlay extends Image {
 
         });
         shape.on('mouseover', (e) => {
+            if (this.getDrawingMode() !== 'rectangle') {
+                return;
+            }
             if (this._option.isOpen) {
 
                 shape.attr({
@@ -706,11 +723,17 @@ export default class RectOverlay extends Image {
             });
         });
         shape.on('mouseout', (e) => {
+            if (this.getDrawingMode() !== 'rectangle') {
+                return;
+            }
             if (this._option.isOpen) {
                 this._bindEvent();
             }
         });
         shape.on('mousedown', (e) => {
+            if (this.getDrawingMode() !== 'rectangle') {
+                return;
+            }
             // 创建多边形，与矩形重叠引起问题
             if (this._option.polygonOverlay && this._option.polygonOverlay._isMouseDown) {
                 return;
@@ -779,6 +802,9 @@ export default class RectOverlay extends Image {
         });
 
         shape.on('mouseup', (e) => {
+            if (this.getDrawingMode() !== 'rectangle') {
+                return;
+            }
             //开启编辑，选中某个框
             // console.log('shap-mouseup', this._option.currentShape, this._option.isOpen, this.selectedSub, this.tempShape.id, this._option.currentShape.id)
             if (this._option.isOpen && this.selectedSub && e.which === 1) {
@@ -1136,8 +1162,9 @@ export default class RectOverlay extends Image {
     /**
      * @description 设置当前样式
      */
-    setOptionStyle(style) {
+    setOptionStyle(style, selectedStyle) {
         this.DIYStyle = style;
+        this._styleConfig.selected = selectedStyle;
         this._areaShapes.forEach(item => {
             if (item.data.type === 'Rectangle') {
                 item.attr({

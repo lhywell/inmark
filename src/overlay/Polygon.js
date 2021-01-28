@@ -42,7 +42,6 @@ export default class Polygon extends Image {
         } else {
             this._styleConfig = PolygonRect.style;
         }
-
         this._isMouseDown = false;
 
         this._startPoint = [];
@@ -595,7 +594,8 @@ export default class Polygon extends Image {
         let shape = new zrender.Polygon({
             shape: {
                 points: points,
-                smooth: 0,
+                smooth: this._styleConfig.smooth,
+                smoothConstraint: this._styleConfig.constraint
             },
             data: data,
             cursor: 'default',
@@ -606,11 +606,17 @@ export default class Polygon extends Image {
 
         let oldGroup = [];
         shape.on('click', (e) => {
+            if (this.getDrawingMode() !== 'polygon') {
+                return;
+            }
             if (e.which === 1) {
                 this._editNode = this._toShapeDragEnd(e, e.target);
             }
         });
         shape.on('dragstart', (e) => {
+            if (this.getDrawingMode() !== 'polygon') {
+                return;
+            }
             if (e.which === 1) {
                 this._option.currentShape = shape;
 
@@ -618,6 +624,9 @@ export default class Polygon extends Image {
             }
         });
         shape.on('drag', (e) => {
+            if (this.getDrawingMode() !== 'polygon') {
+                return;
+            }
             //拖动多边形与编辑同步
             if (this._isMouseDown === false) {
 
@@ -650,6 +659,9 @@ export default class Polygon extends Image {
         });
 
         shape.on('dragend', (e) => {
+            if (this.getDrawingMode() !== 'polygon') {
+                return;
+            }
             if (e.which === 1 && this._isMouseDown === false) {
                 let shape = e.target;
 
@@ -682,6 +694,9 @@ export default class Polygon extends Image {
             }
         });
         shape.on('mousemove', (e) => {
+            if (this.getDrawingMode() !== 'polygon') {
+                return;
+            }
             if (this._option.isOpen) {
 
                 shape.attr({
@@ -692,6 +707,9 @@ export default class Polygon extends Image {
             }
         });
         shape.on('mouseover', (e) => {
+            if (this.getDrawingMode() !== 'polygon') {
+                return;
+            }
             if (this._option.isOpen) {
                 shape.attr({
                     cursor: 'default',
@@ -721,12 +739,18 @@ export default class Polygon extends Image {
             });
         });
         shape.on('mouseout', (e) => {
+            if (this.getDrawingMode() !== 'polygon') {
+                return;
+            }
             if (this._option.isOpen) {
                 this._bindEvent();
             }
         });
 
         shape.on('mousedown', (e) => {
+            if (this.getDrawingMode() !== 'polygon') {
+                return;
+            }
             if (e.which === 1 && this._isMouseDown === false) {
                 //选中某个框
                 this._option.currentShape = e.target;
@@ -750,8 +774,15 @@ export default class Polygon extends Image {
                 });
             }
         });
-        shape.on('dblclick', (e) => {});
+        shape.on('dblclick', (e) => {
+            if (this.getDrawingMode() !== 'polygon') {
+                return;
+            }
+        });
         shape.on('mouseup', (e) => {
+            if (this.getDrawingMode() !== 'polygon') {
+                return;
+            }
             //开启编辑，选中某个框
             if (this._option.isOpen && this.selectedSub && e.which === 1) {
 
@@ -955,10 +986,10 @@ export default class Polygon extends Image {
     /**
      * @description 设置当前样式
      */
-    setOptionStyle(style) {
+    setOptionStyle(style, selectedStyle) {
         this.DIYStyle = style;
+        this._styleConfig.selected = selectedStyle;
         this._areaShapes.forEach(item => {
-            console.log(item)
             if (item.data.type === 'POLYGON') {
                 item.attr({
                     style: {
