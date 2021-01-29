@@ -751,6 +751,13 @@ export default class Polygon extends Image {
             if (this.getDrawingMode() !== 'polygon') {
                 return;
             }
+            // OCRMARK-149右键移动已标注的框，在原位置重新标注，新标注框与之前移动过的标注框重合，出现飞框情况
+            if (e.which === 3) {
+                shape.attr({
+                    draggable: false
+                })
+                return;
+            }
             if (e.which === 1 && this._isMouseDown === false) {
                 //选中某个框
                 this._option.currentShape = e.target;

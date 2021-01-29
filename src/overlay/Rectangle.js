@@ -734,6 +734,13 @@ export default class RectOverlay extends Image {
             if (this.getDrawingMode() !== 'rectangle') {
                 return;
             }
+            // OCRMARK-149右键移动已标注的框，在原位置重新标注，新标注框与之前移动过的标注框重合，出现飞框情况
+            if (e.which === 3) {
+                shape.attr({
+                    draggable: false
+                })
+                return;
+            }
             // 创建多边形，与矩形重叠引起问题
             if (this._option.polygonOverlay && this._option.polygonOverlay._isMouseDown) {
                 return;
