@@ -894,8 +894,8 @@ export default class RectOverlay extends Image {
                 return;
             }
 
-            //e.which鼠标左键，禁止鼠标右键拖动框
-            if (e.which === 3) {
+            //e.which鼠标左键，禁止鼠标右键、滚轮键拖动框
+            if (e.which !== 1) {
                 group.eachChild(item => {
                     item.hide();
                 });
@@ -921,6 +921,13 @@ export default class RectOverlay extends Image {
         });
 
         editNode.on('drag', (e) => {
+            //e.which鼠标左键，禁止鼠标右键、滚轮键拖动框
+            if (e.which !== 1) {
+                group.eachChild(item => {
+                    item.hide();
+                });
+                return;
+            }
             // 创建多边形，与矩形重叠引起问题
             if (this._option.polygonOverlay && this._option.polygonOverlay._isMouseDown) {
                 return;
