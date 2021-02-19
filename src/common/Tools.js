@@ -104,7 +104,7 @@ export default class Tools {
         if (Tools.prototype.recOverlay) {
             Tools.prototype.recOverlay._option.draggable = bol;
         }
-
+        
         //解决window平台下，设置false,框还可以移动bug
         this.group && this.group.eachChild(item => {
             if (item.data.type === 'IMAGE') {
@@ -245,7 +245,7 @@ export default class Tools {
         this.setOffsetN(d[5]);
 
         // this._option.scale = scale;
-        this.setScale(newAttrs.scale);
+        this.setScale(scale);
 
         return this;
     }

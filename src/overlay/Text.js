@@ -8,7 +8,6 @@ import TextConfig from '../config/TextConfig.js';
 import Image from './Image.js';
 import AbstractRender from './AbstractRender.js';
 
-let TextOption, image, group;
 
 /**
  * @constructor
@@ -16,16 +15,26 @@ let TextOption, image, group;
  * @param {Object} args
  * @param {Object} opts
  */
-export default class TextOverlay extends Image {
+export default class TextOverlay extends AbstractRender {
     constructor(opts) {
         super();
 
-        this.group = this._option.group;
-        this.image = this._option.image;
+        this.group = AbstractRender.prototype.group;
+        this.image = AbstractRender.prototype.image;
 
         this.type = 'TextOverlay';
         //是否开启绘制模式
+        this._option = {};
+
+        let mode = this.getMode();
+        this._option.mode = mode || 'auto';
+
         this._option.isOpen = opts.isOpen || false;
+
+        this._option.exportData = [];
+
+        this._option.draggable = true;
+
         this.graphic = this._createGraphicGroup();
         this._areaShapes = [];
         // 回调函数
