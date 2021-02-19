@@ -298,7 +298,6 @@ export default class BImage extends AbstractRender {
                 this.handlers['_onImageDragEnd'] && this.handlers['_onImageDragEnd'][0](e);
             });
 
-            console.log(this.handlers)
             this.handlers['_onLoadComplete'] && this.handlers['_onLoadComplete'][0]();
             this._onLoadComplete && this._onLoadComplete();
 

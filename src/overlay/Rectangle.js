@@ -46,7 +46,6 @@ export default class RectOverlay extends AbstractRender {
             this._option.offsetY = 0;
         }
 
-
         //是否开启绘制模式
         this._option.isOpen = opts.isOpen || false;
 

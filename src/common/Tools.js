@@ -164,7 +164,7 @@ export default class Tools {
         this.setDrawingMode('hander');
 
         const oldScale = this.group.scale[0];
-        console.log(oldScale)
+
         const pos = {
             x: this.ctx.canvasWidth / 2,
             y: this.ctx.canvasHeight / 2

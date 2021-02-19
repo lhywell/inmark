@@ -2,24 +2,50 @@ import zrender from 'zrender';
 import { merge } from '../common/utils.js';
 import PolygonRect from '../config/PolygonRect.js';
 import EditRect from '../config/EditRect.js';
-import Image from './Image.js';
+import AbstractRender from './AbstractRender.js';
 /**
  * @constructor
  * @extends module:PolygonOverlay
  * @param {Object} args
  * @param {Object} opts
  */
-export default class Polygon extends Image {
+export default class Polygon extends AbstractRender {
     constructor(opts) {
-        super();
+        super(opts);
 
-        this.group = this._option.group;
-        this.image = this._option.image;
+        this.group = AbstractRender.prototype.group;
+        this.image = AbstractRender.prototype.image;
 
         this.type = 'POLYGON';
 
+        this._option = {};
+
+        let mode = this.getMode();
+        this._option.mode = mode || 'auto';
+
+        this._option.draggable = false;
+        this._option.currentShape = null;
+
+        if (this._option.mode === 'auto') {
+            this._option.offsetX = 0; //auto模式图片等比例缩放后在画布中横轴位移
+            this._option.offsetY = 0; //auto模式图片等比例缩放后在画布中纵轴位移
+            this._option.setRate = 0; //auto模式图片的缩放比例
+        } else if (this._option.mode === 'auto-rotate') {
+            this._option.offsetX = 0; //auto模式图片等比例缩放后在画布中横轴位移
+            this._option.offsetY = 0; //auto模式图片等比例缩放后在画布中纵轴位移
+            this._option.setRate = 0; //auto模式图片的缩放比例
+        } else {
+            //original模式，1:1展示图片
+            this._option.setRate = 1;
+
+            this._option.offsetX = 0;
+            this._option.offsetY = 0;
+        }
+
         //是否开启绘制模式
         this._option.isOpen = opts.isOpen || false;
+
+        this._option.exportData = [];
 
         // 回调函数
         this._onCreate = opts && opts.event && opts.event.onCreate;
@@ -565,18 +591,21 @@ export default class Polygon extends Image {
             bgDragX = this.bgDrag[0];
             bgDragY = this.bgDrag[1];
         }
+        let offsetM = this.getOffsetM();
+        let offsetN = this.getOffsetN();
+
         points.forEach(item => {
             let x;
             if (m) {
-                if (m[4] - this._option.offsetM > 0) {
-                    item[0] = item[0] + (Math.abs(m[4] - this._option.offsetM) / m[0]);
+                if (m[4] - offsetM > 0) {
+                    item[0] = item[0] + (Math.abs(m[4] - offsetM) / m[0]);
                 } else {
-                    item[0] = item[0] - (Math.abs(m[4] - this._option.offsetM) / m[0]);
+                    item[0] = item[0] - (Math.abs(m[4] - offsetM) / m[0]);
                 }
-                if (m[5] - this._option.offsetN > 0) {
-                    item[1] = item[1] + (Math.abs(m[5] - this._option.offsetN) / m[0]);
+                if (m[5] - offsetN > 0) {
+                    item[1] = item[1] + (Math.abs(m[5] - offsetN) / m[0]);
                 } else {
-                    item[1] = item[1] - (Math.abs(m[5] - this._option.offsetN) / m[0]);
+                    item[1] = item[1] - (Math.abs(m[5] - offsetN) / m[0]);
                 }
             }
 
@@ -882,8 +911,10 @@ export default class Polygon extends Image {
 
                 offsetX = e.event.offsetX;
                 offsetY = e.event.offsetY;
+                let offsetM = this.getOffsetM();
+                let offsetN = this.getOffsetN();
 
-                oldPoints[_index] = [(offsetX - this._option.offsetM) / m[0] - bgDragX, (offsetY - this._option.offsetN) / m[0] - bgDragY];
+                oldPoints[_index] = [(offsetX - offsetM) / m[0] - bgDragX, (offsetY - offsetN) / m[0] - bgDragY];
 
                 newPoints = oldPoints;
 

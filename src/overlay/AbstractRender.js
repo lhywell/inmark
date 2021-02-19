@@ -12,7 +12,6 @@ export default class AbstractRender extends Tools {
     constructor(opts) {
         super();
         if (!option.zr) {
-            console.log(opts)
             this.zr = zrender.init(document.getElementById(opts.id));
             // zr = this.zr;
             option.zr = this.zr;
