@@ -1,27 +1,30 @@
 import zrender from 'zrender';
 import { merge } from '../common/utils.js';
 import Tools from '../common/Tools';
-let zr;
-
+import Option from './Option';
+// let zr;
+let option = new Option();
 /**
  * @constructor
  * @param {Object} opts
  */
-export default class Init {
-    constructor(opts, obj) {
-        if (opts) {
+export default class AbstractRender extends Tools {
+    constructor(opts) {
+        super();
+        if (!option.zr) {
+            console.log(opts)
             this.zr = zrender.init(document.getElementById(opts.id));
-            zr = this.zr;
-            if (opts && opts.imgUrl) {
-                this.imgUrl = opts.imgUrl;
-            } else {
-                new Error('请填入imgUrl属性,仅支持http或者https');
-            }
+            // zr = this.zr;
+            option.zr = this.zr;
+
             // console.log('初始化', opts)
             this._option = opts;
+
+            this.setGroup();
+            this.zr.add(this.group);
         } else {
-            this.zr = zr;
-            this._option = obj;
+            this.zr = option.zr;
+            this.group = this.getGroup();
         }
         //屏蔽浏览器的右击事件
         this.zr.dom.oncontextmenu = function() {
@@ -30,10 +33,15 @@ export default class Init {
         this.ctx = {};
         this.ctx.canvasWidth = this.zr.getWidth();
         this.ctx.canvasHeight = this.zr.getHeight();
+
         this._zrClick = this._zrClick;
         this._zrMouseMove = this._zrMouseMove;
         this._zrMouseDown = this._zrMouseDown;
         this._zrMouseUp = this._zrMouseUp;
+
+        this.handlers = {}; //存储事件的对象
+
+        this.image = null;
     }
     _bindEvent() {
         this.zr.on('click', this._zrClick, this);
@@ -56,6 +64,51 @@ export default class Init {
     _zrMouseMove() {}
     _zrMouseDown() {}
     _zrMouseUp() {}
+    _zrDBClick() {}
+    setData() {}
+    getData() {}
+    setMode(mode) {
+        AbstractRender.prototype.mode = mode;
+    }
+    getMode() {
+        return AbstractRender.prototype.mode;
+    }
+    addEventListener(type, handler) {
+        let x = '_' + type;
+        if (typeof this.handlers[x] == 'undefined') {
+            this.handlers[x] = [];
+        }
+
+        this.handlers[x].push(handler); //将要触发的函数压入事件函数命名的数组中
+    }
+    removeEventListener(type, handler) {
+        let x = '_' + type;
+        if (!this.handlers[x]) return;
+        var handlers = this.handlers[x];
+        if (handler == undefined) {
+            handlers.length = 0; //不传某个具体函数时，解绑所有
+        } else if (handlers.length) {
+            for (var i = 0; i < handlers.length; i++) {
+                if (handlers[i] == handler) {
+                    //解绑单个
+                    this.handlers[x].splice(i, 1);
+                }
+            }
+        }
+    }
+    getZrender() {
+        return this.zr;
+    }
+    getImage() {
+        return this.image;
+    }
+    setGroup() {
+        this.group = new zrender.Group();
+        AbstractRender.prototype.group = this.group;
+    }
+    getGroup() {
+        return AbstractRender.prototype.group;
+    }
     _toGlobal(points, shape) {
         let newPoints = zrender.util.clone(points);
         // newPoints.forEach(item => {

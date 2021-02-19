@@ -3,47 +3,66 @@ import { merge, calcHypotenuse, cosA } from '../common/utils.js';
 import Tools from '../common/Tools';
 import ImageConfig from '../config/ImageConfig.js';
 import EditRect from '../config/EditRect.js';
-import Init from './Init';
+import AbstractRender from './AbstractRender';
 
-let ImageOption, image, group;
-let count = 0;
-let degree_out = 0,
-    radian_out = 0,
-    remainder = 0, //余数
-    remainder_h = 0; //余数弧度
+// let image, group;
+// let count = 0;
+// let degree_out = 0,
+//     radian_out = 0,
+//     remainder = 0, //余数
+//     remainder_h = 0; //余数弧度
 /**
  * @constructor
  * @param {Object} opts
  */
-export default class BImage extends Init {
+export default class BImage extends AbstractRender {
     constructor(opts) {
-        super(opts, ImageOption);
+        super(opts);
         if (opts) {
+            if (opts && opts.imgUrl) {
+                this.imgUrl = opts.imgUrl;
+            } else {
+                new Error('请填入imgUrl属性,仅支持http或者https');
+            }
+
             this._option = {};
             this._option.id = opts && opts.id;
             this._option.imgUrl = opts && opts.imgUrl;
-            this._option.offsetX = 0; //auto模式图片等比例缩放后在画布中横轴位移
-            this._option.offsetY = 0; //auto模式图片等比例缩放后在画布中纵轴位移
 
-            this._option.imgZoom = 2; //图片放大限制
-            this._option.setRate = 0; //auto模式图片的缩放比例
+            let mode = opts && opts.mode || 'auto';
+            this.setMode(mode);
+
+            if (mode === 'auto') {
+                this._option.offsetX = 0; //auto模式图片等比例缩放后在画布中横轴位移
+                this._option.offsetY = 0; //auto模式图片等比例缩放后在画布中纵轴位移
+                this._option.setRate = 0; //auto模式图片的缩放比例
+
+                this._option.imgZoom = 2; //图片放大限制
+            } else if (mode === 'auto-rotate') {
+                this._option.offsetX = 0; //auto模式图片等比例缩放后在画布中横轴位移
+                this._option.offsetY = 0; //auto模式图片等比例缩放后在画布中纵轴位移
+                this._option.setRate = 0; //auto模式图片的缩放比例
+            } else {
+                this.setScale(1); //original模式图片的缩放比例
+                this.setOffsetM(0); //original模式画布中横轴位移
+                this.setOffsetN(0); //original模式画布中纵轴位移
+            }
+
             this._option.widthImg = 0;
             this._option.heightImg = 0;
-            this._option.scale = 1; //original模式图片的缩放比例
+
             this._option.origin = [0, 0]; //旋转和缩放的原点
-            this._option.offsetM = 0; //original模式画布中横轴位移
-            this._option.offsetN = 0; //original模式画布中纵轴位移
+
             this._option.draggable = false;
-            this._option.rotateTime = 0;
+            // this._option.rotateTime = 0;
             this._option.center = [];
             this._option.rotate = {
                 radians: 0,
                 degrees: 0
             };
             this._option.currentShape = {};
-            this._option.mode = opts && opts.mode || 'auto';
+
             this._option.exportData = [];
-            this.handlers = {}; //存储事件的对象 
 
             if (opts.style) {
                 this._imgConfig = merge(ImageConfig.style, opts.style);
@@ -51,13 +70,13 @@ export default class BImage extends Init {
                 this._imgConfig = ImageConfig.style;
             }
 
-            ImageOption = this._option;
-        } else {
-            this._option = ImageOption;
+            // ImageOption = this._option;
         }
 
         this.type = 'IMAGE';
         this.image = null;
+        this.group = AbstractRender.prototype.group;
+
         this._editWidth = EditRect.shape.width;
 
         // 回调函数
@@ -65,82 +84,52 @@ export default class BImage extends Init {
         this._onImageDragEnd = opts && opts.event && opts.event.onImageDragEnd;
         this._onLoadComplete = opts && opts.event && opts.event.onLoadComplete;
         this._onRotate = opts && opts.event && opts.event.onRotate;
-        // console.log(this)
 
-        /**
-         * 定义常量, 绘制的模式
-         * @final {String} DrawingType
-         */
-        window.INMARK_DRAWING_RECTANGLE = 'rectangle'; // 鼠标画矩形模式
-        window.INMARK_DRAWING_POLYGON = 'polygon'; // 鼠标画多边形模式
+        this.tools = new Tools(this._option, this.type);
 
         this.initialize();
     }
     initialize() {
         this.renderImg(this.imgUrl);
-        // let toos = new Tools();
-    }
-    getZrender() {
-        return this.zr;
     }
     getImage() {
         return this.image;
     }
-    getGroup() {
-        return this.group;
-    }
-    setDrag(bol) {
-        this._option.draggable = bol;
-        // console.log(this.group, this.group.children())
+    // setDrag(bol) {
+    //     this._option.draggable = bol;
+    //     // console.log(this.group, this.group.children())
 
-        //解决window平台下，设置false,框还可以移动bug
-        this.group && this.group.eachChild(item => {
-            if (item.data.type === 'IMAGE') {
-                item.attr({
-                    'draggable': bol,
-                    'cursor': 'pointer'
-                });
-            }
-        });
-    }
-    getDrag() {
-        return this._option.draggable;
-    }
-    addEventListener(type, handler) {
-        let x = '_' + type;
-        if (typeof this.handlers[x] == 'undefined') {
-            this.handlers[x] = [];
-        }
-
-        this.handlers[x].push(handler); //将要触发的函数压入事件函数命名的数组中
-    }
-    removeEventListener(type, handler) {
-        let x = '_' + type;
-        if (!this.handlers[x]) return;
-        var handlers = this.handlers[x];
-        if (handler == undefined) {
-            handlers.length = 0; //不传某个具体函数时，解绑所有
-        } else if (handlers.length) {
-            for (var i = 0; i < handlers.length; i++) {
-                if (handlers[i] == handler) {
-                    //解绑单个
-                    this.handlers[x].splice(i, 1);
-                }
-            }
-        }
-    }
+    //     //解决window平台下，设置false,框还可以移动bug
+    //     this.group && this.group.eachChild(item => {
+    //         if (item.data.type === 'IMAGE') {
+    //             item.attr({
+    //                 'draggable': bol,
+    //                 'cursor': 'pointer'
+    //             });
+    //         }
+    //     });
+    // }
+    // getDrag() {
+    //     return this._option.draggable;
+    // }
     /**
      * @description 在画布中渲染图片
      * @params {Array} url 支持http,https图片路径
      */
+    // setGroup() {
+    //     //加载图片
+    //     let group = new zrender.Group();
+    //     this.group = group;
+
+    //     AbstractRender.prototype.group = group;
+    //     // this._option.group = group;
+    // }
     renderImg(url) {
         if (!url) {
             return;
         }
         //加载图片
-        group = new zrender.Group();
-        this.group = group;
-        this._option.group = group;
+        // this.setGroup();
 
         let img = new Image();
         img.setAttribute('crossorigin', 'anonymous');
@@ -274,7 +263,7 @@ export default class BImage extends Init {
             }
 
             // this._option.offsetY = 0
-            image = new zrender.Image({
+            let image = new zrender.Image({
                 style: {
                     image: url,
                     x: this._option.offsetX,
@@ -296,10 +285,9 @@ export default class BImage extends Init {
 
             this.image = image;
             // this.image.setAttribute('data-name', 'sssss');
-            this._option.image = image;
+            AbstractRender.prototype.image = image;
 
-            group.add(image);
-            this.zr.add(group);
+            this.group.add(image);
 
             this.image.on('drag', (e) => {
                 this._onImageDrag && this._onImageDrag(e);
@@ -310,6 +298,7 @@ export default class BImage extends Init {
                 this.handlers['_onImageDragEnd'] && this.handlers['_onImageDragEnd'][0](e);
             });
 
+            console.log(this.handlers)
             this.handlers['_onLoadComplete'] && this.handlers['_onLoadComplete'][0]();
             this._onLoadComplete && this._onLoadComplete();
 
@@ -320,48 +309,46 @@ export default class BImage extends Init {
         };
 
     }
-    saveInstance(drawingType) {
-        switch (drawingType) {
-            case window.INMARK_DRAWING_POLYGON:
-                this._option.polygonOverlay = this;
-                this._bindPolylineOrPolygon();
-                break;
-            case window.INMARK_DRAWING_RECTANGLE:
-                this._option.RecOverlay = this;
-                this._bindRectangle();
-                break;
-            case 'hander':
-                this._option.polygonOverlay && this._option.polygonOverlay.resetShapeStyle();
-                this._option.polygonOverlay && this._option.polygonOverlay.close();
-                this._option.RecOverlay && this._option.RecOverlay.resetShapeStyle();
-                this._option.RecOverlay && this._option.RecOverlay.close();
+    // saveInstance(drawingType) {
+    //     switch (drawingType) {
+    //         case window.INMARK_DRAWING_POLYGON:
+    //             this._option.polygonOverlay = this;
+    //             this._bindPolylineOrPolygon();
+    //             break;
+    //         case window.INMARK_DRAWING_RECTANGLE:
+    //             this._option.RecOverlay = this;
+    //             this._bindRectangle();
+    //             break;
+    //         case 'hander':
+    //             this._option.polygonOverlay && this._option.polygonOverlay.resetShapeStyle();
+    //             this._option.polygonOverlay && this._option.polygonOverlay.close();
+    //             this._option.RecOverlay && this._option.RecOverlay.resetShapeStyle();
+    //             this._option.RecOverlay && this._option.RecOverlay.close();
 
-                this.setDrag(true);
-                break;
-        }
-    }
-    resetAllStyle() {
-        this._option.polygonOverlay && this._option.polygonOverlay.resetShapeStyle();
-        this._option.RecOverlay && this._option.RecOverlay.resetShapeStyle();
-    }
+    //             this.setDrag(true);
+    //             break;
+    //     }
+    // }
+    // resetAllStyle() {
+    //     this._option.polygonOverlay && this._option.polygonOverlay.resetShapeStyle();
+    //     this._option.RecOverlay && this._option.RecOverlay.resetShapeStyle();
+    // }
     getData() {
         return this._option.exportData;
     }
-    setDrawingMode(drawingType) {
-        this._setDrawingMode(drawingType);
-    }
-    _setDrawingMode(drawingType) {
-        this.setDrag(false);
+    // setDrawingMode(drawingType) {
+    //     this._setDrawingMode(drawingType);
+    // }
+    // _setDrawingMode(drawingType) {
+    //     this.setDrag(false);
 
-        this._option.drawingType = drawingType;
+    //     this._option.drawingType = drawingType;
 
-        this.saveInstance(drawingType);
-    }
-    getDrawingMode() {
-        return this._option.drawingType;
-    }
-    _bindPolylineOrPolygon() {}
-    _bindRectangle() {}
+    //     this.saveInstance(drawingType);
+    // }
+    // getDrawingMode() {
+    //     return this._option.drawingType;
+    // }
     _zrClick() {}
     _zrMouseMove(e) {
         // e.target确保在画布内
@@ -454,12 +441,13 @@ export default class BImage extends Init {
     }
     _zrDBClick() {}
     _reSetCenter() {
+        let scale = this.getScale();
         const box = this.image.getBoundingRect();
-        this._option.widthImg = box.width * this._option.scale;
-        this._option.heightImg = box.height * this._option.scale;
+        this._option.widthImg = box.width * scale;
+        this._option.heightImg = box.height * scale;
 
-        this._option.offsetX = this._option.offsetM;
-        this._option.offsetY = this._option.offsetN;
+        this._option.offsetX = this.getOffsetM();
+        this._option.offsetY = this.getOffsetN();
         this._option.center = [this._option.offsetX + (this._option.widthImg / 2), this._option.offsetY + (this._option.heightImg / 2)];
 
         return this._option.center;
@@ -471,35 +459,36 @@ export default class BImage extends Init {
     resetRotate() {
         this.rotate(0);
     }
-    getOrigin() {
-        if (this._option.mode === 'auto' || this._option.mode === 'auto-rotate') {
-            this._option.widthImg = this._option.widthImg * this.group.scale[0];
-            this._option.heightImg = this._option.heightImg * this.group.scale[0];
+    // getOrigin() {
+    //     if (this._option.mode === 'auto' || this._option.mode === 'auto-rotate') {
+    //         this._option.widthImg = this._option.widthImg * this.group.scale[0];
+    //         this._option.heightImg = this._option.heightImg * this.group.scale[0];
 
-            this._option.offsetX = (this.ctx.canvasWidth - this._option.widthImg) / 2;
-            this._option.offsetY = (this.ctx.canvasHeight - this._option.heightImg) / 2;
+    //         this._option.offsetX = (this.ctx.canvasWidth - this._option.widthImg) / 2;
+    //         this._option.offsetY = (this.ctx.canvasHeight - this._option.heightImg) / 2;
 
-            this._option.origin = [(this.ctx.canvasWidth / 2), (this.ctx.canvasHeight / 2)];
-        } else if (this._option.mode === 'original') {
-            const box = this.image.getBoundingRect();
-            this._option.widthImg = box.width * this.group.scale[0];
-            this._option.heightImg = box.height * this.group.scale[0];
+    //         this._option.origin = [(this.ctx.canvasWidth / 2), (this.ctx.canvasHeight / 2)];
+    //     } else if (this._option.mode === 'original') {
+    //         const box = this.image.getBoundingRect();
+    //         this._option.widthImg = box.width * this.group.scale[0];
+    //         this._option.heightImg = box.height * this.group.scale[0];
 
-            this._option.origin = [(this.ctx.canvasWidth / 2), (this.ctx.canvasHeight / 2)];
-        }
-        return this._option.origin;
-    }
+    //         this._option.origin = [(this.ctx.canvasWidth / 2), (this.ctx.canvasHeight / 2)];
+    //     }
+    //     return this._option.origin;
+    // }
     getCenter() {
         return this._reSetCenter();
     }
     _getOffset() {
         const origin = this.getOrigin();
+        let scale = this.getScale();
 
         if (this._option.mode === 'auto' || this._option.mode === 'auto-rotate') {
             return [0, 0];
         } else {
-            let x = -origin[0] * this._option.scale + origin[0];
-            let y = -origin[1] * this._option.scale + origin[1];
+            let x = -origin[0] * scale + origin[0];
+            let y = -origin[1] * scale + origin[1];
 
             return [-x, -y];
         }
@@ -513,182 +502,182 @@ export default class BImage extends Init {
             return [offset[0] + this._option.offsetM, offset[1] + this._option.offsetN];
         }
     }
-    rotate(degree) {
-        this.setDrawingMode('hander');
+    // rotate(degree) {
+    //     this.setDrawingMode('hander');
 
-        //正值代表逆时针旋转，负值代表顺时针旋转
-        const oldScale = this.group.scale[0];
+    //     //正值代表逆时针旋转，负值代表顺时针旋转
+    //     const oldScale = this.group.scale[0];
 
-        //等于0拖拽会发生飘移，所以设定0.003度，无限接近于0
-        const zero = 0.003 / 180 * Math.PI;
+    //     //等于0拖拽会发生飘移，所以设定0.003度，无限接近于0
+    //     const zero = 0.003 / 180 * Math.PI;
 
-        if (degree === 0) {
-            // this._option.rotateTime = 0;
-            this.group.attr({
-                rotation: zero,
-                position: this._reSetPosition(),
-                origin: this.getOrigin()
-            });
+    //     if (degree === 0) {
+    //         // this._option.rotateTime = 0;
+    //         this.group.attr({
+    //             rotation: zero,
+    //             position: this._reSetPosition(),
+    //             origin: this.getOrigin()
+    //         });
 
-            if (this._option.rotateMouse) {
-                this._option.rotateMouse.attr({
-                    rotation: zero,
-                    position: this._reSetPosition(),
-                    origin: this.getOrigin()
-                });
-            }
+    //         if (this._option.rotateMouse) {
+    //             this._option.rotateMouse.attr({
+    //                 rotation: zero,
+    //                 position: this._reSetPosition(),
+    //                 origin: this.getOrigin()
+    //             });
+    //         }
 
-            this._option.rotate = {
-                radians: 0,
-                degrees: 0
-            };
-            return;
-        }
+    //         this._option.rotate = {
+    //             radians: 0,
+    //             degrees: 0
+    //         };
+    //         return;
+    //     }
 
-        let degreePi = degree / 180 * Math.PI;
+    //     let degreePi = degree / 180 * Math.PI;
 
-        let result;
-        let oldDegree = this._option.rotate.degrees;
-        let oldDegreePi = this._option.rotate.radians;
+    //     let result;
+    //     let oldDegree = this._option.rotate.degrees;
+    //     let oldDegreePi = this._option.rotate.radians;
 
-        oldDegree -= degree;
-        oldDegreePi -= degreePi;
+    //     oldDegree -= degree;
+    //     oldDegreePi -= degreePi;
 
-        if (oldDegree === 0) {
-            radian_out = 0;
-            result = zero;
-        } else {
-            let dg = oldDegree;
-            let ra = oldDegreePi;
+    //     if (oldDegree === 0) {
+    //         radian_out = 0;
+    //         result = zero;
+    //     } else {
+    //         let dg = oldDegree;
+    //         let ra = oldDegreePi;
 
-            if (Math.abs(dg) >= 360 || Math.abs(degree_out - degree) >= 360) {
-                count++;
-            }
+    //         if (Math.abs(dg) >= 360 || Math.abs(degree_out - degree) >= 360) {
+    //             count++;
+    //         }
 
-            if (degree > 0) {
-                degree_out = remainder + dg + (count * 360);
-                radian_out = remainder_h + ra + (count * (360 / 180 * Math.PI));
-            } else {
-                degree_out = remainder + dg - (count * 360);
-                radian_out = remainder_h + ra - (count * (360 / 180 * Math.PI));
-            }
+    //         if (degree > 0) {
+    //             degree_out = remainder + dg + (count * 360);
+    //             radian_out = remainder_h + ra + (count * (360 / 180 * Math.PI));
+    //         } else {
+    //             degree_out = remainder + dg - (count * 360);
+    //             radian_out = remainder_h + ra - (count * (360 / 180 * Math.PI));
+    //         }
 
 
-            if (degree_out % degree != 0 && count === 1) {
-                remainder = degree_out;
-                remainder_h = radian_out;
-            }
+    //         if (degree_out % degree != 0 && count === 1) {
+    //             remainder = degree_out;
+    //             remainder_h = radian_out;
+    //         }
 
-            result = radian_out;
+    //         result = radian_out;
 
-            if (radian_out === 0) {
-                result = zero;
-            }
+    //         if (radian_out === 0) {
+    //             result = zero;
+    //         }
 
-            count = 0;
-        }
+    //         count = 0;
+    //     }
 
-        this.group.attr({
-            rotation: result,
-            position: this._reSetPosition(),
-            origin: this.getOrigin()
-        });
+    //     this.group.attr({
+    //         rotation: result,
+    //         position: this._reSetPosition(),
+    //         origin: this.getOrigin()
+    //     });
 
-        this._option.rotate = {
-            radians: this.group.rotation === zero ? 0 : this.group.rotation,
-            degrees: (this.group.rotation === zero ? 0 : this.group.rotation) / Math.PI * 180
-        };
+    //     this._option.rotate = {
+    //         radians: this.group.rotation === zero ? 0 : this.group.rotation,
+    //         degrees: (this.group.rotation === zero ? 0 : this.group.rotation) / Math.PI * 180
+    //     };
 
-        this._onRotate && this._onRotate(this.getRotate());
-        this.handlers['_onRotate'] && this.handlers['_onRotate'][0](this.getRotate());
-    }
-    _limitAttributes(newAttrs) {
-        const box = this.image.getBoundingRect();
+    //     this._onRotate && this._onRotate(this.getRotate());
+    //     this.handlers['_onRotate'] && this.handlers['_onRotate'][0](this.getRotate());
+    // }
+    // _limitAttributes(newAttrs) {
+    //     const box = this.image.getBoundingRect();
 
-        const minX = -box.width + this.ctx.canvasWidth / 2;
-        const maxX = this.ctx.canvasWidth / 2;
+    //     const minX = -box.width + this.ctx.canvasWidth / 2;
+    //     const maxX = this.ctx.canvasWidth / 2;
 
-        const x = Math.max(minX, Math.min(newAttrs.x, maxX));
+    //     const x = Math.max(minX, Math.min(newAttrs.x, maxX));
 
-        const minY = -box.height + this.ctx.canvasHeight / 2;
-        const maxY = this.ctx.canvasHeight / 2;
+    //     const minY = -box.height + this.ctx.canvasHeight / 2;
+    //     const maxY = this.ctx.canvasHeight / 2;
 
-        const y = Math.max(minY, Math.min(newAttrs.y, maxY));
+    //     const y = Math.max(minY, Math.min(newAttrs.y, maxY));
 
-        const scale = Math.max(0.05, newAttrs.scale);
+    //     const scale = Math.max(0.05, newAttrs.scale);
 
-        return { x, y, scale };
-    }
-    zoomIn(times = 1.109) {
-        // zoomOut取0.8,zoomIn取1.25，执行出错，先放大再缩小，拖动图片会触发无限放大或缩小
-        this.zoomStage(times);
-    }
-    zoomOut(times = 0.9) {
-        this.zoomStage(times);
-    }
-    zoomStage(scaleBy) {
-        this.setDrawingMode('hander');
+    //     return { x, y, scale };
+    // }
+    // zoomIn(times = 1.109) {
+    //     // zoomOut取0.8,zoomIn取1.25，执行出错，先放大再缩小，拖动图片会触发无限放大或缩小
+    //     this.zoomStage(times);
+    // }
+    // zoomOut(times = 0.9) {
+    //     this.zoomStage(times);
+    // }
+    // zoomStage(scaleBy) {
+    //     this.setDrawingMode('hander');
 
-        const oldScale = this.group.scale[0];
-        const pos = {
-            x: this.ctx.canvasWidth / 2,
-            y: this.ctx.canvasHeight / 2
-        };
+    //     const oldScale = this.group.scale[0];
+    //     const pos = {
+    //         x: this.ctx.canvasWidth / 2,
+    //         y: this.ctx.canvasHeight / 2
+    //     };
 
-        const mousePointTo = {
-            x: pos.x / oldScale - this.group.position[0] / oldScale,
-            y: pos.y / oldScale - this.group.position[1] / oldScale
-        };
-        const newScale = Math.max(0.05, oldScale * scaleBy);
+    //     const mousePointTo = {
+    //         x: pos.x / oldScale - this.group.position[0] / oldScale,
+    //         y: pos.y / oldScale - this.group.position[1] / oldScale
+    //     };
+    //     const newScale = Math.max(0.05, oldScale * scaleBy);
 
-        const newPos = {
-            x: -(mousePointTo.x - pos.x / newScale) * newScale,
-            y: -(mousePointTo.y - pos.y / newScale) * newScale
-        };
+    //     const newPos = {
+    //         x: -(mousePointTo.x - pos.x / newScale) * newScale,
+    //         y: -(mousePointTo.y - pos.y / newScale) * newScale
+    //     };
 
-        const newAttrs = this._limitAttributes({ ...newPos, scale: newScale });
+    //     const newAttrs = this._limitAttributes({ ...newPos, scale: newScale });
 
-        this.group.attr({
-            position: [0, 0],
-            scale: [newAttrs.scale, newAttrs.scale],
-            origin: this.getOrigin(),
-        });
+    //     this.group.attr({
+    //         position: [0, 0],
+    //         scale: [newAttrs.scale, newAttrs.scale],
+    //         origin: this.getOrigin(),
+    //     });
 
-        let d = this.group.getLocalTransform();
+    //     let d = this.group.getLocalTransform();
 
-        this._option.offsetM = d[4];
-        this._option.offsetN = d[5];
+    //     this._option.offsetM = d[4];
+    //     this._option.offsetN = d[5];
 
-        this._option.scale = newAttrs.scale;
+    //     this._option.scale = newAttrs.scale;
 
-        return this;
-    }
-    zoomSlider(scale) {
-        this.setDrawingMode('hander');
+    //     return this;
+    // }
+    // zoomSlider(scale) {
+    //     this.setDrawingMode('hander');
 
-        if (scale === 1) {
-            // 先放大再还原到100%比例，拖动图片会触发无限放大或缩小
-            this.group.attr({
-                scale: [1.001, 1.001],
-                origin: this.getOrigin()
-            });
-        } else {
-            this.group.attr({
-                position: [0, 0],
-                scale: [scale, scale],
-                origin: this.getOrigin()
-            });
-        }
+    //     if (scale === 1) {
+    //         // 先放大再还原到100%比例，拖动图片会触发无限放大或缩小
+    //         this.group.attr({
+    //             scale: [1.001, 1.001],
+    //             origin: this.getOrigin()
+    //         });
+    //     } else {
+    //         this.group.attr({
+    //             position: [0, 0],
+    //             scale: [scale, scale],
+    //             origin: this.getOrigin()
+    //         });
+    //     }
 
-        let d = this.group.getLocalTransform();
+    //     let d = this.group.getLocalTransform();
 
-        this._option.offsetM = d[4];
-        this._option.offsetN = d[5];
+    //     this._option.offsetM = d[4];
+    //     this._option.offsetN = d[5];
 
-        this._option.scale = scale;
+    //     this._option.scale = scale;
 
-        return this;
-    }
+    //     return this;
+    // }
     getOffCanvas() {
         // 获取离屏canvas
         return this.zr.painter.getRenderedCanvas({
@@ -697,54 +686,6 @@ export default class BImage extends Init {
     }
     getType() {
         return this.zr.painter.getType();
-    }
-    removeSub(item) {
-        this.setDrawingMode('hander');
-
-        // 实例方法
-        this._option.polygonOverlay && this._option.polygonOverlay.removeSub(item);
-        this._option.RecOverlay && this._option.RecOverlay.removeSub(item);
-
-        this._option.exportData.forEach((sub, index) => {
-            if (sub.id === item.id) {
-                this._option.exportData.splice(index, 1);
-            }
-        });
-    }
-    removeAnnotation() {
-        this.setDrawingMode('hander');
-
-        // 实例方法
-        this._option.polygonOverlay && this._option.polygonOverlay.removeAnnotation();
-        this._option.RecOverlay && this._option.RecOverlay.removeAnnotation();
-
-        this._option.exportData.forEach((item, index) => {
-            if (item.id === this._option.removeItem.data.id) {
-                this._option.exportData.splice(index, 1);
-            }
-        });
-
-        return this._option.removeItem;
-    }
-    removeAll() {
-        this.setDrawingMode('hander');
-        // 实例方法
-        this._option.polygonOverlay && this._option.polygonOverlay.removeAll();
-        this._option.RecOverlay && this._option.RecOverlay.removeAll();
-    }
-    selected(item, options = {}) {
-        if (item.type === 'Rectangle') {
-            this._option.RecOverlay && this._option.RecOverlay.selected(item, options);
-        } else if (item.type === 'Polygon') {
-            this._option.polygonOverlay && this._option.polygonOverlay.selected(item, options);
-        }
-    }
-    setPosition(item) {
-        if (item.type === 'Rectangle') {
-            this._option.RecOverlay && this._option.RecOverlay.setPosition(item);
-        } else if (item.type === 'Polygon') {
-            this._option.polygonOverlay && this._option.polygonOverlay.setPosition(item);
-        }
     }
     _convertImageToCanvas(img) {
         let canvas = document.createElement('canvas');

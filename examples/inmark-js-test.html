@@ -324,26 +324,14 @@ function initImage() {
     image = new inMark.Image({
         id: imgId,
         mode: 'original', //original or auto
-        imgUrl: resPath
+        imgUrl: resPath,
+        event: {
+            onLoadComplete: loadComplete,
+            onImageDrag: imageDrag,
+            onImageDragEnd: onImageDragEnd_image,
+        }
     });
-
-    // 事件监听
-    image.addEventListener('onLoadComplete', function(e) {
-        console.log('onLoadComplete')
-
-        //获得ZImage实例
-        ZImage = image.getImage();
-        initRect(markNoteList);
-
-        $('.loading').hide();
-    });
-    image.addEventListener('onImageDrag', function(e) {
-        console.log(e)
-    });
-    image.addEventListener('onImageDragEnd', function(e) {
-        console.log(e)
-    });
-
+// initRect(markNoteList);
     zr = image.getZrender();
     group = image.getGroup();
 
@@ -373,19 +361,20 @@ function initImage() {
     })
 }
 
-// function loadComplete() {
-//     //获得ZImage实例
-//     ZImage = image.getImage();
+function loadComplete() {
+    //获得ZImage实例
+    ZImage = image.getImage();
 
-//     initRect(markNoteList);
-
-//     $('.loading').hide();
-// }
+    initRect(markNoteList);
+    $('.loading').hide();
+}
 
 // 画矩形
 function initRect(data) {
     // return;
     rect = new inMark.Rect({
+        id:imgId,
+        mode: 'original',
         data: data,
         isOpen: false,
         style: {
@@ -405,50 +394,20 @@ function initRect(data) {
                 lineDash: [0, 0],
                 strokeNoScale: true
             }
+        },
+        event: {
+            onCreate: onCreate,
+            onImageDrag: onImageDrag,
+            onImageDragEnd: onImageDragEnd,
+            onCreateComplete: onCreateComplete,
+            onRectDrag: onRectDrag,
+            onRectDragComplete: onRectDragComplete,
+            onEditNodeDrag: onEditNodeDrag,
+            onEditNodeDragComplete: onEditNodeDragComplete,
+            onSelected: onSelected,
+            onHover: onHover,
+            unSelect: unSelect
         }
-    });
-    // 事件监听
-    rect.addEventListener('onCreate', function(e, obj) {
-        console.log(e, obj)
-    });
-    rect.addEventListener('onCreateComplete', function(e, obj) {
-        console.log(e, obj)
-    });
-    rect.addEventListener('onRectDrag', function(e, obj) {
-        console.log(e, obj)
-    });
-    rect.addEventListener('onRectDragComplete', function(e, obj) {
-        console.log(e, obj)
-    });
-    rect.addEventListener('onEditNodeDrag', function(e, obj) {
-        console.log(e, obj)
-    });
-    rect.addEventListener('onEditNodeDragComplete', function(e, obj) {
-        console.log(e, obj)
-
-        markNoteList.forEach(item => {
-            if (item.id === obj.id) {
-                item.coordinates = obj.coordinates;
-            }
-        })
-    });
-    rect.addEventListener('onSelected', function(e, data) {
-        console.log(e, data)
-    });
-    rect.addEventListener('onHover', function(e, data) {
-        rect && rect.selected(data, {
-            fill: 'rgba(49, 117, 247,.8)',
-            stroke: '#3175f7',
-            lineWidth: 1,
-            lineDash: [0, 0],
-            strokeNoScale: true
-        });
-    });
-    rect.addEventListener('onImageDrag', function(e) {
-        console.log(e)
-    });
-    rect.addEventListener('onImageDragEnd', function(e) {
-        console.log(e)
     });
     // rect.setData(s);
 
@@ -475,6 +434,59 @@ function setData() {
     rect && rect.setData(markNoteList);
 }
 
+function imageDrag(e) {
+    // console.log(e)
+}
+
+function onImageDrag(e) {
+    // console.log(e)
+}
+
+function onImageDragEnd(e) {
+    // console.log(e)
+}
+
+function onImageDragEnd_image(e) {
+    console.log(e)
+}
+
+function onCreate(e, obj) {
+    // console.log('create', e, obj)
+}
+
+function onCreateComplete(e, obj) {}
+
+function onRectDrag(e, obj) {
+    // console.log('拖动',e,obj)
+}
+
+function onRectDragComplete(e, obj) {}
+
+function onEditNodeDrag(e, obj) {
+    // console.log('编辑', e, obj)
+}
+
+function onEditNodeDragComplete(e, obj) {
+    markNoteList.forEach(item => {
+        if (item.id === obj.id) {
+            item.coordinates = obj.coordinates;
+        }
+    })
+}
+
+function onSelected(e, data) {}
+
+function onHover(e, data) {
+    rect && rect.selected(data, {
+        fill: 'rgba(49, 117, 247,.8)',
+        stroke: '#3175f7',
+        lineWidth: 1,
+        lineDash: [0, 0],
+        strokeNoScale: true
+    });
+}
+
+function unSelect(e, data) {}
 
 //重置拖拽
 function reset() {
@@ -488,7 +500,7 @@ function startDrag() {
     reset();
 
     if (image) {
-        rect.setDrag(true);
+        image.setDrag(true);
     }
 }
 
@@ -527,13 +539,13 @@ function resetRotate() {
 }
 
 function startZoomIn() {
-    rect && rect.close();
-    rect.zoomIn();
+    image && image.close();
+    image.zoomIn();
 }
 
 function startZoomOut() {
-    rect && rect.close();
-    rect.zoomOut();
+    image && image.close();
+    image.zoomOut();
 }
 
 function startDeleteCurrent() {
@@ -561,6 +573,7 @@ function startDeleteAll() {
 }
 
 function deleteSub(item) {
+    console.log(item)
     rect && rect.removeSub(item);
 }
 

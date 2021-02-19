@@ -6,7 +6,7 @@ import {
 
 import TextConfig from '../config/TextConfig.js';
 import Image from './Image.js';
-import Init from './Init.js';
+import AbstractRender from './AbstractRender.js';
 
 let TextOption, image, group;
 

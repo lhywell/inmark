@@ -1,7 +1,7 @@
 // rollup编译入口
 import '@babel/polyfill'
 
-import Init from './overlay/Init.js';
+import AbstractRender from './overlay/AbstractRender.js';
 import Image from './overlay/Image.js';
 import Rect from './overlay/Rectangle.js';
 import Polygon from './overlay/Polygon.js';
@@ -22,7 +22,7 @@ console.log(`inMark v${version}`);
 const inMark = {
     version,
     utils,
-    Init,
+    AbstractRender,
     Image,
     Rect,
     Polygon,
@@ -31,7 +31,7 @@ const inMark = {
 export {
     version,
     utils,
-    Init,
+    AbstractRender,
     Image,
     Rect,
     Polygon,

@@ -360,9 +360,10 @@ function initImage() {
 }
 
 function loadComplete() {
+    console.log(111)
     //获得ZImage实例
     ZImage = image.getImage();
-
+console.log(ZImage,markNoteList)
     initRect(markNoteList);
 
     $('.loading').hide();
