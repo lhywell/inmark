@@ -26,7 +26,7 @@ export default class TextOverlay extends AbstractRender {
         //是否开启绘制模式
         this._option = {};
 
-        let mode = this.getMode();
+        let mode = this.getRenderMode();
         this._option.mode = mode || 'auto';
 
         this._option.isOpen = opts.isOpen || false;

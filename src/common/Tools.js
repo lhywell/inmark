@@ -12,49 +12,8 @@ export default class Tools {
         window.INMARK_DRAWING_RECTANGLE = 'rectangle'; // 鼠标画矩形模式
         window.INMARK_DRAWING_POLYGON = 'polygon'; // 鼠标画多边形模式
     }
-    open() {
-        //开启绘制模式
-        this._option.isOpen = true;
-
-        this.resetAllStyle();
-
-        this.setDrawingMode(window.INMARK_DRAWING_RECTANGLE);
-
-        this._bindEvent();
-
-        this.setEdit(true);
-
-        this.group.eachChild((item) => {
-            if (item.data.type === 'IMAGE') {
-                item.attr({
-                    'cursor': 'crosshair'
-                });
-            }
-        });
-        // if (this._option.currentShape && this._option.currentShape.position) {
-        //     this.setSelectedStyle(this._option.currentShape);
-        // }
-    }
-    close() {
-        //关闭绘制模式
-        this._option.isOpen = false;
-
-        this.setEdit(false);
-
-        this.group.eachChild((item) => {
-            if (item.data.type === 'IMAGE') {
-                item.attr({
-                    'cursor': 'default'
-                });
-            }
-        });
-
-        if (this._option.drawingType === 'hander') {
-            return;
-        }
-
-        this.setDrawingMode('hander');
-    }
+    open() {}
+    close() {}
     setEdit(blean) {}
     setDrawingMode(drawingType) {
         this._setDrawingMode(drawingType);
@@ -62,7 +21,7 @@ export default class Tools {
     _setDrawingMode(drawingType) {
         this.setDrag(false);
 
-        this._option.drawingType = drawingType;
+        Tools.prototype.drawingType = drawingType;
 
         this.saveInstance(drawingType);
     }
@@ -70,11 +29,9 @@ export default class Tools {
         switch (drawingType) {
             case window.INMARK_DRAWING_POLYGON:
                 Tools.prototype.polygonOverlay = this;
-                this._bindPolylineOrPolygon();
                 break;
             case window.INMARK_DRAWING_RECTANGLE:
                 Tools.prototype.recOverlay = this;
-                this._bindRectangle();
                 break;
             case 'hander':
                 Tools.prototype.polygonOverlay && Tools.prototype.polygonOverlay.resetShapeStyle();
@@ -86,10 +43,8 @@ export default class Tools {
                 break;
         }
     }
-    _bindPolylineOrPolygon() {}
-    _bindRectangle() {}
     getDrawingMode() {
-        return this._option.drawingType;
+        return Tools.prototype.drawingType;
     }
     resetAllStyle() {
         Tools.prototype.polygonOverlay && Tools.prototype.polygonOverlay.resetShapeStyle();
@@ -104,7 +59,7 @@ export default class Tools {
         if (Tools.prototype.recOverlay) {
             Tools.prototype.recOverlay._option.draggable = bol;
         }
-        
+
         //解决window平台下，设置false,框还可以移动bug
         this.group && this.group.eachChild(item => {
             if (item.data.type === 'IMAGE') {
@@ -352,8 +307,6 @@ export default class Tools {
         });
     }
     removeAnnotation() {
-        this.setDrawingMode('hander');
-
         // 实例方法
         Tools.prototype.polygonOverlay && Tools.prototype.polygonOverlay.removeAnnotation();
         Tools.prototype.recOverlay && Tools.prototype.recOverlay.removeAnnotation();
@@ -364,13 +317,16 @@ export default class Tools {
             }
         });
 
+        this.setDrawingMode('hander');
+
         return this._option.removeItem;
     }
     removeAll() {
-        this.setDrawingMode('hander');
         // 实例方法
         Tools.prototype.polygonOverlay && Tools.prototype.polygonOverlay.removeAll();
         Tools.prototype.recOverlay && Tools.prototype.recOverlay.removeAll();
+
+        this.setDrawingMode('hander');
     }
     selected(item, options = {}) {
         if (item.type === 'Rectangle') {

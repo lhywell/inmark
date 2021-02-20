@@ -30,7 +30,7 @@ export default class BImage extends AbstractRender {
             this._option.imgUrl = opts && opts.imgUrl;
 
             let mode = opts && opts.mode || 'auto';
-            this.setMode(mode);
+            this.setRenderMode(mode);
 
             if (mode === 'auto') {
                 this._option.offsetX = 0; //auto模式图片等比例缩放后在画布中横轴位移

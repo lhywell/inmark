@@ -66,10 +66,22 @@ export default class AbstractRender extends Tools {
     _zrDBClick() {}
     setData() {}
     getData() {}
-    setMode(mode) {
+    setRenderMode(mode) {
         AbstractRender.prototype.mode = mode;
     }
-    getMode() {
+    getRenderMode() {
+        return AbstractRender.prototype.mode;
+    }
+    setSelectedSub(selectedSub) {
+        AbstractRender.prototype.selectedSub = selectedSub;
+    }
+    getSelectedSub() {
+        return AbstractRender.prototype.selectedSub;
+    }
+    setRenderMode(mode) {
+        AbstractRender.prototype.mode = mode;
+    }
+    getRenderMode() {
         return AbstractRender.prototype.mode;
     }
     addEventListener(type, handler) {

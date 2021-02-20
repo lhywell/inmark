@@ -24,7 +24,7 @@ export default class RectOverlay extends AbstractRender {
         this.type = 'RECTANGLE';
         this._option = {};
 
-        let mode = this.getMode();
+        let mode = this.getRenderMode();
         this._option.mode = mode || 'auto';
 
         this._option.draggable = false;
@@ -121,49 +121,46 @@ export default class RectOverlay extends AbstractRender {
             new Error('请传入数组类型');
         }
     }
-    // open() {
-    //     //开启绘制模式
-    //     this._option.isOpen = true;
+    open() {
+        //开启绘制模式
+        this._option.isOpen = true;
 
-    //     this.resetAllStyle();
+        this.resetAllStyle();
 
-    //     this.setDrawingMode(window.INMARK_DRAWING_RECTANGLE);
+        this.setDrawingMode(window.INMARK_DRAWING_RECTANGLE);
 
-    //     this._bindEvent();
+        this._bindEvent();
 
-    //     this.setEdit(true);
+        this.setEdit(true);
 
-    //     this.group.eachChild((item) => {
-    //         if (item.data.type === 'IMAGE') {
-    //             item.attr({
-    //                 'cursor': 'crosshair'
-    //             });
-    //         }
-    //     });
-    //     // if (this._option.currentShape && this._option.currentShape.position) {
-    //     //     this.setSelectedStyle(this._option.currentShape);
-    //     // }
-    // }
-    // close() {
-    //     //关闭绘制模式
-    //     this._option.isOpen = false;
+        this.group.eachChild((item) => {
+            if (item.data.type === 'IMAGE') {
+                item.attr({
+                    'cursor': 'crosshair'
+                });
+            }
+        });
+    }
+    close() {
+        //关闭绘制模式
+        this._option.isOpen = false;
 
-    //     this.setEdit(false);
+        this.setEdit(false);
 
-    //     this.group.eachChild((item) => {
-    //         if (item.data.type === 'IMAGE') {
-    //             item.attr({
-    //                 'cursor': 'default'
-    //             });
-    //         }
-    //     });
+        this.group.eachChild((item) => {
+            if (item.data.type === 'IMAGE') {
+                item.attr({
+                    'cursor': 'default'
+                });
+            }
+        });
 
-    //     if (this._option.drawingType === 'hander') {
-    //         return;
-    //     }
+        if (this.getDrawingMode() === 'hander') {
+            return;
+        }
 
-    //     this.setDrawingMode('hander');
-    // }
+        this.setDrawingMode('hander');
+    }
     setEdit(blean) {
         if (blean) {
             //初始化显示编辑
@@ -232,7 +229,7 @@ export default class RectOverlay extends AbstractRender {
     _zrMouseDown(e) {
         //e.which鼠标左键，禁止鼠标右键创建框
         // 创建框
-        if (e.which === 1 && e.target && e.target.data.type === 'IMAGE' && this._option.isOpen && this._option.drawingType === window.INMARK_DRAWING_RECTANGLE) {
+        if (e.which === 1 && e.target && e.target.data.type === 'IMAGE' && this._option.isOpen && this.getDrawingMode() === window.INMARK_DRAWING_RECTANGLE) {
             //图形左上角坐标
             this.resetShapeStyle();
             this._startPoint = this._getDrawPoint(e);
@@ -274,7 +271,7 @@ export default class RectOverlay extends AbstractRender {
 
             if (xLong < this._createLimit && yLong < this._createLimit) {
                 this._canDrawShape = false;
-                this.selectedSub = null;
+                this.setSelectedSub(null);
 
                 return;
             }
@@ -351,7 +348,7 @@ export default class RectOverlay extends AbstractRender {
                     coordinates: points
                 });
 
-                this.selectedSub = e.target;
+                this.setSelectedSub(e.target);
 
                 this._onCreateComplete && this._onCreateComplete(e, {
                     ...data,
@@ -785,7 +782,7 @@ export default class RectOverlay extends AbstractRender {
                 this.tempShape = e.target;
                 // console.log(this._option.currentShape, JSON.stringify(this._option.currentShape.shape.points))
 
-                this.selectedSub = shape;
+                this.setSelectedSub(shape);
 
                 this.resetAllStyle();
 
@@ -848,7 +845,8 @@ export default class RectOverlay extends AbstractRender {
             }
             //开启编辑，选中某个框
             // console.log('shap-mouseup', this._option.currentShape, this._option.isOpen, this.selectedSub, this.tempShape.id, this._option.currentShape.id)
-            if (this._option.isOpen && this.selectedSub && e.which === 1) {
+            let sub = this.getSelectedSub();
+            if (this._option.isOpen && sub && e.which === 1) {
                 this._startPoint = [];
 
                 this._option.currentShape.bound && this._option.currentShape.bound.eachChild(item => {
@@ -891,7 +889,7 @@ export default class RectOverlay extends AbstractRender {
 
         this._createEditGroup(points, shape);
 
-        this.selectedSub = shape;
+        this.setSelectedSub(shape);
 
         this._areaShapes.push(shape);
         this.graphic.add(shape);
@@ -1252,10 +1250,11 @@ export default class RectOverlay extends AbstractRender {
      * @return {Object} 删除的对象
      */
     removeAnnotation() {
-        if (this.selectedSub) {
+        let sub = this.getSelectedSub();
+        if (sub) {
             let obj;
             this._areaShapes.forEach((item, index) => {
-                if (item.data.id === this.selectedSub.data.id) {
+                if (item.data.id === sub.data.id) {
                     obj = item;
                     this._areaShapes.splice(index, 1);
                 }
@@ -1263,8 +1262,8 @@ export default class RectOverlay extends AbstractRender {
             if (obj) {
                 this.graphic.remove(obj.bound);
                 obj.bound = null;
-                this.graphic.remove(this.selectedSub);
-                this.selectedSub = null;
+                this.graphic.remove(sub);
+                this.setSelectedSub(null);
             }
 
             this._option.removeItem = obj;

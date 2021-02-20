@@ -20,7 +20,7 @@ export default class Polygon extends AbstractRender {
 
         this._option = {};
 
-        let mode = this.getMode();
+        let mode = this.getRenderMode();
         this._option.mode = mode || 'auto';
 
         this._option.draggable = false;
@@ -153,7 +153,7 @@ export default class Polygon extends AbstractRender {
             }
         });
 
-        if (this._option.drawingType === 'hander') {
+        if (this.getDrawingMode() === 'hander') {
             return;
         }
 
@@ -227,7 +227,7 @@ export default class Polygon extends AbstractRender {
     }
     _zrMouseDown(e) {
         // debugger;
-        if (e.which === 1 && e.target && this._option.isOpen && this._option.drawingType === window.INMARK_DRAWING_POLYGON) {
+        if (e.which === 1 && e.target && this._option.isOpen && this.getDrawingMode() === window.INMARK_DRAWING_POLYGON) {
             //创建多边形第一个点
             if (this.creatCount !== 0 && this._isMouseDown === true) {
                 this.creatCount++;
@@ -335,7 +335,7 @@ export default class Polygon extends AbstractRender {
                     coordinates: points
                 });
 
-                this.selectedSub = e.target;
+                this.setSelectedSub(e.target);
 
                 this._onCreateComplete && this._onCreateComplete(e, {
                     ...data,
@@ -777,7 +777,7 @@ export default class Polygon extends AbstractRender {
         });
 
         shape.on('mousedown', (e) => {
-            if (this.getDrawingMode() !== 'polygon') {
+            if (this.getDrawingMode() === 'rectangle') {
                 return;
             }
             // OCRMARK-149右键移动已标注的框，在原位置重新标注，新标注框与之前移动过的标注框重合，出现飞框情况
@@ -792,7 +792,7 @@ export default class Polygon extends AbstractRender {
                 this._option.currentShape = e.target;
                 this.tempShape = e.target;
 
-                this.selectedSub = shape;
+                this.setSelectedSub(shape);
                 this.resetAllStyle();
 
                 this.setSelectedStyle(e.target);
@@ -820,7 +820,8 @@ export default class Polygon extends AbstractRender {
                 return;
             }
             //开启编辑，选中某个框
-            if (this._option.isOpen && this.selectedSub && e.which === 1) {
+            let sub = this.getSelectedSub();
+            if (this._option.isOpen && sub && e.which === 1) {
 
                 this._option.currentShape.bound && this._option.currentShape.bound.eachChild(item => {
                     item.show();
@@ -845,7 +846,7 @@ export default class Polygon extends AbstractRender {
 
         this._createEditGroup(points, shape);
 
-        this.selectedSub = shape;
+        this.setSelectedSub(shape);
 
         this._areaShapes.push(shape);
         this.graphic.add(shape);
@@ -1064,10 +1065,11 @@ export default class Polygon extends AbstractRender {
      * @return {Object} 删除的对象
      */
     removeAnnotation() {
-        if (this.selectedSub) {
+        let sub = this.getSelectedSub();
+        if (sub) {
             let obj;
             this._areaShapes.forEach((item, index) => {
-                if (item.data.id === this.selectedSub.data.id) {
+                if (item.data.id === sub.data.id) {
                     obj = item;
                     this._areaShapes.splice(index, 1);
                 }
@@ -1075,8 +1077,8 @@ export default class Polygon extends AbstractRender {
             if (obj) {
                 this.graphic.remove(obj.bound);
                 obj.bound = null;
-                this.graphic.remove(this.selectedSub);
-                this.selectedSub = null;
+                this.graphic.remove(sub);
+                this.setSelectedSub(null);
             }
 
             this._option.removeItem = obj;
