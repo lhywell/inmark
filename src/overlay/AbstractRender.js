@@ -10,19 +10,12 @@ export default class AbstractRender extends Tools {
      */
     constructor(opts) {
         super();
-        let zr = this.getZrender();
-        if (!zr) {
+        if (opts) {
             this.setZrender(opts.id)
 
-            // console.log('初始化', opts)
             this._option = opts;
-
-            this.setGroup();
-
-            this.zr.add(this.group);
         } else {
             this.zr = this.getZrender();
-            this.group = this.getGroup();
         }
         //屏蔽浏览器的右击事件
         this.zr.dom.oncontextmenu = function() {
@@ -158,8 +151,10 @@ export default class AbstractRender extends Tools {
     }
     // get,set方法
     setZrender(id) {
-        this.zr = zrender.init(document.getElementById(id));
-        AbstractRender.prototype.zr = this.zr;
+        if (id) {
+            this.zr = zrender.init(document.getElementById(id));
+            AbstractRender.prototype.zr = this.zr;
+        }
     }
     getZrender() {
         return AbstractRender.prototype.zr;

@@ -69,8 +69,7 @@ export default class BImage extends AbstractRender {
 
         this.type = 'IMAGE';
         this.image = null;
-        this.group = AbstractRender.prototype.group;
-
+        // this.group = null;
         this._editWidth = EditRect.shape.width;
 
         // 回调函数
@@ -93,8 +92,10 @@ export default class BImage extends AbstractRender {
         if (!url) {
             return;
         }
+        // 创建组
+        this.setGroup();
+
         //加载图片
-        // this.setGroup();
         let img = new Image();
         img.setAttribute('crossorigin', 'anonymous');
         img.src = url;
@@ -252,8 +253,11 @@ export default class BImage extends AbstractRender {
             // this.image.setAttribute('data-name', 'sssss');
 
             this.setImage(image);
-
+            this.group = this.getGroup();
             this.group.add(image);
+
+            // zrender渲染group
+            this.zr.add(this.group);
 
             this.image.on('drag', (e) => {
                 this._onImageDrag && this._onImageDrag(e);

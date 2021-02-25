@@ -16,7 +16,7 @@ export default class RectOverlay extends AbstractRender {
      * @param {Object} opts
      */
     constructor(opts) {
-        super(opts);
+        super();
 
         this.group = this.getGroup();
         this.image = this.getImage();
