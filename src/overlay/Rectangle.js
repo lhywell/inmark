@@ -504,7 +504,7 @@ export default class RectOverlay extends AbstractRender {
 
         let offsetM = this.getOffsetM();
         let offsetN = this.getOffsetN();
-        // console.log('m', m, bgDragX, bgDragY, points, this._option.offsetM, this._option.offsetN)
+        // console.log('m', m, bgDragX, bgDragY, points, offsetM, offsetN)
         points.forEach(item => {
             let x;
             if (m) {
