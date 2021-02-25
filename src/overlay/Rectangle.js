@@ -8,45 +8,29 @@ import Image from './Image.js';
 import AbstractRender from './AbstractRender.js';
 import Tools from '../common/Tools';
 
-/**
- * @constructor
- * @extends module:RectOverlay
- * @param {Object} args
- * @param {Object} opts
- */
+
 export default class RectOverlay extends AbstractRender {
+    /**
+     * @constructor
+     * @extends module:RectOverlay
+     * @param {Object} opts
+     */
     constructor(opts) {
         super(opts);
 
-        this.group = AbstractRender.prototype.group;
-        this.image = AbstractRender.prototype.image;
+        this.group = this.getGroup();
+        this.image = this.getImage();
 
         this.type = 'RECTANGLE';
-        this._option = {};
+        
+        this._option = this.getOption();
 
         let mode = this.getRenderMode();
         this._option.mode = mode || 'auto';
 
-        this._option.draggable = false;
         this._option.currentShape = null;
 
-        if (this._option.mode === 'auto') {
-            this._option.offsetX = 0; //auto模式图片等比例缩放后在画布中横轴位移
-            this._option.offsetY = 0; //auto模式图片等比例缩放后在画布中纵轴位移
-            this._option.setRate = 0; //auto模式图片的缩放比例
-        } else if (this._option.mode === 'auto-rotate') {
-            this._option.offsetX = 0; //auto模式图片等比例缩放后在画布中横轴位移
-            this._option.offsetY = 0; //auto模式图片等比例缩放后在画布中纵轴位移
-            this._option.setRate = 0; //auto模式图片的缩放比例
-        } else {
-            //original模式，1:1展示图片
-            this._option.setRate = 1;
-
-            this._option.offsetX = 0;
-            this._option.offsetY = 0;
-        }
-
-        //是否开启绘制模式
+        // //是否开启绘制模式
         this._option.isOpen = opts.isOpen || false;
 
         this._option.exportData = [];
@@ -188,30 +172,6 @@ export default class RectOverlay extends AbstractRender {
             });
         }
     }
-    // addEventListener(type, handler) {
-    //     let x = '_' + type;
-    //     if (typeof this.handlers[x] == 'undefined') {
-    //         this.handlers[x] = [];
-    //     }
-
-    //     this.handlers[x].push(handler); //将要触发的函数压入事件函数命名的数组中
-    // }
-    // //事件解绑
-    // removeEventListener(type, handler) {
-    //     let x = '_' + type;
-    //     if (!this.handlers[x]) return;
-    //     var handlers = this.handlers[x];
-    //     if (handler == undefined) {
-    //         handlers.length = 0; //不传某个具体函数时，解绑所有
-    //     } else if (handlers.length) {
-    //         for (var i = 0; i < handlers.length; i++) {
-    //             if (handlers[i] == handler) {
-    //                 //解绑单个
-    //                 this.handlers[x].splice(i, 1);
-    //             }
-    //         }
-    //     }
-    // }
     _createGraphicGroup(points, shape) {
         //创建编辑图形
         let group = new zrender.Group();
@@ -413,6 +373,7 @@ export default class RectOverlay extends AbstractRender {
                 if (item.type === 'Rectangle') {
 
                     if (typeof item.coordinates === 'object') {
+
                         const points = this._calculateToRelationpix(item.coordinates);
 
                         const shape = this._createShape(points, item);

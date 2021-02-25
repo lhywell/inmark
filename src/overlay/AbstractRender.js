@@ -1,28 +1,27 @@
 import zrender from 'zrender';
 import { merge } from '../common/utils.js';
 import Tools from '../common/Tools';
-import Option from './Option';
-// let zr;
-let option = new Option();
-/**
- * @constructor
- * @param {Object} opts
- */
+
+
 export default class AbstractRender extends Tools {
+    /**
+     * @constructor
+     * @param {Object} opts
+     */
     constructor(opts) {
         super();
-        if (!option.zr) {
-            this.zr = zrender.init(document.getElementById(opts.id));
-            // zr = this.zr;
-            option.zr = this.zr;
+        let zr = this.getZrender();
+        if (!zr) {
+            this.setZrender(opts.id)
 
             // console.log('初始化', opts)
             this._option = opts;
 
             this.setGroup();
+
             this.zr.add(this.group);
         } else {
-            this.zr = option.zr;
+            this.zr = this.getZrender();
             this.group = this.getGroup();
         }
         //屏蔽浏览器的右击事件
@@ -41,7 +40,20 @@ export default class AbstractRender extends Tools {
         this.handlers = {}; //存储事件的对象
 
         this.image = null;
+
+        this.tools = new Tools();
     }
+
+    // 抽象方法，需要子类实现
+    _zrClick() {}
+    _zrMouseMove() {}
+    _zrMouseDown() {}
+    _zrMouseUp() {}
+    _zrDBClick() {}
+    setData() {}
+    getData() {}
+
+    // 非抽象方法
     _bindEvent() {
         this.zr.on('click', this._zrClick, this);
         this.zr.on('mousemove', this._zrMouseMove, this);
@@ -58,31 +70,6 @@ export default class AbstractRender extends Tools {
             this.zr.off('mouseup', this._zrMouseUp);
             this.zr.off('dblclick', this._zrDBClick);
         }
-    }
-    _zrClick() {}
-    _zrMouseMove() {}
-    _zrMouseDown() {}
-    _zrMouseUp() {}
-    _zrDBClick() {}
-    setData() {}
-    getData() {}
-    setRenderMode(mode) {
-        AbstractRender.prototype.mode = mode;
-    }
-    getRenderMode() {
-        return AbstractRender.prototype.mode;
-    }
-    setSelectedSub(selectedSub) {
-        AbstractRender.prototype.selectedSub = selectedSub;
-    }
-    getSelectedSub() {
-        return AbstractRender.prototype.selectedSub;
-    }
-    setRenderMode(mode) {
-        AbstractRender.prototype.mode = mode;
-    }
-    getRenderMode() {
-        return AbstractRender.prototype.mode;
     }
     addEventListener(type, handler) {
         let x = '_' + type;
@@ -106,19 +93,6 @@ export default class AbstractRender extends Tools {
                 }
             }
         }
-    }
-    getZrender() {
-        return this.zr;
-    }
-    getImage() {
-        return this.image;
-    }
-    setGroup() {
-        this.group = new zrender.Group();
-        AbstractRender.prototype.group = this.group;
-    }
-    getGroup() {
-        return AbstractRender.prototype.group;
     }
     _toGlobal(points, shape) {
         let newPoints = zrender.util.clone(points);
@@ -182,4 +156,50 @@ export default class AbstractRender extends Tools {
         this.zr && this.zr.dispose();
         this.reset();
     }
+    // get,set方法
+    setZrender(id) {
+        this.zr = zrender.init(document.getElementById(id));
+        AbstractRender.prototype.zr = this.zr;
+    }
+    getZrender() {
+        return AbstractRender.prototype.zr;
+    }
+    setRenderMode(mode) {
+        AbstractRender.prototype.mode = mode;
+    }
+    getRenderMode() {
+        return AbstractRender.prototype.mode;
+    }
+    setGroup() {
+        this.group = new zrender.Group();
+        AbstractRender.prototype.group = this.group;
+    }
+    getGroup() {
+        return AbstractRender.prototype.group;
+    }
+    setImage(image) {
+        AbstractRender.prototype.image = image;
+    }
+    getImage() {
+        return AbstractRender.prototype.image;
+    }
+    setSelectedSub(selectedSub) {
+        AbstractRender.prototype.selectedSub = selectedSub;
+    }
+    getSelectedSub() {
+        return AbstractRender.prototype.selectedSub;
+    }
+    setDragPosition(dragPosition) {
+        AbstractRender.prototype.dragPosition = dragPosition;
+    }
+    getDragPosition() {
+        return AbstractRender.prototype.dragPosition;
+    }
+    setOption(option) {
+        AbstractRender.prototype.option = option;
+    }
+    getOption() {
+        return AbstractRender.prototype.option;
+    }
+
 }

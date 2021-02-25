@@ -3,44 +3,27 @@ import { merge } from '../common/utils.js';
 import PolygonRect from '../config/PolygonRect.js';
 import EditRect from '../config/EditRect.js';
 import AbstractRender from './AbstractRender.js';
-/**
- * @constructor
- * @extends module:PolygonOverlay
- * @param {Object} args
- * @param {Object} opts
- */
+
 export default class Polygon extends AbstractRender {
+    /**
+     * @constructor
+     * @extends module:PolygonOverlay
+     * @param {Object} opts
+     */
     constructor(opts) {
         super(opts);
 
-        this.group = AbstractRender.prototype.group;
-        this.image = AbstractRender.prototype.image;
+        this.group = this.getGroup();
+        this.image = this.getImage();
 
         this.type = 'POLYGON';
 
-        this._option = {};
+        this._option = this.getOption();
 
         let mode = this.getRenderMode();
         this._option.mode = mode || 'auto';
 
-        this._option.draggable = false;
         this._option.currentShape = null;
-
-        if (this._option.mode === 'auto') {
-            this._option.offsetX = 0; //auto模式图片等比例缩放后在画布中横轴位移
-            this._option.offsetY = 0; //auto模式图片等比例缩放后在画布中纵轴位移
-            this._option.setRate = 0; //auto模式图片的缩放比例
-        } else if (this._option.mode === 'auto-rotate') {
-            this._option.offsetX = 0; //auto模式图片等比例缩放后在画布中横轴位移
-            this._option.offsetY = 0; //auto模式图片等比例缩放后在画布中纵轴位移
-            this._option.setRate = 0; //auto模式图片的缩放比例
-        } else {
-            //original模式，1:1展示图片
-            this._option.setRate = 1;
-
-            this._option.offsetX = 0;
-            this._option.offsetY = 0;
-        }
 
         //是否开启绘制模式
         this._option.isOpen = opts.isOpen || false;

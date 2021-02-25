@@ -5,12 +5,6 @@ import ImageConfig from '../config/ImageConfig.js';
 import EditRect from '../config/EditRect.js';
 import AbstractRender from './AbstractRender';
 
-// let image, group;
-// let count = 0;
-// let degree_out = 0,
-//     radian_out = 0,
-//     remainder = 0, //余数
-//     remainder_h = 0; //余数弧度
 /**
  * @constructor
  * @param {Object} opts
@@ -85,57 +79,28 @@ export default class BImage extends AbstractRender {
         this._onLoadComplete = opts && opts.event && opts.event.onLoadComplete;
         this._onRotate = opts && opts.event && opts.event.onRotate;
 
-        this.tools = new Tools(this._option, this.type);
-
         this.initialize();
+        this.setOption(this._option);
     }
     initialize() {
         this.renderImg(this.imgUrl);
     }
-    getImage() {
-        return this.image;
-    }
-    // setDrag(bol) {
-    //     this._option.draggable = bol;
-    //     // console.log(this.group, this.group.children())
-
-    //     //解决window平台下，设置false,框还可以移动bug
-    //     this.group && this.group.eachChild(item => {
-    //         if (item.data.type === 'IMAGE') {
-    //             item.attr({
-    //                 'draggable': bol,
-    //                 'cursor': 'pointer'
-    //             });
-    //         }
-    //     });
-    // }
-    // getDrag() {
-    //     return this._option.draggable;
-    // }
     /**
      * @description 在画布中渲染图片
      * @params {Array} url 支持http,https图片路径
      */
-    // setGroup() {
-    //     //加载图片
-    //     let group = new zrender.Group();
-    //     this.group = group;
-
-    //     AbstractRender.prototype.group = group;
-    //     // this._option.group = group;
-    // }
     renderImg(url) {
         if (!url) {
             return;
         }
         //加载图片
         // this.setGroup();
-
         let img = new Image();
         img.setAttribute('crossorigin', 'anonymous');
         img.src = url;
         img.onload = () => {
-            if (this._option.mode === 'auto') {
+            let mode = this.getRenderMode();
+            if (mode === 'auto') {
                 //auto模式图片自动适应屏幕大小
                 const xRate = this.ctx.canvasWidth / img.width;
                 const yRate = this.ctx.canvasHeight / img.height;
@@ -148,7 +113,7 @@ export default class BImage extends AbstractRender {
                 this._option.heightImg = img.height * this._option.setRate;
                 this._option.offsetX = (this.ctx.canvasWidth - this._option.widthImg) / 2;
                 this._option.offsetY = (this.ctx.canvasHeight - this._option.heightImg) / 2;
-            } else if (this._option.mode === 'auto-rotate') {
+            } else if (mode === 'auto-rotate') {
                 //auto-rotate，旋转模式，增加中心点参考线
 
                 //auto模式图片自动适应屏幕大小
@@ -285,7 +250,8 @@ export default class BImage extends AbstractRender {
 
             this.image = image;
             // this.image.setAttribute('data-name', 'sssss');
-            AbstractRender.prototype.image = image;
+
+            this.setImage(image);
 
             this.group.add(image);
 
@@ -308,46 +274,9 @@ export default class BImage extends AbstractRender {
         };
 
     }
-    // saveInstance(drawingType) {
-    //     switch (drawingType) {
-    //         case window.INMARK_DRAWING_POLYGON:
-    //             this._option.polygonOverlay = this;
-    //             this._bindPolylineOrPolygon();
-    //             break;
-    //         case window.INMARK_DRAWING_RECTANGLE:
-    //             this._option.RecOverlay = this;
-    //             this._bindRectangle();
-    //             break;
-    //         case 'hander':
-    //             this._option.polygonOverlay && this._option.polygonOverlay.resetShapeStyle();
-    //             this._option.polygonOverlay && this._option.polygonOverlay.close();
-    //             this._option.RecOverlay && this._option.RecOverlay.resetShapeStyle();
-    //             this._option.RecOverlay && this._option.RecOverlay.close();
-
-    //             this.setDrag(true);
-    //             break;
-    //     }
-    // }
-    // resetAllStyle() {
-    //     this._option.polygonOverlay && this._option.polygonOverlay.resetShapeStyle();
-    //     this._option.RecOverlay && this._option.RecOverlay.resetShapeStyle();
-    // }
     getData() {
         return this._option.exportData;
     }
-    // setDrawingMode(drawingType) {
-    //     this._setDrawingMode(drawingType);
-    // }
-    // _setDrawingMode(drawingType) {
-    //     this.setDrag(false);
-
-    //     this._option.drawingType = drawingType;
-
-    //     this.saveInstance(drawingType);
-    // }
-    // getDrawingMode() {
-    //     return this._option.drawingType;
-    // }
     _zrClick() {}
     _zrMouseMove(e) {
         // e.target确保在画布内
@@ -430,7 +359,8 @@ export default class BImage extends AbstractRender {
     }
     _zrMouseDown(e) {}
     _zrMouseUp(e) {
-        if (this._option.mode === 'auto-rotate') {
+        let mode = this.getRenderMode();
+        if (mode === 'auto-rotate') {
             this.image.attr({
                 cursor: 'default'
             });
@@ -451,359 +381,7 @@ export default class BImage extends AbstractRender {
 
         return this._option.center;
     }
-    getRotate() {
-        //返回弧度制，角度制
-        return this._option.rotate;
-    }
-    resetRotate() {
-        this.rotate(0);
-    }
-    // getOrigin() {
-    //     if (this._option.mode === 'auto' || this._option.mode === 'auto-rotate') {
-    //         this._option.widthImg = this._option.widthImg * this.group.scale[0];
-    //         this._option.heightImg = this._option.heightImg * this.group.scale[0];
-
-    //         this._option.offsetX = (this.ctx.canvasWidth - this._option.widthImg) / 2;
-    //         this._option.offsetY = (this.ctx.canvasHeight - this._option.heightImg) / 2;
-
-    //         this._option.origin = [(this.ctx.canvasWidth / 2), (this.ctx.canvasHeight / 2)];
-    //     } else if (this._option.mode === 'original') {
-    //         const box = this.image.getBoundingRect();
-    //         this._option.widthImg = box.width * this.group.scale[0];
-    //         this._option.heightImg = box.height * this.group.scale[0];
-
-    //         this._option.origin = [(this.ctx.canvasWidth / 2), (this.ctx.canvasHeight / 2)];
-    //     }
-    //     return this._option.origin;
-    // }
     getCenter() {
         return this._reSetCenter();
-    }
-    _getOffset() {
-        const origin = this.getOrigin();
-        let scale = this.getScale();
-
-        if (this._option.mode === 'auto' || this._option.mode === 'auto-rotate') {
-            return [0, 0];
-        } else {
-            let x = -origin[0] * scale + origin[0];
-            let y = -origin[1] * scale + origin[1];
-
-            return [-x, -y];
-        }
-    }
-    _reSetPosition() {
-        const offset = this._getOffset();
-
-        if (this._option.mode === 'auto' || this._option.mode === 'auto-rotate') {
-            return offset;
-        } else {
-            return [offset[0] + this._option.offsetM, offset[1] + this._option.offsetN];
-        }
-    }
-    // rotate(degree) {
-    //     this.setDrawingMode('hander');
-
-    //     //正值代表逆时针旋转，负值代表顺时针旋转
-    //     const oldScale = this.group.scale[0];
-
-    //     //等于0拖拽会发生飘移，所以设定0.003度，无限接近于0
-    //     const zero = 0.003 / 180 * Math.PI;
-
-    //     if (degree === 0) {
-    //         // this._option.rotateTime = 0;
-    //         this.group.attr({
-    //             rotation: zero,
-    //             position: this._reSetPosition(),
-    //             origin: this.getOrigin()
-    //         });
-
-    //         if (this._option.rotateMouse) {
-    //             this._option.rotateMouse.attr({
-    //                 rotation: zero,
-    //                 position: this._reSetPosition(),
-    //                 origin: this.getOrigin()
-    //             });
-    //         }
-
-    //         this._option.rotate = {
-    //             radians: 0,
-    //             degrees: 0
-    //         };
-    //         return;
-    //     }
-
-    //     let degreePi = degree / 180 * Math.PI;
-
-    //     let result;
-    //     let oldDegree = this._option.rotate.degrees;
-    //     let oldDegreePi = this._option.rotate.radians;
-
-    //     oldDegree -= degree;
-    //     oldDegreePi -= degreePi;
-
-    //     if (oldDegree === 0) {
-    //         radian_out = 0;
-    //         result = zero;
-    //     } else {
-    //         let dg = oldDegree;
-    //         let ra = oldDegreePi;
-
-    //         if (Math.abs(dg) >= 360 || Math.abs(degree_out - degree) >= 360) {
-    //             count++;
-    //         }
-
-    //         if (degree > 0) {
-    //             degree_out = remainder + dg + (count * 360);
-    //             radian_out = remainder_h + ra + (count * (360 / 180 * Math.PI));
-    //         } else {
-    //             degree_out = remainder + dg - (count * 360);
-    //             radian_out = remainder_h + ra - (count * (360 / 180 * Math.PI));
-    //         }
-
-
-    //         if (degree_out % degree != 0 && count === 1) {
-    //             remainder = degree_out;
-    //             remainder_h = radian_out;
-    //         }
-
-    //         result = radian_out;
-
-    //         if (radian_out === 0) {
-    //             result = zero;
-    //         }
-
-    //         count = 0;
-    //     }
-
-    //     this.group.attr({
-    //         rotation: result,
-    //         position: this._reSetPosition(),
-    //         origin: this.getOrigin()
-    //     });
-
-    //     this._option.rotate = {
-    //         radians: this.group.rotation === zero ? 0 : this.group.rotation,
-    //         degrees: (this.group.rotation === zero ? 0 : this.group.rotation) / Math.PI * 180
-    //     };
-
-    //     this._onRotate && this._onRotate(this.getRotate());
-    //     this.handlers['_onRotate'] && this.handlers['_onRotate'][0](this.getRotate());
-    // }
-    // _limitAttributes(newAttrs) {
-    //     const box = this.image.getBoundingRect();
-
-    //     const minX = -box.width + this.ctx.canvasWidth / 2;
-    //     const maxX = this.ctx.canvasWidth / 2;
-
-    //     const x = Math.max(minX, Math.min(newAttrs.x, maxX));
-
-    //     const minY = -box.height + this.ctx.canvasHeight / 2;
-    //     const maxY = this.ctx.canvasHeight / 2;
-
-    //     const y = Math.max(minY, Math.min(newAttrs.y, maxY));
-
-    //     const scale = Math.max(0.05, newAttrs.scale);
-
-    //     return { x, y, scale };
-    // }
-    // zoomIn(times = 1.109) {
-    //     // zoomOut取0.8,zoomIn取1.25，执行出错，先放大再缩小，拖动图片会触发无限放大或缩小
-    //     this.zoomStage(times);
-    // }
-    // zoomOut(times = 0.9) {
-    //     this.zoomStage(times);
-    // }
-    // zoomStage(scaleBy) {
-    //     this.setDrawingMode('hander');
-
-    //     const oldScale = this.group.scale[0];
-    //     const pos = {
-    //         x: this.ctx.canvasWidth / 2,
-    //         y: this.ctx.canvasHeight / 2
-    //     };
-
-    //     const mousePointTo = {
-    //         x: pos.x / oldScale - this.group.position[0] / oldScale,
-    //         y: pos.y / oldScale - this.group.position[1] / oldScale
-    //     };
-    //     const newScale = Math.max(0.05, oldScale * scaleBy);
-
-    //     const newPos = {
-    //         x: -(mousePointTo.x - pos.x / newScale) * newScale,
-    //         y: -(mousePointTo.y - pos.y / newScale) * newScale
-    //     };
-
-    //     const newAttrs = this._limitAttributes({ ...newPos, scale: newScale });
-
-    //     this.group.attr({
-    //         position: [0, 0],
-    //         scale: [newAttrs.scale, newAttrs.scale],
-    //         origin: this.getOrigin(),
-    //     });
-
-    //     let d = this.group.getLocalTransform();
-
-    //     this._option.offsetM = d[4];
-    //     this._option.offsetN = d[5];
-
-    //     this._option.scale = newAttrs.scale;
-
-    //     return this;
-    // }
-    // zoomSlider(scale) {
-    //     this.setDrawingMode('hander');
-
-    //     if (scale === 1) {
-    //         // 先放大再还原到100%比例，拖动图片会触发无限放大或缩小
-    //         this.group.attr({
-    //             scale: [1.001, 1.001],
-    //             origin: this.getOrigin()
-    //         });
-    //     } else {
-    //         this.group.attr({
-    //             position: [0, 0],
-    //             scale: [scale, scale],
-    //             origin: this.getOrigin()
-    //         });
-    //     }
-
-    //     let d = this.group.getLocalTransform();
-
-    //     this._option.offsetM = d[4];
-    //     this._option.offsetN = d[5];
-
-    //     this._option.scale = scale;
-
-    //     return this;
-    // }
-    getOffCanvas() {
-        // 获取离屏canvas
-        return this.zr.painter.getRenderedCanvas({
-            backgroundColor: '#fff'
-        });
-    }
-    getType() {
-        return this.zr.painter.getType();
-    }
-    _convertImageToCanvas(img) {
-        let canvas = document.createElement('canvas');
-        canvas.width = 1000;
-        canvas.height = 1000;
-
-        let ctx = canvas.getContext('2d');
-        let rectCenterPoint = { x: this._option.widthImg / 2, y: this._option.heightImg / 2 };
-
-        let degree = this._option.rotate.degrees;
-        // canvas修改后的宽高
-        canvas.width = 6000;
-        canvas.height = 6000;
-
-        ctx.rect(0, 0, 6000, 6000);
-
-        ctx.fillStyle = 'rgba(255, 255, 255, 1)';
-        // ctx.globalAlpha = 0;
-        ctx.fill();
-        ctx.strokeStyle = 'green';
-        ctx.strokeRect(0, 0, 6000, 6000);
-
-        // 以中心点旋转角度
-        ctx.translate(rectCenterPoint.x, rectCenterPoint.y);
-        ctx.rotate(-this._option.rotate.radians);
-
-        ctx.translate(-rectCenterPoint.x, -rectCenterPoint.y);
-
-        if (degree >= 0 && degree < 90) {
-            ctx.drawImage(img, 0, -this._option.heightImg);
-        } else if (degree >= 90 && degree < 180) {
-            ctx.drawImage(img, -this._option.widthImg, -this._option.heightImg);
-        } else if (degree >= 180 && degree < 270) {
-            ctx.drawImage(img, -this._option.widthImg, 0);
-        } else if (degree >= 270 && degree < 360) {
-            ctx.drawImage(img, -this._option.widthImg, 0);
-        }
-        // ctx.drawImage(img, 0, 0, this._option.widthImg, this._option.heightImg);
-
-        return canvas;
-    }
-    exportOut() {
-        let img = new Image();
-        img.setAttribute('crossorigin', 'anonymous');
-        img.src = this._option.imgUrl;
-        img.width = this._option.widthImg;
-        img.height = this._option.heightImg;
-        img.style.background = '#fff';
-
-        img.onload = () => {
-            let canvas = this._convertImageToCanvas(img);
-            let imgUrl = canvas.toDataURL('image/jpeg');
-            this.exportImages(imgUrl);
-        };
-    }
-    base64ToBlob(code) {
-        let parts = code.split(';base64,');
-        let contentType = parts[0].split(':')[1];
-
-        let raw = window.atob(parts[1]);
-        let rawLength = raw.length;
-
-        let uInt8Array = new Uint8Array(rawLength);
-
-        for (let i = 0; i < rawLength; ++i) {
-            uInt8Array[i] = raw.charCodeAt(i);
-        }
-        return new Blob([uInt8Array], { type: contentType });
-    }
-    exportImages(datas) {
-        let aLink = document.createElement('a');
-        let blob = this.base64ToBlob(datas);
-
-        let evt = document.createEvent('HTMLEvents');
-        evt.initEvent('click', true, true);
-        aLink.download =
-            'test' + '.jpg';
-        aLink.href = URL.createObjectURL(blob);
-        aLink.dispatchEvent(
-            new MouseEvent('click', {
-                bubbles: true,
-                cancelable: true,
-                view: window
-            })
-        );
-    }
-    exportSimple() {
-        this.zr.painter.getRenderedCanvas({
-            backgroundColor: '#fff'
-        }).toBlob((blob) => {
-            let url = window.URL.createObjectURL(blob);
-            window.open(url);
-        }, 'image/png');
-    }
-    export () {
-        //离屏渲染导出
-        //https://github.com/ecomfe/zrender/issues/363
-        let { x, y, width, height } = this.group.getBoundingRect();
-        let zr = zrender.init(document.createElement('div'), {
-            width,
-            height
-        });
-        let group = new zrender.Group();
-        group.position = [0 - x, 0 - y];
-
-        this.group.eachChild((child) => {
-            // 此处会堆栈溢出, 目前解决办法是用原始数据重新创建新的shape, 再加入到新group中
-            // var _child = zrender.util.clone(child);
-            group.add(child);
-        });
-
-        zr.add(group);
-        zr.refreshImmediately();
-
-        return zr.painter.getRenderedCanvas({
-            backgroundColor: '#fff'
-        }).toBlob((blob) => {
-            let url = window.URL.createObjectURL(blob);
-            window.open(url);
-        }, 'image/png');
     }
 }
