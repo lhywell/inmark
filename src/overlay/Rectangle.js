@@ -669,7 +669,7 @@ export default class RectOverlay extends AbstractRender {
 
         });
         shape.on('mouseover', (e) => {
-            if (this.getDrawingMode() !== 'rectangle') {
+            if (this.getDrawingMode() === 'polygon') {
                 return;
             }
             if (this._option.isOpen) {
@@ -714,7 +714,7 @@ export default class RectOverlay extends AbstractRender {
             });
         });
         shape.on('mouseout', (e) => {
-            if (this.getDrawingMode() !== 'rectangle') {
+            if (this.getDrawingMode() === 'polygon') {
                 return;
             }
             if (this._option.isOpen) {

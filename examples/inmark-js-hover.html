@@ -14,7 +14,6 @@
     }
 
     #app {
-
         width: 100%;
         height: 100%;
         background-color: #fff;
@@ -331,7 +330,7 @@ function initImage() {
             onImageDragEnd: onImageDragEnd_image,
         }
     });
-// initRect(markNoteList);
+    // initRect(markNoteList);
     zr = image.getZrender();
     group = image.getGroup();
 
@@ -373,13 +372,11 @@ function loadComplete() {
 function initRect(data) {
     // return;
     rect = new inMark.Rect({
-        id:imgId,
-        mode: 'original',
         data: data,
         isOpen: false,
         style: {
             default: {
-                fill: 'rgba(49, 117, 247,.5)',
+                fill: 'rgba(49, 117, 247,0.2)',
                 stroke: '#3175f7',
                 // stroke: '#FFA200',
                 lineWidth: 1,
@@ -477,13 +474,7 @@ function onEditNodeDragComplete(e, obj) {
 function onSelected(e, data) {}
 
 function onHover(e, data) {
-    rect && rect.selected(data, {
-        fill: 'rgba(49, 117, 247,.8)',
-        stroke: '#3175f7',
-        lineWidth: 1,
-        lineDash: [0, 0],
-        strokeNoScale: true
-    });
+    rect && rect.selected(data);
 }
 
 function unSelect(e, data) {}
