@@ -231,7 +231,7 @@ export default class BImage extends AbstractRender {
             // this._option.offsetY = 0
             let image = new zrender.Image({
                 style: {
-                    image: url,
+                    image: img,
                     x: this._option.offsetX,
                     y: this._option.offsetY,
                     width: this._option.widthImg,
