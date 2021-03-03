@@ -50,31 +50,38 @@ export default class Tools {
     zoomStage(scaleBy) {
         this.setDrawingMode('hander');
 
-        const oldScale = this.group.scale[0];
+        // const oldScale = this.group.scale[0];
 
-        const pos = {
-            x: this.ctx.canvasWidth / 2,
-            y: this.ctx.canvasHeight / 2
-        };
+        // const pos = {
+        //     x: this.ctx.canvasWidth / 2,
+        //     y: this.ctx.canvasHeight / 2
+        // };
 
-        const mousePointTo = {
-            x: pos.x / oldScale - this.group.position[0] / oldScale,
-            y: pos.y / oldScale - this.group.position[1] / oldScale
-        };
-        const newScale = Math.max(0.05, oldScale * scaleBy);
+        // const mousePointTo = {
+        //     x: pos.x / oldScale - this.group.position[0] / oldScale,
+        //     y: pos.y / oldScale - this.group.position[1] / oldScale
+        // };
+        // const newScale = Math.max(0.05, oldScale * scaleBy);
 
-        const newPos = {
-            x: -(mousePointTo.x - pos.x / newScale) * newScale,
-            y: -(mousePointTo.y - pos.y / newScale) * newScale
-        };
+        // const newPos = {
+        //     x: -(mousePointTo.x - pos.x / newScale) * newScale,
+        //     y: -(mousePointTo.y - pos.y / newScale) * newScale
+        // };
+        // const newAttrs = this._limitAttributes({ ...newPos, scale: newScale });
 
-        const newAttrs = this._limitAttributes({ ...newPos, scale: newScale });
-
-        this.group.attr({
-            position: [0, 0],
-            scale: [newAttrs.scale, newAttrs.scale],
-            origin: this.getOrigin(),
-        });
+        if (scaleBy === 1) {
+            // 先放大再还原到100%比例，拖动图片会触发无限放大或缩小
+            this.group.attr({
+                scale: [1.001, 1.001],
+                origin: this.getOrigin()
+            });
+        } else {
+            this.group.attr({
+                position: [0, 0],
+                scale: [scaleBy, scaleBy],
+                origin: this.getOrigin(),
+            });
+        }
 
         let d = this.group.getLocalTransform();
         this.setOffsetM(d[4]);
