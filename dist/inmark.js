@@ -27009,59 +27009,6 @@
 		isArray: isArray$1
 	});
 
-	function _defineProperty(obj, key, value) {
-	  if (key in obj) {
-	    Object.defineProperty(obj, key, {
-	      value: value,
-	      enumerable: true,
-	      configurable: true,
-	      writable: true
-	    });
-	  } else {
-	    obj[key] = value;
-	  }
-
-	  return obj;
-	}
-
-	var defineProperty$1 = _defineProperty;
-
-	function ownKeys(object, enumerableOnly) {
-	  var keys = Object.keys(object);
-
-	  if (Object.getOwnPropertySymbols) {
-	    var symbols = Object.getOwnPropertySymbols(object);
-	    if (enumerableOnly) symbols = symbols.filter(function (sym) {
-	      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-	    });
-	    keys.push.apply(keys, symbols);
-	  }
-
-	  return keys;
-	}
-
-	function _objectSpread2(target) {
-	  for (var i = 1; i < arguments.length; i++) {
-	    var source = arguments[i] != null ? arguments[i] : {};
-
-	    if (i % 2) {
-	      ownKeys(Object(source), true).forEach(function (key) {
-	        defineProperty$1(target, key, source[key]);
-	      });
-	    } else if (Object.getOwnPropertyDescriptors) {
-	      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
-	    } else {
-	      ownKeys(Object(source)).forEach(function (key) {
-	        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-	      });
-	    }
-	  }
-
-	  return target;
-	}
-
-	var objectSpread2 = _objectSpread2;
-
 	var count = 0;
 	var degree_out = 0,
 	    radian_out = 0,
@@ -27132,38 +27079,43 @@
 	  }, {
 	    key: "zoomStage",
 	    value: function zoomStage(scaleBy) {
-	      this.setDrawingMode('hander');
-	      var oldScale = this.group.scale[0];
-	      var pos = {
-	        x: this.ctx.canvasWidth / 2,
-	        y: this.ctx.canvasHeight / 2
-	      };
-	      var mousePointTo = {
-	        x: pos.x / oldScale - this.group.position[0] / oldScale,
-	        y: pos.y / oldScale - this.group.position[1] / oldScale
-	      };
-	      var newScale = Math.max(0.05, oldScale * scaleBy);
-	      var newPos = {
-	        x: -(mousePointTo.x - pos.x / newScale) * newScale,
-	        y: -(mousePointTo.y - pos.y / newScale) * newScale
-	      };
+	      this.setDrawingMode('hander'); // const oldScale = this.group.scale[0];
+	      // const pos = {
+	      //     x: this.ctx.canvasWidth / 2,
+	      //     y: this.ctx.canvasHeight / 2
+	      // };
+	      // const mousePointTo = {
+	      //     x: pos.x / oldScale - this.group.position[0] / oldScale,
+	      //     y: pos.y / oldScale - this.group.position[1] / oldScale
+	      // };
+	      // const newScale = Math.max(0.05, oldScale * scaleBy);
+	      // const newPos = {
+	      //     x: -(mousePointTo.x - pos.x / newScale) * newScale,
+	      //     y: -(mousePointTo.y - pos.y / newScale) * newScale
+	      // };
+	      // const newAttrs = this._limitAttributes({ ...newPos, scale: newScale });
 
-	      var newAttrs = this._limitAttributes(objectSpread2(objectSpread2({}, newPos), {}, {
-	        scale: newScale
-	      }));
+	      if (scaleBy === 1) {
+	        // 先放大再还原到100%比例，拖动图片会触发无限放大或缩小
+	        this.group.attr({
+	          scale: [1.001, 1.001],
+	          origin: this.getOrigin()
+	        });
+	      } else {
+	        this.group.attr({
+	          position: [0, 0],
+	          scale: [scaleBy, scaleBy],
+	          origin: this.getOrigin()
+	        });
+	      }
 
-	      this.group.attr({
-	        position: [0, 0],
-	        scale: [newAttrs.scale, newAttrs.scale],
-	        origin: this.getOrigin()
-	      });
 	      var d = this.group.getLocalTransform();
 	      this.setOffsetM(d[4]);
 	      this.setOffsetN(d[5]); // this._option.offsetM = d[4];
 	      // this._option.offsetN = d[5];
 	      // this._option.scale = newAttrs.scale;
 
-	      this.setScale(newAttrs.scale);
+	      this.setScale(scaleBy);
 	      return this;
 	    }
 	  }, {
@@ -27931,6 +27883,59 @@
 	  return AbstractRender;
 	}(Tools);
 
+	function _defineProperty(obj, key, value) {
+	  if (key in obj) {
+	    Object.defineProperty(obj, key, {
+	      value: value,
+	      enumerable: true,
+	      configurable: true,
+	      writable: true
+	    });
+	  } else {
+	    obj[key] = value;
+	  }
+
+	  return obj;
+	}
+
+	var defineProperty$1 = _defineProperty;
+
+	function ownKeys(object, enumerableOnly) {
+	  var keys = Object.keys(object);
+
+	  if (Object.getOwnPropertySymbols) {
+	    var symbols = Object.getOwnPropertySymbols(object);
+	    if (enumerableOnly) symbols = symbols.filter(function (sym) {
+	      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+	    });
+	    keys.push.apply(keys, symbols);
+	  }
+
+	  return keys;
+	}
+
+	function _objectSpread2(target) {
+	  for (var i = 1; i < arguments.length; i++) {
+	    var source = arguments[i] != null ? arguments[i] : {};
+
+	    if (i % 2) {
+	      ownKeys(Object(source), true).forEach(function (key) {
+	        defineProperty$1(target, key, source[key]);
+	      });
+	    } else if (Object.getOwnPropertyDescriptors) {
+	      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+	    } else {
+	      ownKeys(Object(source)).forEach(function (key) {
+	        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+	      });
+	    }
+	  }
+
+	  return target;
+	}
+
+	var objectSpread2 = _objectSpread2;
+
 	/**
 	 * 默认image 默认
 	 */
@@ -28220,7 +28225,7 @@
 
 	        var image = new zrender$3.Image({
 	          style: {
-	            image: url,
+	            image: img,
 	            x: _this2._option.offsetX,
 	            y: _this2._option.offsetY,
 	            width: _this2._option.widthImg,
@@ -31495,7 +31500,7 @@
 
 	// rollup编译入口
 
-	var version$1 = "1.2.0";
+	var version$1 = "1.2.1";
 	console.log("inMark v".concat(version$1));
 	var inMark = {
 	  version: version$1,
