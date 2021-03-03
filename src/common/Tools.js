@@ -91,7 +91,7 @@ export default class Tools {
         // this._option.offsetN = d[5];
 
         // this._option.scale = newAttrs.scale;
-        this.setScale(newAttrs.scale);
+        this.setScale(scaleBy);
 
         return this;
     }
