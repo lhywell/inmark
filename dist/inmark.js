@@ -28023,13 +28023,13 @@
 	      } else {
 	        _this.setScale(1); //original模式图片的缩放比例
 
+
+	        _this.setOffsetM(0); //original模式画布中横轴位移
+
+
+	        _this.setOffsetN(0); //original模式画布中纵轴位移
+
 	      }
-
-	      _this.setOffsetM(0); //original模式画布中横轴位移
-
-
-	      _this.setOffsetN(0); //original模式画布中纵轴位移
-
 
 	      _this._option.widthImg = 0;
 	      _this._option.heightImg = 0;
@@ -31500,7 +31500,7 @@
 
 	// rollup编译入口
 
-	var version$1 = "1.2.1";
+	var version$1 = "1.2.2";
 	console.log("inMark v".concat(version$1));
 	var inMark = {
 	  version: version$1,
