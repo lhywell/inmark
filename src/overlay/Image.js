@@ -38,9 +38,10 @@ export default class BImage extends AbstractRender {
                 this._option.setRate = 0; //auto模式图片的缩放比例
             } else {
                 this.setScale(1); //original模式图片的缩放比例
+                this.setOffsetM(0); //original模式画布中横轴位移
+                this.setOffsetN(0); //original模式画布中纵轴位移
             }
-            this.setOffsetM(0); //original模式画布中横轴位移
-            this.setOffsetN(0); //original模式画布中纵轴位移
+
 
             this._option.widthImg = 0;
             this._option.heightImg = 0;
