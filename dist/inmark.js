@@ -28791,6 +28791,11 @@
 	      this.setMarkers(data);
 	      this.saveInstance(window.INMARK_DRAWING_RECTANGLE);
 	    }
+	  }, {
+	    key: "getData",
+	    value: function getData() {
+	      return this._option.exportData;
+	    }
 	    /**
 	     * @description 设置当前的图层的zlevel值,值相同的在同一个图层
 	     * @params {Number} index
@@ -29626,7 +29631,10 @@
 	      var _this9 = this;
 
 	      this.DIYStyle = style;
-	      this._styleConfig.selected = selectedStyle;
+
+	      if (selectedStyle) {
+	        this._styleConfig.selected = selectedStyle;
+	      }
 
 	      this._areaShapes.forEach(function (item) {
 	        if (item.data.type === 'Rectangle') {
@@ -30309,6 +30317,11 @@
 	      this.setMarkers(data);
 	      this.saveInstance(window.INMARK_DRAWING_POLYGON);
 	    }
+	  }, {
+	    key: "getData",
+	    value: function getData() {
+	      return this._option.exportData;
+	    }
 	    /**
 	     * @description 设置当前的图层的zlevel值,值相同的在同一个图层
 	     * @params {Number} index
@@ -30964,7 +30977,10 @@
 	      var _this9 = this;
 
 	      this.DIYStyle = style;
-	      this._styleConfig.selected = selectedStyle;
+
+	      if (selectedStyle) {
+	        this._styleConfig.selected = selectedStyle;
+	      }
 
 	      this._areaShapes.forEach(function (item) {
 	        if (item.data.type === 'POLYGON') {
@@ -31500,7 +31516,7 @@
 
 	// rollup编译入口
 
-	var version$1 = "1.2.2";
+	var version$1 = "1.2.3";
 	console.log("inMark v".concat(version$1));
 	var inMark = {
 	  version: version$1,
