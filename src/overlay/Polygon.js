@@ -391,6 +391,11 @@ export default class Polygon extends AbstractRender {
 
         this.saveInstance(window.INMARK_DRAWING_POLYGON);
     }
+
+    getData() {
+        return this._option.exportData;
+    }
+
     /**
      * @description 设置当前的图层的zlevel值,值相同的在同一个图层
      * @params {Number} index
@@ -1010,7 +1015,10 @@ export default class Polygon extends AbstractRender {
      */
     setOptionStyle(style, selectedStyle) {
         this.DIYStyle = style;
-        this._styleConfig.selected = selectedStyle;
+
+        if (selectedStyle) {
+            this._styleConfig.selected = selectedStyle;
+        }
         this._areaShapes.forEach(item => {
             if (item.data.type === 'POLYGON') {
                 item.attr({

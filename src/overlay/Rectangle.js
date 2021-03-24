@@ -22,7 +22,7 @@ export default class RectOverlay extends AbstractRender {
         this.image = this.getImage();
 
         this.type = 'RECTANGLE';
-        
+
         this._option = this.getOption();
 
         let mode = this.getRenderMode();
@@ -335,6 +335,10 @@ export default class RectOverlay extends AbstractRender {
         this.setMarkers(data);
 
         this.saveInstance(window.INMARK_DRAWING_RECTANGLE);
+    }
+
+    getData() {
+        return this._option.exportData;
     }
     /**
      * @description 设置当前的图层的zlevel值,值相同的在同一个图层
@@ -1173,7 +1177,9 @@ export default class RectOverlay extends AbstractRender {
      */
     setOptionStyle(style, selectedStyle) {
         this.DIYStyle = style;
-        this._styleConfig.selected = selectedStyle;
+        if (selectedStyle) {
+            this._styleConfig.selected = selectedStyle;
+        }
         this._areaShapes.forEach(item => {
             if (item.data.type === 'Rectangle') {
                 item.attr({
