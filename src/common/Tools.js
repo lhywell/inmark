@@ -10,6 +10,13 @@ export default class Tools {
          * 定义常量, 绘制的模式
          * @final {String} DrawingType
          */
+        times = 1;
+        count = 0;
+        degree_out = 0;
+        radian_out = 0;
+        remainder = 0;
+        remainder_h = 0;
+
         window.INMARK_DRAWING_RECTANGLE = 'rectangle'; // 鼠标画矩形模式
         window.INMARK_DRAWING_POLYGON = 'polygon'; // 鼠标画多边形模式
 
