@@ -94,7 +94,7 @@ export default class BImage extends AbstractRender {
             return;
         }
         // 创建组
-        this.setGroup();
+        this.setGroup(this._option.id);
 
         //加载图片
         let img = new Image();
@@ -254,7 +254,8 @@ export default class BImage extends AbstractRender {
             // this.image.setAttribute('data-name', 'sssss');
 
             this.setImage(image);
-            this.group = this.getGroup();
+
+            this.group = this.getGroup(this._option.id);
             this.group.add(image);
 
             // zrender渲染group

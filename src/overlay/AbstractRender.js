@@ -2,7 +2,7 @@ import zrender from 'zrender';
 import { merge } from '../common/utils.js';
 import Tools from '../common/Tools';
 
-
+let inMarkGroup = {};
 export default class AbstractRender extends Tools {
     /**
      * @constructor
@@ -14,6 +14,7 @@ export default class AbstractRender extends Tools {
             this.setZrender(opts.id)
 
             this._option = opts;
+
         } else {
             this.zr = this.getZrender();
         }
@@ -165,12 +166,12 @@ export default class AbstractRender extends Tools {
     getRenderMode() {
         return AbstractRender.prototype.mode;
     }
-    setGroup() {
-        this.group = new zrender.Group();
-        AbstractRender.prototype.group = this.group;
+    setGroup(id) {
+        let group = new zrender.Group();
+        inMarkGroup[id] = group;
     }
-    getGroup() {
-        return AbstractRender.prototype.group;
+    getGroup(id) {
+        return inMarkGroup[id];
     }
     setImage(image) {
         AbstractRender.prototype.image = image;

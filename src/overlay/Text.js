@@ -19,12 +19,12 @@ export default class TextOverlay extends AbstractRender {
     constructor(opts) {
         super();
 
-        this.group = this.getGroup();
-        this.image = this.getImage();
-
         this.type = 'TextOverlay';
         //是否开启绘制模式
         this._option = this.getOption();
+
+        this.group = this.getGroup(opts.id || this._option.id);
+        this.image = this.getImage();
 
         let mode = this.getRenderMode();
         this._option.mode = mode || 'auto';

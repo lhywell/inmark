@@ -18,12 +18,12 @@ export default class RectOverlay extends AbstractRender {
     constructor(opts) {
         super();
 
-        this.group = this.getGroup();
-        this.image = this.getImage();
-
         this.type = 'RECTANGLE';
 
         this._option = this.getOption();
+        
+        this.group = this.getGroup(opts.id || this._option.id);
+        this.image = this.getImage();
 
         let mode = this.getRenderMode();
         this._option.mode = mode || 'auto';
