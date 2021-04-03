@@ -2,7 +2,8 @@ let count = 0;
 let degree_out = 0,
     radian_out = 0,
     remainder = 0, //余数
-    remainder_h = 0; //余数弧度
+    remainder_h = 0, //余数弧度
+    times = 1;
 export default class Tools {
     constructor(opts, type) {
         /**
@@ -40,11 +41,13 @@ export default class Tools {
 
         return { x, y, scale };
     }
-    zoomIn(times = 1.109) {
+    zoomIn() {
+        times += 0.01;
         // zoomOut取0.8,zoomIn取1.25，执行出错，先放大再缩小，拖动图片会触发无限放大或缩小
         this.zoomStage(times);
     }
-    zoomOut(times = 0.9) {
+    zoomOut() {
+        times -= 0.01;
         this.zoomStage(times);
     }
     zoomStage(scaleBy) {
