@@ -3,6 +3,9 @@ import { merge } from '../common/utils.js';
 import Tools from '../common/Tools';
 
 let inMarkGroup = {};
+let inMarkMode = {};
+let inMarkImage = {};
+let inMarkSelectedSub = {};
 export default class AbstractRender extends Tools {
     /**
      * @constructor
@@ -14,7 +17,6 @@ export default class AbstractRender extends Tools {
             this.setZrender(opts.id)
 
             this._option = opts;
-
         } else {
             this.zr = this.getZrender();
         }
@@ -160,11 +162,11 @@ export default class AbstractRender extends Tools {
     getZrender() {
         return AbstractRender.prototype.zr;
     }
-    setRenderMode(mode) {
-        AbstractRender.prototype.mode = mode;
+    setRenderMode(id, mode) {
+        inMarkMode[id] = mode;
     }
-    getRenderMode() {
-        return AbstractRender.prototype.mode;
+    getRenderMode(id) {
+        return inMarkMode[id];
     }
     setGroup(id) {
         let group = new zrender.Group();
@@ -173,23 +175,18 @@ export default class AbstractRender extends Tools {
     getGroup(id) {
         return inMarkGroup[id];
     }
-    setImage(image) {
-        AbstractRender.prototype.image = image;
+    setImage(id, image) {
+        inMarkImage[id] = image;
     }
-    getImage() {
-        return AbstractRender.prototype.image;
+    getImage(id) {
+        // 注意：在loadComplete里执行
+        return inMarkImage[id];
     }
-    setSelectedSub(selectedSub) {
-        AbstractRender.prototype.selectedSub = selectedSub;
+    setSelectedSub(id, selectedSub) {
+        inMarkSelectedSub[id] = selectedSub;
     }
-    getSelectedSub() {
-        return AbstractRender.prototype.selectedSub;
-    }
-    setDragPosition(dragPosition) {
-        AbstractRender.prototype.dragPosition = dragPosition;
-    }
-    getDragPosition() {
-        return AbstractRender.prototype.dragPosition;
+    getSelectedSub(id) {
+        return inMarkSelectedSub[id];
     }
     setOption(option) {
         AbstractRender.prototype.option = option;

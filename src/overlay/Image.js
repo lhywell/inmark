@@ -24,7 +24,7 @@ export default class BImage extends AbstractRender {
             this._option.imgUrl = opts && opts.imgUrl;
 
             let mode = opts && opts.mode || 'auto';
-            this.setRenderMode(mode);
+            this.setRenderMode(opts.id, mode);
 
             if (mode === 'auto') {
                 this._option.offsetX = 0; //auto模式图片等比例缩放后在画布中横轴位移
@@ -101,7 +101,8 @@ export default class BImage extends AbstractRender {
         img.setAttribute('crossorigin', 'anonymous');
         img.src = url;
         img.onload = () => {
-            let mode = this.getRenderMode();
+            let mode = this.getRenderMode(this._option.id);
+            console.log(mode, 2)
             if (mode === 'auto') {
                 //auto模式图片自动适应屏幕大小
                 const xRate = this.ctx.canvasWidth / img.width;
@@ -253,7 +254,7 @@ export default class BImage extends AbstractRender {
             this.image = image;
             // this.image.setAttribute('data-name', 'sssss');
 
-            this.setImage(image);
+            this.setImage(this._option.id, image);
 
             this.group = this.getGroup(this._option.id);
             this.group.add(image);
@@ -365,7 +366,7 @@ export default class BImage extends AbstractRender {
     }
     _zrMouseDown(e) {}
     _zrMouseUp(e) {
-        let mode = this.getRenderMode();
+        let mode = this.getRenderMode(this._option.id);
         if (mode === 'auto-rotate') {
             this.image.attr({
                 cursor: 'default'

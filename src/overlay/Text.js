@@ -24,9 +24,9 @@ export default class TextOverlay extends AbstractRender {
         this._option = this.getOption();
 
         this.group = this.getGroup(opts.id || this._option.id);
-        this.image = this.getImage();
+        this.image = this.getImage(opts.id || this._option.id);
 
-        let mode = this.getRenderMode();
+        let mode = this.getRenderMode(opts.id || this._option.id);
         this._option.mode = mode || 'auto';
 
         this._option.isOpen = opts.isOpen || false;

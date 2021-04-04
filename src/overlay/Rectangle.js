@@ -21,11 +21,11 @@ export default class RectOverlay extends AbstractRender {
         this.type = 'RECTANGLE';
 
         this._option = this.getOption();
-        
-        this.group = this.getGroup(opts.id || this._option.id);
-        this.image = this.getImage();
 
-        let mode = this.getRenderMode();
+        this.group = this.getGroup(opts.id || this._option.id);
+        this.image = this.getImage(opts.id || this._option.id);
+
+        let mode = this.getRenderMode(opts.id || this._option.id);
         this._option.mode = mode || 'auto';
 
         this._option.currentShape = null;
@@ -231,7 +231,7 @@ export default class RectOverlay extends AbstractRender {
 
             if (xLong < this._createLimit && yLong < this._createLimit) {
                 this._canDrawShape = false;
-                this.setSelectedSub(null);
+                this.setSelectedSub(this._option.id, null);
 
                 return;
             }
@@ -308,7 +308,7 @@ export default class RectOverlay extends AbstractRender {
                     coordinates: points
                 });
 
-                this.setSelectedSub(e.target);
+                this.setSelectedSub(this._option.id, e.target);
 
                 this._onCreateComplete && this._onCreateComplete(e, {
                     ...data,
@@ -747,7 +747,7 @@ export default class RectOverlay extends AbstractRender {
                 this.tempShape = e.target;
                 // console.log(this._option.currentShape, JSON.stringify(this._option.currentShape.shape.points))
 
-                this.setSelectedSub(shape);
+                this.setSelectedSub(this._option.id, shape);
 
                 this.resetAllStyle();
 
@@ -810,7 +810,7 @@ export default class RectOverlay extends AbstractRender {
             }
             //开启编辑，选中某个框
             // console.log('shap-mouseup', this._option.currentShape, this._option.isOpen, this.selectedSub, this.tempShape.id, this._option.currentShape.id)
-            let sub = this.getSelectedSub();
+            let sub = this.getSelectedSub(this._option.id);
             if (this._option.isOpen && sub && e.which === 1) {
                 this._startPoint = [];
 
@@ -854,7 +854,7 @@ export default class RectOverlay extends AbstractRender {
 
         this._createEditGroup(points, shape);
 
-        this.setSelectedSub(shape);
+        this.setSelectedSub(this._option.id, shape);
 
         this._areaShapes.push(shape);
         this.graphic.add(shape);
@@ -1217,7 +1217,7 @@ export default class RectOverlay extends AbstractRender {
      * @return {Object} 删除的对象
      */
     removeAnnotation() {
-        let sub = this.getSelectedSub();
+        let sub = this.getSelectedSub(this._option.id);
         if (sub) {
             let obj;
             this._areaShapes.forEach((item, index) => {
@@ -1230,7 +1230,7 @@ export default class RectOverlay extends AbstractRender {
                 this.graphic.remove(obj.bound);
                 obj.bound = null;
                 this.graphic.remove(sub);
-                this.setSelectedSub(null);
+                this.setSelectedSub(this._option.id, null);
             }
 
             this._option.removeItem = obj;

@@ -18,9 +18,9 @@ export default class Polygon extends AbstractRender {
         this._option = this.getOption();
 
         this.group = this.getGroup(opts.id || this._option.id);
-        this.image = this.getImage();
+        this.image = this.getImage(opts.id || this._option.id);
 
-        let mode = this.getRenderMode();
+        let mode = this.getRenderMode(opts.id || this._option.id);
         this._option.mode = mode || 'auto';
 
         this._option.currentShape = null;
@@ -318,7 +318,7 @@ export default class Polygon extends AbstractRender {
                     coordinates: points
                 });
 
-                this.setSelectedSub(e.target);
+                this.setSelectedSub(this._option.id, e.target);
 
                 this._onCreateComplete && this._onCreateComplete(e, {
                     ...data,
@@ -780,7 +780,7 @@ export default class Polygon extends AbstractRender {
                 this._option.currentShape = e.target;
                 this.tempShape = e.target;
 
-                this.setSelectedSub(shape);
+                this.setSelectedSub(this._option.id, shape);
                 this.resetAllStyle();
 
                 this.setSelectedStyle(e.target);
@@ -808,7 +808,7 @@ export default class Polygon extends AbstractRender {
                 return;
             }
             //开启编辑，选中某个框
-            let sub = this.getSelectedSub();
+            let sub = this.getSelectedSub(this._option.id);
             if (this._option.isOpen && sub && e.which === 1) {
 
                 this._option.currentShape.bound && this._option.currentShape.bound.eachChild(item => {
@@ -834,7 +834,7 @@ export default class Polygon extends AbstractRender {
 
         this._createEditGroup(points, shape);
 
-        this.setSelectedSub(shape);
+        this.setSelectedSub(this._option.id, shape);
 
         this._areaShapes.push(shape);
         this.graphic.add(shape);
@@ -1056,7 +1056,7 @@ export default class Polygon extends AbstractRender {
      * @return {Object} 删除的对象
      */
     removeAnnotation() {
-        let sub = this.getSelectedSub();
+        let sub = this.getSelectedSub(this._option.id);
         if (sub) {
             let obj;
             this._areaShapes.forEach((item, index) => {
@@ -1069,7 +1069,7 @@ export default class Polygon extends AbstractRender {
                 this.graphic.remove(obj.bound);
                 obj.bound = null;
                 this.graphic.remove(sub);
-                this.setSelectedSub(null);
+                this.setSelectedSub(this._option.id, null);
             }
 
             this._option.removeItem = obj;
