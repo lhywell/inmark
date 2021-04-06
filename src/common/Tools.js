@@ -469,7 +469,7 @@ export default class Tools {
                 Tools.prototype.recOverlay && Tools.prototype.recOverlay.resetShapeStyle();
                 Tools.prototype.recOverlay && Tools.prototype.recOverlay.close();
 
-                this.setDrag(true);
+                this.setDrag(this._option.draggable);
                 break;
         }
     }

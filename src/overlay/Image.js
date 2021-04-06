@@ -276,7 +276,7 @@ export default class BImage extends AbstractRender {
             this._bindEvent();
 
             // 设置默认为'手势'可拖动
-            this.setDrag(true);
+            this.setDrag(this._option.draggable);
         };
 
     }
