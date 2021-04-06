@@ -80,7 +80,7 @@ export default class BImage extends AbstractRender {
         this._onRotate = opts && opts.event && opts.event.onRotate;
 
         this.initialize();
-        this.setOption(this._option);
+        this.setOption(this._option.id, this._option);
     }
     initialize() {
         this.renderImg(this.imgUrl);
@@ -102,7 +102,6 @@ export default class BImage extends AbstractRender {
         img.src = url;
         img.onload = () => {
             let mode = this.getRenderMode(this._option.id);
-            console.log(mode, 2)
             if (mode === 'auto') {
                 //auto模式图片自动适应屏幕大小
                 const xRate = this.ctx.canvasWidth / img.width;

@@ -2,15 +2,14 @@ let count = 0;
 let degree_out = 0,
     radian_out = 0,
     remainder = 0, //余数
-    remainder_h = 0, //余数弧度
-    times = 1;
+    remainder_h = 0; //余数弧度
 export default class Tools {
-    constructor(opts, type) {
+    constructor() {
         /**
          * 定义常量, 绘制的模式
          * @final {String} DrawingType
          */
-        times = 1;
+        this.times = 1;
         count = 0;
         degree_out = 0;
         radian_out = 0;
@@ -49,13 +48,14 @@ export default class Tools {
         return { x, y, scale };
     }
     zoomIn() {
-        times += 0.01;
+        this.times += 0.01;
+
         // zoomOut取0.8,zoomIn取1.25，执行出错，先放大再缩小，拖动图片会触发无限放大或缩小
-        this.zoomStage(times);
+        this.zoomStage(this.times);
     }
     zoomOut() {
-        times -= 0.01;
-        this.zoomStage(times);
+        this.times -= 0.01;
+        this.zoomStage(this.times);
     }
     zoomStage(scaleBy) {
         this.setDrawingMode('hander');
@@ -227,7 +227,7 @@ export default class Tools {
         const origin = this.getOrigin();
         let scale = this.getScale();
 
-        let mode = this.getRenderMode();
+        let mode = this.getRenderMode(this._option.id);
         if (mode === 'auto' || mode === 'auto-rotate') {
             return [0, 0];
         } else {
@@ -240,7 +240,7 @@ export default class Tools {
     _reSetPosition() {
         const offset = this._getOffset();
 
-        let mode = this.getRenderMode();
+        let mode = this.getRenderMode(this._option.id);
         let offsetM = this.getOffsetM();
         let offsetN = this.getOffsetN();
 
@@ -300,7 +300,7 @@ export default class Tools {
         }
     }
     getOrigin() {
-        let mode = this.getRenderMode();
+        let mode = this.getRenderMode(this._option.id);
         if (mode === 'auto' || mode === 'auto-rotate') {
             this._option.widthImg = this._option.widthImg * this.group.scale[0];
             this._option.heightImg = this._option.heightImg * this.group.scale[0];

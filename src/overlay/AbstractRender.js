@@ -6,6 +6,7 @@ let inMarkGroup = {};
 let inMarkMode = {};
 let inMarkImage = {};
 let inMarkSelectedSub = {};
+let inMarkOption = {};
 export default class AbstractRender extends Tools {
     /**
      * @constructor
@@ -188,11 +189,11 @@ export default class AbstractRender extends Tools {
     getSelectedSub(id) {
         return inMarkSelectedSub[id];
     }
-    setOption(option) {
-        AbstractRender.prototype.option = option;
+    setOption(id, option) {
+        inMarkOption[id] = option;
     }
-    getOption() {
-        return AbstractRender.prototype.option;
+    getOption(id) {
+        return inMarkOption[id];
     }
 
 }

@@ -15,7 +15,7 @@ export default class Polygon extends AbstractRender {
 
         this.type = 'POLYGON';
 
-        this._option = this.getOption();
+        this._option = this.getOption(opts.id || this._option.id);
 
         this.group = this.getGroup(opts.id || this._option.id);
         this.image = this.getImage(opts.id || this._option.id);
