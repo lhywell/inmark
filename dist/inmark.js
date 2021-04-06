@@ -27017,13 +27017,19 @@
 	remainder_h = 0; //余数弧度
 
 	var Tools = /*#__PURE__*/function () {
-	  function Tools(opts, type) {
+	  function Tools() {
 	    classCallCheck(this, Tools);
 
 	    /**
 	     * 定义常量, 绘制的模式
 	     * @final {String} DrawingType
 	     */
+	    this.times = 1;
+	    count = 0;
+	    degree_out = 0;
+	    radian_out = 0;
+	    remainder = 0;
+	    remainder_h = 0;
 	    window.INMARK_DRAWING_RECTANGLE = 'rectangle'; // 鼠标画矩形模式
 
 	    window.INMARK_DRAWING_POLYGON = 'polygon'; // 鼠标画多边形模式
@@ -27066,15 +27072,15 @@
 	  }, {
 	    key: "zoomIn",
 	    value: function zoomIn() {
-	      var times = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1.109;
-	      // zoomOut取0.8,zoomIn取1.25，执行出错，先放大再缩小，拖动图片会触发无限放大或缩小
-	      this.zoomStage(times);
+	      this.times += 0.01; // zoomOut取0.8,zoomIn取1.25，执行出错，先放大再缩小，拖动图片会触发无限放大或缩小
+
+	      this.zoomStage(this.times);
 	    }
 	  }, {
 	    key: "zoomOut",
 	    value: function zoomOut() {
-	      var times = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0.9;
-	      this.zoomStage(times);
+	      this.times -= 0.01;
+	      this.zoomStage(this.times);
 	    }
 	  }, {
 	    key: "zoomStage",
@@ -27236,7 +27242,7 @@
 	    value: function _getOffset() {
 	      var origin = this.getOrigin();
 	      var scale = this.getScale();
-	      var mode = this.getRenderMode();
+	      var mode = this.getRenderMode(this._option.id);
 
 	      if (mode === 'auto' || mode === 'auto-rotate') {
 	        return [0, 0];
@@ -27251,7 +27257,7 @@
 	    value: function _reSetPosition() {
 	      var offset = this._getOffset();
 
-	      var mode = this.getRenderMode();
+	      var mode = this.getRenderMode(this._option.id);
 	      var offsetM = this.getOffsetM();
 	      var offsetN = this.getOffsetN();
 
@@ -27326,7 +27332,7 @@
 	  }, {
 	    key: "getOrigin",
 	    value: function getOrigin() {
-	      var mode = this.getRenderMode();
+	      var mode = this.getRenderMode(this._option.id);
 
 	      if (mode === 'auto' || mode === 'auto-rotate') {
 	        this._option.widthImg = this._option.widthImg * this.group.scale[0];
@@ -27515,7 +27521,7 @@
 	          Tools.prototype.polygonOverlay && Tools.prototype.polygonOverlay.close();
 	          Tools.prototype.recOverlay && Tools.prototype.recOverlay.resetShapeStyle();
 	          Tools.prototype.recOverlay && Tools.prototype.recOverlay.close();
-	          this.setDrag(true);
+	          this.setDrag(this._option.draggable);
 	          break;
 	      }
 	    }
@@ -27600,6 +27606,12 @@
 
 	  return Tools;
 	}();
+
+	var inMarkGroup = {};
+	var inMarkMode = {};
+	var inMarkImage = {};
+	var inMarkSelectedSub = {};
+	Tools.prototype.inMarkOption = {};
 
 	var AbstractRender = /*#__PURE__*/function (_Tools) {
 	  inherits(AbstractRender, _Tools);
@@ -27819,64 +27831,55 @@
 	    }
 	  }, {
 	    key: "setRenderMode",
-	    value: function setRenderMode(mode) {
-	      AbstractRender.prototype.mode = mode;
+	    value: function setRenderMode(id, mode) {
+	      inMarkMode[id] = mode;
 	    }
 	  }, {
 	    key: "getRenderMode",
-	    value: function getRenderMode() {
-	      return AbstractRender.prototype.mode;
+	    value: function getRenderMode(id) {
+	      return inMarkMode[id];
 	    }
 	  }, {
 	    key: "setGroup",
-	    value: function setGroup() {
-	      this.group = new zrender$3.Group();
-	      AbstractRender.prototype.group = this.group;
+	    value: function setGroup(id) {
+	      var group = new zrender$3.Group();
+	      inMarkGroup[id] = group;
 	    }
 	  }, {
 	    key: "getGroup",
-	    value: function getGroup() {
-	      return AbstractRender.prototype.group;
+	    value: function getGroup(id) {
+	      return inMarkGroup[id];
 	    }
 	  }, {
 	    key: "setImage",
-	    value: function setImage(image) {
-	      AbstractRender.prototype.image = image;
+	    value: function setImage(id, image) {
+	      inMarkImage[id] = image;
 	    }
 	  }, {
 	    key: "getImage",
-	    value: function getImage() {
-	      return AbstractRender.prototype.image;
+	    value: function getImage(id) {
+	      // 注意：在loadComplete里执行
+	      return inMarkImage[id];
 	    }
 	  }, {
 	    key: "setSelectedSub",
-	    value: function setSelectedSub(selectedSub) {
-	      AbstractRender.prototype.selectedSub = selectedSub;
+	    value: function setSelectedSub(id, selectedSub) {
+	      inMarkSelectedSub[id] = selectedSub;
 	    }
 	  }, {
 	    key: "getSelectedSub",
-	    value: function getSelectedSub() {
-	      return AbstractRender.prototype.selectedSub;
-	    }
-	  }, {
-	    key: "setDragPosition",
-	    value: function setDragPosition(dragPosition) {
-	      AbstractRender.prototype.dragPosition = dragPosition;
-	    }
-	  }, {
-	    key: "getDragPosition",
-	    value: function getDragPosition() {
-	      return AbstractRender.prototype.dragPosition;
+	    value: function getSelectedSub(id) {
+	      return inMarkSelectedSub[id];
 	    }
 	  }, {
 	    key: "setOption",
-	    value: function setOption(option) {
-	      AbstractRender.prototype.option = option;
+	    value: function setOption(id, option) {
+	      Tools.prototype.inMarkOption[id] = option;
 	    }
 	  }, {
 	    key: "getOption",
-	    value: function getOption() {
-	      return AbstractRender.prototype.option;
+	    value: function getOption(id) {
+	      return Tools.prototype.inMarkOption[id];
 	    }
 	  }]);
 
@@ -28004,7 +28007,7 @@
 	      _this._option.imgUrl = opts && opts.imgUrl;
 	      var mode = opts && opts.mode || 'auto';
 
-	      _this.setRenderMode(mode);
+	      _this.setRenderMode(opts.id, mode);
 
 	      if (mode === 'auto') {
 	        _this._option.offsetX = 0; //auto模式图片等比例缩放后在画布中横轴位移
@@ -28065,7 +28068,7 @@
 
 	    _this.initialize();
 
-	    _this.setOption(_this._option);
+	    _this.setOption(_this._option.id, _this._option);
 
 	    return _this;
 	  }
@@ -28090,14 +28093,14 @@
 	      } // 创建组
 
 
-	      this.setGroup(); //加载图片
+	      this.setGroup(this._option.id); //加载图片
 
 	      var img = new Image();
 	      img.setAttribute('crossorigin', 'anonymous');
 	      img.src = url;
 
 	      img.onload = function () {
-	        var mode = _this2.getRenderMode();
+	        var mode = _this2.getRenderMode(_this2._option.id);
 
 	        if (mode === 'auto') {
 	          //auto模式图片自动适应屏幕大小
@@ -28244,9 +28247,9 @@
 	        _this2._option.center = [_this2._option.offsetX + _this2._option.widthImg / 2, _this2._option.offsetY + _this2._option.heightImg / 2];
 	        _this2.image = image; // this.image.setAttribute('data-name', 'sssss');
 
-	        _this2.setImage(image);
+	        _this2.setImage(_this2._option.id, image);
 
-	        _this2.group = _this2.getGroup();
+	        _this2.group = _this2.getGroup(_this2._option.id);
 
 	        _this2.group.add(image); // zrender渲染group
 
@@ -28269,7 +28272,7 @@
 	        _this2._bindEvent(); // 设置默认为'手势'可拖动
 
 
-	        _this2.setDrag(true);
+	        _this2.setDrag(_this2._option.draggable);
 	      };
 	    }
 	  }, {
@@ -28359,7 +28362,7 @@
 	  }, {
 	    key: "_zrMouseUp",
 	    value: function _zrMouseUp(e) {
-	      var mode = this.getRenderMode();
+	      var mode = this.getRenderMode(this._option.id);
 
 	      if (mode === 'auto-rotate') {
 	        this.image.attr({
@@ -28457,12 +28460,13 @@
 	    classCallCheck(this, RectOverlay);
 
 	    _this = _super.call(this);
-	    _this.group = _this.getGroup();
-	    _this.image = _this.getImage();
 	    _this.type = 'RECTANGLE';
-	    _this._option = _this.getOption();
+	    var key = Object.keys(_this.inMarkOption);
+	    _this._option = _this.getOption(opts.id || key[0]);
+	    _this.group = _this.getGroup(opts.id || key[0]);
+	    _this.image = _this.getImage(opts.id || key[0]);
 
-	    var mode = _this.getRenderMode();
+	    var mode = _this.getRenderMode(opts.id || key[0]);
 
 	    _this._option.mode = mode || 'auto';
 	    _this._option.currentShape = null; // //是否开启绘制模式
@@ -28684,7 +28688,7 @@
 
 	        if (xLong < this._createLimit && yLong < this._createLimit) {
 	          this._canDrawShape = false;
-	          this.setSelectedSub(null);
+	          this.setSelectedSub(this._option.id, null);
 	          return;
 	        }
 
@@ -28764,7 +28768,7 @@
 	            coordinates: points
 	          }));
 
-	          this.setSelectedSub(e.target);
+	          this.setSelectedSub(this._option.id, e.target);
 	          this._onCreateComplete && this._onCreateComplete(e, objectSpread2(objectSpread2({}, data), {}, {
 	            coordinates: points
 	          }));
@@ -29225,7 +29229,7 @@
 	          _this5._option.currentShape = e.target;
 	          _this5.tempShape = e.target; // console.log(this._option.currentShape, JSON.stringify(this._option.currentShape.shape.points))
 
-	          _this5.setSelectedSub(shape);
+	          _this5.setSelectedSub(_this5._option.id, shape);
 
 	          _this5.resetAllStyle();
 
@@ -29284,7 +29288,7 @@
 	        // console.log('shap-mouseup', this._option.currentShape, this._option.isOpen, this.selectedSub, this.tempShape.id, this._option.currentShape.id)
 
 
-	        var sub = _this5.getSelectedSub();
+	        var sub = _this5.getSelectedSub(_this5._option.id);
 
 	        if (_this5._option.isOpen && sub && e.which === 1) {
 	          _this5._startPoint = [];
@@ -29332,7 +29336,7 @@
 
 	      this._createEditGroup(points, shape);
 
-	      this.setSelectedSub(shape);
+	      this.setSelectedSub(this._option.id, shape);
 
 	      this._areaShapes.push(shape);
 
@@ -29675,7 +29679,7 @@
 	    value: function removeAnnotation() {
 	      var _this11 = this;
 
-	      var sub = this.getSelectedSub();
+	      var sub = this.getSelectedSub(this._option.id);
 
 	      if (sub) {
 	        var obj;
@@ -29692,7 +29696,7 @@
 	          this.graphic.remove(obj.bound);
 	          obj.bound = null;
 	          this.graphic.remove(sub);
-	          this.setSelectedSub(null);
+	          this.setSelectedSub(this._option.id, null);
 	        }
 
 	        this._option.removeItem = obj;
@@ -29923,12 +29927,13 @@
 	    classCallCheck(this, Polygon);
 
 	    _this = _super.call(this, opts);
-	    _this.group = _this.getGroup();
-	    _this.image = _this.getImage();
 	    _this.type = 'POLYGON';
-	    _this._option = _this.getOption();
+	    var key = Object.keys(_this.inMarkOption);
+	    _this._option = _this.getOption(opts.id || key[0]);
+	    _this.group = _this.getGroup(opts.id || key[0]);
+	    _this.image = _this.getImage(opts.id || key[0]);
 
-	    var mode = _this.getRenderMode();
+	    var mode = _this.getRenderMode(opts.id || key[0]);
 
 	    _this._option.mode = mode || 'auto';
 	    _this._option.currentShape = null; //是否开启绘制模式
@@ -30239,7 +30244,7 @@
 	            coordinates: points
 	          }));
 
-	          this.setSelectedSub(e.target);
+	          this.setSelectedSub(this._option.id, e.target);
 	          this._onCreateComplete && this._onCreateComplete(e, objectSpread2(objectSpread2({}, data), {}, {
 	            coordinates: points
 	          }));
@@ -30736,7 +30741,7 @@
 	          _this5._option.currentShape = e.target;
 	          _this5.tempShape = e.target;
 
-	          _this5.setSelectedSub(shape);
+	          _this5.setSelectedSub(_this5._option.id, shape);
 
 	          _this5.resetAllStyle();
 
@@ -30765,7 +30770,7 @@
 	        } //开启编辑，选中某个框
 
 
-	        var sub = _this5.getSelectedSub();
+	        var sub = _this5.getSelectedSub(_this5._option.id);
 
 	        if (_this5._option.isOpen && sub && e.which === 1) {
 	          _this5._option.currentShape.bound && _this5._option.currentShape.bound.eachChild(function (item) {
@@ -30797,7 +30802,7 @@
 
 	      this._createEditGroup(points, shape);
 
-	      this.setSelectedSub(shape);
+	      this.setSelectedSub(this._option.id, shape);
 
 	      this._areaShapes.push(shape);
 
@@ -31021,7 +31026,7 @@
 	    value: function removeAnnotation() {
 	      var _this11 = this;
 
-	      var sub = this.getSelectedSub();
+	      var sub = this.getSelectedSub(this._option.id);
 
 	      if (sub) {
 	        var obj;
@@ -31038,7 +31043,7 @@
 	          this.graphic.remove(obj.bound);
 	          obj.bound = null;
 	          this.graphic.remove(sub);
-	          this.setSelectedSub(null);
+	          this.setSelectedSub(this._option.id, null);
 	        }
 
 	        this._option.removeItem = obj;
@@ -31229,13 +31234,14 @@
 	    classCallCheck(this, TextOverlay);
 
 	    _this = _super.call(this);
-	    _this.group = _this.getGroup();
-	    _this.image = _this.getImage();
 	    _this.type = 'TextOverlay'; //是否开启绘制模式
 
-	    _this._option = _this.getOption();
+	    var key = Object.keys(_this.inMarkOption);
+	    _this._option = _this.getOption(opts.id || key[0]);
+	    _this.group = _this.getGroup(opts.id || key[0]);
+	    _this.image = _this.getImage(opts.id || key[0]);
 
-	    var mode = _this.getRenderMode();
+	    var mode = _this.getRenderMode(opts.id || key[0]);
 
 	    _this._option.mode = mode || 'auto';
 	    _this._option.isOpen = opts.isOpen || false;
@@ -31516,7 +31522,7 @@
 
 	// rollup编译入口
 
-	var version$1 = "1.2.3";
+	var version$1 = "1.2.4";
 	console.log("inMark v".concat(version$1));
 	var inMark = {
 	  version: version$1,
