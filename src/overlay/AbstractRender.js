@@ -143,6 +143,8 @@ export default class AbstractRender extends Tools {
         this.image = null;
         this.group = null;
         this.polygon = null;
+
+        Tools.prototype.inMarkOption = {};
     }
     clear() {
         // 清除所有对象和画布。

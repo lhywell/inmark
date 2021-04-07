@@ -1184,5 +1184,4 @@ export default class Polygon extends AbstractRender {
             }
         }
     }
-    reset() {}
 }

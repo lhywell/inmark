@@ -1413,5 +1413,4 @@ export default class RectOverlay extends AbstractRender {
             }
         }
     }
-    reset() {}
 }
