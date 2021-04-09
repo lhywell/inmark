@@ -27797,6 +27797,7 @@
 	      this.image = null;
 	      this.group = null;
 	      this.polygon = null;
+	      Tools.prototype.inMarkOption = {};
 	    }
 	  }, {
 	    key: "clear",
@@ -29903,9 +29904,6 @@
 	        }
 	      }
 	    }
-	  }, {
-	    key: "reset",
-	    value: function reset() {}
 	  }]);
 
 	  return RectOverlay;
@@ -31183,9 +31181,6 @@
 	        }
 	      }
 	    }
-	  }, {
-	    key: "reset",
-	    value: function reset() {}
 	  }]);
 
 	  return Polygon;
@@ -31522,7 +31517,7 @@
 
 	// rollup编译入口
 
-	var version$1 = "1.2.4";
+	var version$1 = "1.2.5";
 	console.log("inMark v".concat(version$1));
 	var inMark = {
 	  version: version$1,
