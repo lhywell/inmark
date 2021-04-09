@@ -265,6 +265,25 @@ canvas:nth-child(1){
 <!-- 生成实例 -->
 let rect = new inMark.Rect({
     data: data,
+    style: {
+        default: {
+            fill: 'rgba(49, 117, 247,0.1)',
+            stroke: '#3C7EFF',
+            // stroke: '#FFA200',
+            lineWidth: 1,
+            lineDash: [0, 0],
+            strokeNoScale: true,
+            zlevel: 3
+        },
+        // 选中颜色
+        selected: {
+            fill: 'rgba(60, 126, 255,.3)',
+            stroke: '#3175f7',
+            lineWidth: 1,
+            lineDash: [0, 0],
+            strokeNoScale: true
+        }
+    },
     event: {
         onCreate: onCreate,
         onImageDrag: onImageDrag,
@@ -443,21 +462,21 @@ let text = new inMark.Text({
 ```
 
 #### 配置属性
-style：对象类型，选填
 
-data：数组类型，绘画文字数据，选填
-
-event：对象类型，选填，参见回调方法
-
+| 参数  |  说明 |  类型  |  是否必填  |
+| ------------ | ------------ | ------------ | ------------ |
+|  style   |  文字样式设置 | Object  | 选填  |
+|  data   | 绘画文字数据 | Array  |  选填 |
+| event  | 参见回调方法  |  Object |  选填 |
 
 #### 回调方法 or 事件监听方法
-onSelected：选中某个文字
 
-onHover：悬浮到文字上触发
-
-onImageDrag：图片拖拽开始
-
-onImageDragEnd：图片拖拽结束
+| 回调方法  |  说明 |  是否必填  |
+| ------------ | ------------ | ------------ |
+|  onSelected   |  选中某个文字 | 选填  |
+|  onHover    |  悬浮到文字上触发 | 选填  |
+|  onImageDrag     |  图片拖拽开始 | 选填  |
+|  onImageDragEnd     |  图片拖拽结束 | 选填  |
 
 
 ```
