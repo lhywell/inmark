@@ -27017,19 +27017,13 @@
 	remainder_h = 0; //余数弧度
 
 	var Tools = /*#__PURE__*/function () {
-	  function Tools() {
+	  function Tools(opts, type) {
 	    classCallCheck(this, Tools);
 
 	    /**
 	     * 定义常量, 绘制的模式
 	     * @final {String} DrawingType
 	     */
-	    this.times = 1;
-	    count = 0;
-	    degree_out = 0;
-	    radian_out = 0;
-	    remainder = 0;
-	    remainder_h = 0;
 	    window.INMARK_DRAWING_RECTANGLE = 'rectangle'; // 鼠标画矩形模式
 
 	    window.INMARK_DRAWING_POLYGON = 'polygon'; // 鼠标画多边形模式
@@ -27072,15 +27066,15 @@
 	  }, {
 	    key: "zoomIn",
 	    value: function zoomIn() {
-	      this.times += 0.01; // zoomOut取0.8,zoomIn取1.25，执行出错，先放大再缩小，拖动图片会触发无限放大或缩小
-
-	      this.zoomStage(this.times);
+	      var times = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1.109;
+	      // zoomOut取0.8,zoomIn取1.25，执行出错，先放大再缩小，拖动图片会触发无限放大或缩小
+	      this.zoomStage(times);
 	    }
 	  }, {
 	    key: "zoomOut",
 	    value: function zoomOut() {
-	      this.times -= 0.01;
-	      this.zoomStage(this.times);
+	      var times = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0.9;
+	      this.zoomStage(times);
 	    }
 	  }, {
 	    key: "zoomStage",
@@ -27242,7 +27236,7 @@
 	    value: function _getOffset() {
 	      var origin = this.getOrigin();
 	      var scale = this.getScale();
-	      var mode = this.getRenderMode(this._option.id);
+	      var mode = this.getRenderMode();
 
 	      if (mode === 'auto' || mode === 'auto-rotate') {
 	        return [0, 0];
@@ -27257,7 +27251,7 @@
 	    value: function _reSetPosition() {
 	      var offset = this._getOffset();
 
-	      var mode = this.getRenderMode(this._option.id);
+	      var mode = this.getRenderMode();
 	      var offsetM = this.getOffsetM();
 	      var offsetN = this.getOffsetN();
 
@@ -27332,7 +27326,7 @@
 	  }, {
 	    key: "getOrigin",
 	    value: function getOrigin() {
-	      var mode = this.getRenderMode(this._option.id);
+	      var mode = this.getRenderMode();
 
 	      if (mode === 'auto' || mode === 'auto-rotate') {
 	        this._option.widthImg = this._option.widthImg * this.group.scale[0];
@@ -27521,7 +27515,7 @@
 	          Tools.prototype.polygonOverlay && Tools.prototype.polygonOverlay.close();
 	          Tools.prototype.recOverlay && Tools.prototype.recOverlay.resetShapeStyle();
 	          Tools.prototype.recOverlay && Tools.prototype.recOverlay.close();
-	          this.setDrag(this._option.draggable);
+	          this.setDrag(true);
 	          break;
 	      }
 	    }
@@ -27606,12 +27600,6 @@
 
 	  return Tools;
 	}();
-
-	var inMarkGroup = {};
-	var inMarkMode = {};
-	var inMarkImage = {};
-	var inMarkSelectedSub = {};
-	Tools.prototype.inMarkOption = {};
 
 	var AbstractRender = /*#__PURE__*/function (_Tools) {
 	  inherits(AbstractRender, _Tools);
@@ -27797,7 +27785,6 @@
 	      this.image = null;
 	      this.group = null;
 	      this.polygon = null;
-	      Tools.prototype.inMarkOption = {};
 	    }
 	  }, {
 	    key: "clear",
@@ -27832,55 +27819,64 @@
 	    }
 	  }, {
 	    key: "setRenderMode",
-	    value: function setRenderMode(id, mode) {
-	      inMarkMode[id] = mode;
+	    value: function setRenderMode(mode) {
+	      AbstractRender.prototype.mode = mode;
 	    }
 	  }, {
 	    key: "getRenderMode",
-	    value: function getRenderMode(id) {
-	      return inMarkMode[id];
+	    value: function getRenderMode() {
+	      return AbstractRender.prototype.mode;
 	    }
 	  }, {
 	    key: "setGroup",
-	    value: function setGroup(id) {
-	      var group = new zrender$3.Group();
-	      inMarkGroup[id] = group;
+	    value: function setGroup() {
+	      this.group = new zrender$3.Group();
+	      AbstractRender.prototype.group = this.group;
 	    }
 	  }, {
 	    key: "getGroup",
-	    value: function getGroup(id) {
-	      return inMarkGroup[id];
+	    value: function getGroup() {
+	      return AbstractRender.prototype.group;
 	    }
 	  }, {
 	    key: "setImage",
-	    value: function setImage(id, image) {
-	      inMarkImage[id] = image;
+	    value: function setImage(image) {
+	      AbstractRender.prototype.image = image;
 	    }
 	  }, {
 	    key: "getImage",
-	    value: function getImage(id) {
-	      // 注意：在loadComplete里执行
-	      return inMarkImage[id];
+	    value: function getImage() {
+	      return AbstractRender.prototype.image;
 	    }
 	  }, {
 	    key: "setSelectedSub",
-	    value: function setSelectedSub(id, selectedSub) {
-	      inMarkSelectedSub[id] = selectedSub;
+	    value: function setSelectedSub(selectedSub) {
+	      AbstractRender.prototype.selectedSub = selectedSub;
 	    }
 	  }, {
 	    key: "getSelectedSub",
-	    value: function getSelectedSub(id) {
-	      return inMarkSelectedSub[id];
+	    value: function getSelectedSub() {
+	      return AbstractRender.prototype.selectedSub;
+	    }
+	  }, {
+	    key: "setDragPosition",
+	    value: function setDragPosition(dragPosition) {
+	      AbstractRender.prototype.dragPosition = dragPosition;
+	    }
+	  }, {
+	    key: "getDragPosition",
+	    value: function getDragPosition() {
+	      return AbstractRender.prototype.dragPosition;
 	    }
 	  }, {
 	    key: "setOption",
-	    value: function setOption(id, option) {
-	      Tools.prototype.inMarkOption[id] = option;
+	    value: function setOption(option) {
+	      AbstractRender.prototype.option = option;
 	    }
 	  }, {
 	    key: "getOption",
-	    value: function getOption(id) {
-	      return Tools.prototype.inMarkOption[id];
+	    value: function getOption() {
+	      return AbstractRender.prototype.option;
 	    }
 	  }]);
 
@@ -28008,7 +28004,7 @@
 	      _this._option.imgUrl = opts && opts.imgUrl;
 	      var mode = opts && opts.mode || 'auto';
 
-	      _this.setRenderMode(opts.id, mode);
+	      _this.setRenderMode(mode);
 
 	      if (mode === 'auto') {
 	        _this._option.offsetX = 0; //auto模式图片等比例缩放后在画布中横轴位移
@@ -28069,7 +28065,7 @@
 
 	    _this.initialize();
 
-	    _this.setOption(_this._option.id, _this._option);
+	    _this.setOption(_this._option);
 
 	    return _this;
 	  }
@@ -28094,14 +28090,14 @@
 	      } // 创建组
 
 
-	      this.setGroup(this._option.id); //加载图片
+	      this.setGroup(); //加载图片
 
 	      var img = new Image();
 	      img.setAttribute('crossorigin', 'anonymous');
 	      img.src = url;
 
 	      img.onload = function () {
-	        var mode = _this2.getRenderMode(_this2._option.id);
+	        var mode = _this2.getRenderMode();
 
 	        if (mode === 'auto') {
 	          //auto模式图片自动适应屏幕大小
@@ -28248,9 +28244,9 @@
 	        _this2._option.center = [_this2._option.offsetX + _this2._option.widthImg / 2, _this2._option.offsetY + _this2._option.heightImg / 2];
 	        _this2.image = image; // this.image.setAttribute('data-name', 'sssss');
 
-	        _this2.setImage(_this2._option.id, image);
+	        _this2.setImage(image);
 
-	        _this2.group = _this2.getGroup(_this2._option.id);
+	        _this2.group = _this2.getGroup();
 
 	        _this2.group.add(image); // zrender渲染group
 
@@ -28273,7 +28269,7 @@
 	        _this2._bindEvent(); // 设置默认为'手势'可拖动
 
 
-	        _this2.setDrag(_this2._option.draggable);
+	        _this2.setDrag(true);
 	      };
 	    }
 	  }, {
@@ -28363,7 +28359,7 @@
 	  }, {
 	    key: "_zrMouseUp",
 	    value: function _zrMouseUp(e) {
-	      var mode = this.getRenderMode(this._option.id);
+	      var mode = this.getRenderMode();
 
 	      if (mode === 'auto-rotate') {
 	        this.image.attr({
@@ -28461,13 +28457,12 @@
 	    classCallCheck(this, RectOverlay);
 
 	    _this = _super.call(this);
+	    _this.group = _this.getGroup();
+	    _this.image = _this.getImage();
 	    _this.type = 'RECTANGLE';
-	    var key = Object.keys(_this.inMarkOption);
-	    _this._option = _this.getOption(opts.id || key[0]);
-	    _this.group = _this.getGroup(opts.id || key[0]);
-	    _this.image = _this.getImage(opts.id || key[0]);
+	    _this._option = _this.getOption();
 
-	    var mode = _this.getRenderMode(opts.id || key[0]);
+	    var mode = _this.getRenderMode();
 
 	    _this._option.mode = mode || 'auto';
 	    _this._option.currentShape = null; // //是否开启绘制模式
@@ -28516,6 +28511,7 @@
 
 	    _this.zlevel = _this._styleConfig["default"].zlevel;
 	    _this.DIYStyle = {};
+	    _this.setPostionXY = [];
 
 	    if (_this.image) {
 	      _this.image.on('drag', function (e) {
@@ -28689,7 +28685,7 @@
 
 	        if (xLong < this._createLimit && yLong < this._createLimit) {
 	          this._canDrawShape = false;
-	          this.setSelectedSub(this._option.id, null);
+	          this.setSelectedSub(null);
 	          return;
 	        }
 
@@ -28769,7 +28765,7 @@
 	            coordinates: points
 	          }));
 
-	          this.setSelectedSub(this._option.id, e.target);
+	          this.setSelectedSub(e.target);
 	          this._onCreateComplete && this._onCreateComplete(e, objectSpread2(objectSpread2({}, data), {}, {
 	            coordinates: points
 	          }));
@@ -28933,10 +28929,15 @@
 	  }, {
 	    key: "setPosition",
 	    value: function setPosition(item) {
-	      if (this._option.isOpen) {
-	        return;
-	      }
-
+	      // if (this._option.isOpen) {
+	      //     // this.close();
+	      //     // this.setDrag(true);
+	      //     return;
+	      // }
+	      // this.group.attr({
+	      //     position: [0,0],
+	      //     origin: this.getOrigin()
+	      // });
 	      if (item.coordinates.length !== 4) {
 	        return;
 	      }
@@ -28958,8 +28959,9 @@
 	        bgDragY = this.bgDrag[1];
 	      }
 
+	      this.setPostionXY = [(-point_center[0] - bgDragX) * scale + canvas_width / 2 * scale, (-point_center[1] - bgDragY) * scale + canvas_height / 2 * scale];
 	      this.group.attr({
-	        position: [(-point_center[0] - bgDragX) * scale + canvas_width / 2 * scale, (-point_center[1] - bgDragY) * scale + canvas_height / 2 * scale]
+	        position: this.setPostionXY
 	      });
 	    }
 	  }, {
@@ -28986,6 +28988,8 @@
 	  }, {
 	    key: "_toShapeDragEnd",
 	    value: function _toShapeDragEnd(e, shape) {
+	      var _this5 = this;
+
 	      var array = []; // let points = e.target.shape.points;
 
 	      var points = zrender$3.util.clone(e.target.shape.points); //console.log(2222, this.bgDrag)
@@ -29002,7 +29006,9 @@
 	      }
 
 	      var offsetM = this.getOffsetM();
-	      var offsetN = this.getOffsetN(); // console.log('m', m, bgDragX, bgDragY, points, offsetM, offsetN)
+	      var offsetN = this.getOffsetN(); // let positionX = this.setPostionXY[0]
+	      // let positionY = this.setPostionXY[1]
+	      // console.log('m', m, bgDragX, bgDragY, points, offsetM, offsetN)
 
 	      points.forEach(function (item) {
 	        var x;
@@ -29021,7 +29027,7 @@
 	          }
 	        }
 
-	        x = [item[0] - bgDragX, item[1] - bgDragY];
+	        x = [item[0] - bgDragX - _this5.setPostionXY[0], item[1] - bgDragY - _this5.setPostionXY[1]];
 	        array.push(x);
 	      });
 	      return array;
@@ -29035,7 +29041,7 @@
 	  }, {
 	    key: "_createShape",
 	    value: function _createShape(points, data) {
-	      var _this5 = this;
+	      var _this6 = this;
 
 	      var shape = new zrender$3.Polygon({
 	        shape: {
@@ -29050,29 +29056,29 @@
 	        zlevel: this.zlevel
 	      });
 	      shape.on('click', function (e) {
-	        if (_this5.getDrawingMode() !== 'rectangle') {
+	        if (_this6.getDrawingMode() !== 'rectangle') {
 	          return;
 	        }
 
 	        if (e.which === 1) {
 	          // console.log('click', e.target)
 	          //点击重新设置坐标点
-	          _this5._editNode = _this5._toShapeDragEnd(e, e.target);
+	          _this6._editNode = _this6._toShapeDragEnd(e, e.target);
 	        }
 	      });
 	      shape.on('dragstart', function (e) {
-	        if (_this5.getDrawingMode() !== 'rectangle') {
+	        if (_this6.getDrawingMode() !== 'rectangle') {
 	          return;
 	        }
 
 	        if (e.which === 1) {
-	          _this5._option.currentShape = shape;
-	          _this5.tempShape = e.target;
+	          _this6._option.currentShape = shape;
+	          _this6.tempShape = e.target;
 	        } // console.log('start', e.target.position, JSON.stringify(e.target.shape.points));
 
 	      });
 	      shape.on('drag', function (e) {
-	        if (_this5.getDrawingMode() !== 'rectangle') {
+	        if (_this6.getDrawingMode() !== 'rectangle') {
 	          return;
 	        } //拖动多边形与编辑同步
 
@@ -29093,83 +29099,83 @@
 	        // })
 	        //移动过程中，重新记录坐标点
 
-	        _this5._editNode = _this5._toShapeDragEnd(e, e.target);
-	        _this5._option.currentShape = e.target; // console.log('guocheng', JSON.stringify(this.currPoint));
+	        _this6._editNode = _this6._toShapeDragEnd(e, e.target);
+	        _this6._option.currentShape = e.target; // console.log('guocheng', JSON.stringify(this.currPoint));
 	        // console.log('drag', this._option.currentShape)
 
-	        var shapePoints = _this5._toGlobal(e.target.shape.points, shape);
+	        var shapePoints = _this6._toGlobal(e.target.shape.points, shape);
 
-	        var rPoints = _this5._changeToPoints(shapePoints);
+	        var rPoints = _this6._changeToPoints(shapePoints);
 
-	        _this5.handlers['_onRectDrag'] && _this5.handlers['_onRectDrag'][0](e, objectSpread2(objectSpread2({}, e.target.data), {}, {
+	        _this6.handlers['_onRectDrag'] && _this6.handlers['_onRectDrag'][0](e, objectSpread2(objectSpread2({}, e.target.data), {}, {
 	          coordinates: rPoints
 	        }));
-	        _this5._onRectDrag && _this5._onRectDrag(e, objectSpread2(objectSpread2({}, e.target.data), {}, {
+	        _this6._onRectDrag && _this6._onRectDrag(e, objectSpread2(objectSpread2({}, e.target.data), {}, {
 	          coordinates: rPoints
 	        }));
 	      }); // shape.on('dragstart', (e) => {
 	      // })
 
 	      shape.on('dragend', function (e) {
-	        if (_this5.getDrawingMode() !== 'rectangle') {
+	        if (_this6.getDrawingMode() !== 'rectangle') {
 	          return;
 	        }
 
 	        if (e.which === 1) {
-	          var _shape = e.target;
-	          _this5.position = zrender$3.util.clone(_shape.position); //拖动后点坐标
+	          var _shape = e.target; // this.position = zrender.util.clone(shape.position);
+	          //拖动后点坐标
 
-	          var shapePoints = _this5._toShapeDragEnd(e, _shape);
+	          var shapePoints = _this6._toShapeDragEnd(e, _shape);
 
-	          _this5._option.currentShape = _shape; //拖拽完之后，删除原有框，重新创建一个框，避免画框重叠飞框
+	          _this6._option.currentShape = _shape; //拖拽完之后，删除原有框，重新创建一个框，避免画框重叠飞框
 
-	          _this5._reCreatePoints(shapePoints); // console.log('end', this.position, JSON.stringify(e.target.shape.points), JSON.stringify(shapePoints));
+	          _this6._reCreatePoints(shapePoints); // console.log('end', this.position, JSON.stringify(e.target.shape.points), JSON.stringify(shapePoints));
 
 
-	          var rPoints = _this5._changeToPoints(shapePoints);
+	          var rPoints = _this6._changeToPoints(shapePoints);
 
-	          _this5._option.exportData.forEach(function (item) {
+	          _this6._option.exportData.forEach(function (item) {
 	            if (item.id === e.target.data.id) {
 	              item.coordinates = rPoints;
 	            }
 	          });
 
-	          _this5.handlers['_onRectDragComplete'] && _this5.handlers['_onRectDragComplete'][0](e, objectSpread2(objectSpread2({}, e.target.data), {}, {
+	          _this6.handlers['_onRectDragComplete'] && _this6.handlers['_onRectDragComplete'][0](e, objectSpread2(objectSpread2({}, e.target.data), {}, {
 	            coordinates: rPoints
 	          }));
-	          _this5._onRectDragComplete && _this5._onRectDragComplete(e, objectSpread2(objectSpread2({}, e.target.data), {}, {
+	          _this6._onRectDragComplete && _this6._onRectDragComplete(e, objectSpread2(objectSpread2({}, e.target.data), {}, {
 	            coordinates: rPoints
 	          }));
 	        }
 	      });
 	      shape.on('mousemove', function (e) {
-	        if (_this5.getDrawingMode() !== 'rectangle') {
+	        if (_this6.getDrawingMode() !== 'rectangle') {
 	          return;
 	        }
 
-	        if (_this5._option.isOpen) {
+	        if (_this6._option.isOpen) {
 	          shape.attr({
 	            cursor: 'default'
 	          });
-	          _this5.tempShape = e.target; // if (this._canDrawShape === false) {
+	          _this6.tempShape = e.target; // if (this._canDrawShape === false) {
 	          //     this._unBindEvent();
 	          // }
 	        }
 	      });
 	      shape.on('mouseover', function (e) {
-	        if (_this5.getDrawingMode() === 'polygon') {
+	        if (_this6.getDrawingMode() === 'polygon') {
 	          return;
 	        }
 
-	        if (_this5._option.isOpen) {
+	        if (_this6._option.isOpen) {
 	          shape.attr({
 	            cursor: 'default'
 	          });
 
-	          if (_this5._canDrawShape === false && _this5._isMouseDown === false) {
-	            _this5.tempShape = e.target;
+	          if (_this6._canDrawShape === false && _this6._isMouseDown === false) {
+	            _this6.tempShape = e.target;
 
-	            _this5._unBindEvent();
+	            _this6._unBindEvent();
 	          }
 
 	          return;
@@ -29186,28 +29192,28 @@
 	        // this.setSelectedStyle(e.target, PolygonRect.style.hover);
 
 
-	        var shapePoints = _this5._toGlobal(e.target.shape.points, shape);
+	        var shapePoints = _this6._toGlobal(e.target.shape.points, shape);
 
-	        var rPoints = _this5._changeToPoints(shapePoints);
+	        var rPoints = _this6._changeToPoints(shapePoints);
 
-	        _this5.handlers['_onHover'] && _this5.handlers['_onHover'][0](e, objectSpread2(objectSpread2({}, e.target.data), {}, {
+	        _this6.handlers['_onHover'] && _this6.handlers['_onHover'][0](e, objectSpread2(objectSpread2({}, e.target.data), {}, {
 	          coordinates: rPoints
 	        }));
-	        _this5._onHover && _this5._onHover(e, objectSpread2(objectSpread2({}, e.target.data), {}, {
+	        _this6._onHover && _this6._onHover(e, objectSpread2(objectSpread2({}, e.target.data), {}, {
 	          coordinates: rPoints
 	        }));
 	      });
 	      shape.on('mouseout', function (e) {
-	        if (_this5.getDrawingMode() === 'polygon') {
+	        if (_this6.getDrawingMode() === 'polygon') {
 	          return;
 	        }
 
-	        if (_this5._option.isOpen) {
-	          _this5._bindEvent();
+	        if (_this6._option.isOpen) {
+	          _this6._bindEvent();
 	        }
 	      });
 	      shape.on('mousedown', function (e) {
-	        if (_this5.getDrawingMode() === 'polygon') {
+	        if (_this6.getDrawingMode() === 'polygon') {
 	          return;
 	        } // OCRMARK-149右键移动已标注的框，在原位置重新标注，新标注框与之前移动过的标注框重合，出现飞框情况
 
@@ -29227,14 +29233,14 @@
 	        if (e.which === 1) {
 	          //选中某个框
 	          // this._option.currentShape = e.target;
-	          _this5._option.currentShape = e.target;
-	          _this5.tempShape = e.target; // console.log(this._option.currentShape, JSON.stringify(this._option.currentShape.shape.points))
+	          _this6._option.currentShape = e.target;
+	          _this6.tempShape = e.target; // console.log(this._option.currentShape, JSON.stringify(this._option.currentShape.shape.points))
 
-	          _this5.setSelectedSub(_this5._option.id, shape);
+	          _this6.setSelectedSub(shape);
 
-	          _this5.resetAllStyle();
+	          _this6.resetAllStyle();
 
-	          _this5.setSelectedStyle(e.target); // if (this.getDrag() === true) {
+	          _this6.setSelectedStyle(e.target); // if (this.getDrag() === true) {
 	          //     shape.attr({
 	          //         draggable: false
 	          //     })
@@ -29270,30 +29276,30 @@
 	          // }
 
 
-	          var shapePoints = _this5._toGlobal(e.target.shape.points, shape);
+	          var shapePoints = _this6._toGlobal(e.target.shape.points, shape);
 
-	          var rPoints = _this5._changeToPoints(shapePoints);
+	          var rPoints = _this6._changeToPoints(shapePoints);
 
-	          _this5.handlers['_onSelected'] && _this5.handlers['_onSelected'][0](e, objectSpread2(objectSpread2({}, e.target.data), {}, {
+	          _this6.handlers['_onSelected'] && _this6.handlers['_onSelected'][0](e, objectSpread2(objectSpread2({}, e.target.data), {}, {
 	            coordinates: rPoints
 	          }));
-	          _this5._onSelected && _this5._onSelected(e, objectSpread2(objectSpread2({}, e.target.data), {}, {
+	          _this6._onSelected && _this6._onSelected(e, objectSpread2(objectSpread2({}, e.target.data), {}, {
 	            coordinates: rPoints
 	          }));
 	        }
 	      });
 	      shape.on('mouseup', function (e) {
-	        if (_this5.getDrawingMode() !== 'rectangle') {
+	        if (_this6.getDrawingMode() !== 'rectangle') {
 	          return;
 	        } //开启编辑，选中某个框
 	        // console.log('shap-mouseup', this._option.currentShape, this._option.isOpen, this.selectedSub, this.tempShape.id, this._option.currentShape.id)
 
 
-	        var sub = _this5.getSelectedSub(_this5._option.id);
+	        var sub = _this6.getSelectedSub();
 
-	        if (_this5._option.isOpen && sub && e.which === 1) {
-	          _this5._startPoint = [];
-	          _this5._option.currentShape.bound && _this5._option.currentShape.bound.eachChild(function (item) {
+	        if (_this6._option.isOpen && sub && e.which === 1) {
+	          _this6._startPoint = [];
+	          _this6._option.currentShape.bound && _this6._option.currentShape.bound.eachChild(function (item) {
 	            item.show();
 	          }); // this.temp = zrender.util.clone(this._option.currentShape.shape.points);
 	          // this._option.currentShape = e.target;
@@ -29312,7 +29318,7 @@
 	          //     oldGroup.push(group);
 	          // }
 
-	          _this5._bindEvent();
+	          _this6._bindEvent();
 	        }
 	      });
 	      return shape;
@@ -29320,7 +29326,7 @@
 	  }, {
 	    key: "_reCreatePoints",
 	    value: function _reCreatePoints(points) {
-	      var _this6 = this;
+	      var _this7 = this;
 
 	      var shape = this._createShape(points, this._option.currentShape.data);
 
@@ -29328,8 +29334,8 @@
 	      this.graphic.remove(this._option.currentShape);
 
 	      this._areaShapes.forEach(function (item, index) {
-	        if (item.data.id === _this6._option.currentShape.data.id) {
-	          _this6._areaShapes.splice(index, 1);
+	        if (item.data.id === _this7._option.currentShape.data.id) {
+	          _this7._areaShapes.splice(index, 1);
 	        }
 	      });
 
@@ -29337,7 +29343,7 @@
 
 	      this._createEditGroup(points, shape);
 
-	      this.setSelectedSub(this._option.id, shape);
+	      this.setSelectedSub(shape);
 
 	      this._areaShapes.push(shape);
 
@@ -29348,7 +29354,7 @@
 	  }, {
 	    key: "_editElementEvent",
 	    value: function _editElementEvent(editNode, group) {
-	      var _this7 = this;
+	      var _this8 = this;
 
 	      editNode.on('mouseover', function (e) {// if (e.target._side === 'br') {
 	        // this.zr.addHover(shape, {
@@ -29380,19 +29386,19 @@
 	        }
 
 	        if (e.which === 1) {
-	          var m = _this7._option.currentShape.transform;
-	          var point = _this7._option.currentShape.shape.points;
+	          var m = _this8._option.currentShape.transform;
+	          var point = _this8._option.currentShape.shape.points;
 	          var oldPoints = zrender$3.util.clone(point); // console.log(this._option.currentShape, JSON.stringify(oldPoints))
 
-	          _this7.oldPoint = oldPoints;
+	          _this8.oldPoint = oldPoints;
 	          var width = oldPoints[1][0] - oldPoints[0][0];
 	          var height = oldPoints[2][1] - oldPoints[1][1]; // let bgDragX, bgDragY;
 
-	          _this7.obj = {
+	          _this8.obj = {
 	            width: width,
 	            height: height
 	          };
-	          _this7.m = zrender$3.util.clone(_this7._option.currentShape.transform || []);
+	          _this8.m = zrender$3.util.clone(_this8._option.currentShape.transform || []);
 	        }
 	      });
 	      editNode.on('drag', function (e) {
@@ -29417,8 +29423,8 @@
 	          // if (oldPoints.length === 0) {
 	          //     oldPoints = zrender.util.clone(this._option.currentShape.shape.points);
 	          // }
-	          var oldPoints = zrender$3.util.clone(_this7._option.currentShape.shape.points);
-	          var m = _this7.m;
+	          var oldPoints = zrender$3.util.clone(_this8._option.currentShape.shape.points);
+	          var m = _this8.m;
 	          var _side = e.target.data._side;
 
 	          if (!m[0]) {
@@ -29431,29 +29437,32 @@
 
 	          var bgDragX, bgDragY;
 
-	          if (_this7.bgDrag.length === 0) {
+	          if (_this8.bgDrag.length === 0) {
 	            bgDragX = 0;
 	            bgDragY = 0;
 	          } else {
-	            bgDragX = _this7.bgDrag[0];
-	            bgDragY = _this7.bgDrag[1];
+	            bgDragX = _this8.bgDrag[0];
+	            bgDragY = _this8.bgDrag[1];
 	          }
 
 	          var newPoints = [];
 	          var offsetX = 0;
 	          var offsetY = 0;
-	          var width = _this7.obj.width;
-	          var height = _this7.obj.height;
+	          var width = _this8.obj.width;
+	          var height = _this8.obj.height;
 
-	          var offsetM = _this7.getOffsetM();
+	          var offsetM = _this8.getOffsetM();
 
-	          var offsetN = _this7.getOffsetN();
+	          var offsetN = _this8.getOffsetN();
+
+	          var setPostionX = _this8.setPostionXY[0];
+	          var setPostionY = _this8.setPostionXY[1];
 
 	          switch (_side) {
 	            case 'tl':
 	              offsetX = e.event.offsetX;
 	              offsetY = e.event.offsetY;
-	              newPoints = [[(offsetX - offsetM) / m[0] - bgDragX, (offsetY - offsetN) / m[0] - bgDragY], [oldPoints[1][0], (offsetY - offsetN) / m[0] - bgDragY], oldPoints[2], [(offsetX - offsetM) / m[0] - bgDragX, oldPoints[3][1]]];
+	              newPoints = [[(offsetX - offsetM) / m[0] - bgDragX - setPostionX, (offsetY - offsetN) / m[0] - bgDragY - setPostionY], [oldPoints[1][0], (offsetY - offsetN) / m[0] - bgDragY - setPostionY], oldPoints[2], [(offsetX - offsetM) / m[0] - bgDragX - setPostionX, oldPoints[3][1]]];
 	              break;
 	            // case 't':
 	            //     offsetY = e.event.offsetY
@@ -29468,7 +29477,7 @@
 	            case 'tr':
 	              offsetX = e.event.offsetX;
 	              offsetY = e.event.offsetY;
-	              newPoints = [[oldPoints[0][0], (offsetY - offsetN) / m[0] - bgDragY], [(offsetX - offsetM) / m[0] - bgDragX, (offsetY - offsetN) / m[0] - bgDragY], [(offsetX - offsetM) / m[0] - bgDragX, oldPoints[3][1]], oldPoints[3]];
+	              newPoints = [[oldPoints[0][0], (offsetY - offsetN) / m[0] - bgDragY - setPostionY], [(offsetX - offsetM) / m[0] - bgDragX - setPostionX, (offsetY - offsetN) / m[0] - bgDragY - setPostionY], [(offsetX - offsetM) / m[0] - bgDragX - setPostionX, oldPoints[3][1]], oldPoints[3]];
 	              break;
 	            // case 'r':
 	            //     offsetX = e.event.offsetX
@@ -29489,7 +29498,7 @@
 	              //     [oldPoints[3][0], offsetY/m[0]]
 	              // ]
 
-	              newPoints = [oldPoints[0], [(offsetX - offsetM) / m[0] - bgDragX, oldPoints[0][1]], [(offsetX - offsetM) / m[0] - bgDragX, (offsetY - offsetN) / m[0] - bgDragY], [oldPoints[0][0], (offsetY - offsetN) / m[0] - bgDragY]];
+	              newPoints = [oldPoints[0], [(offsetX - offsetM) / m[0] - bgDragX - setPostionX, oldPoints[0][1]], [(offsetX - offsetM) / m[0] - bgDragX - setPostionX, (offsetY - offsetN) / m[0] - bgDragY - setPostionY], [oldPoints[0][0], (offsetY - offsetN) / m[0] - bgDragY - setPostionY]];
 	              break;
 	            // case 'b':
 	            //     offsetY = e.event.offsetY
@@ -29504,7 +29513,7 @@
 	            case 'bl':
 	              offsetX = e.event.offsetX;
 	              offsetY = e.event.offsetY;
-	              newPoints = [[(offsetX - offsetM) / m[0] - bgDragX, oldPoints[0][1]], oldPoints[1], [oldPoints[2][0], (offsetY - offsetN) / m[0] - bgDragY], [(offsetX - offsetM) / m[0] - bgDragX, (offsetY - offsetN) / m[0] - bgDragY]];
+	              newPoints = [[(offsetX - offsetM) / m[0] - bgDragX - setPostionX, oldPoints[0][1]], oldPoints[1], [oldPoints[2][0], (offsetY - offsetN) / m[0] - bgDragY], [(offsetX - offsetM) / m[0] - bgDragX - setPostionX, (offsetY - offsetN) / m[0] - bgDragY]];
 	              break;
 	            // case 'l':
 	            //     offsetX = e.event.offsetX
@@ -29525,7 +29534,7 @@
 	          }); // let x = this._toLocal(newPoints, group.bound)
 	          // console.log('new', JSON.stringify(newPoints), this.zr)
 
-	          _this7._option.currentShape.attr({
+	          _this8._option.currentShape.attr({
 	            scale: [1, 1],
 	            shape: {
 	              points: newPoints
@@ -29533,18 +29542,18 @@
 	            position: [0, 0]
 	          });
 
-	          _this7._editNode = newPoints; // this._array = x;
+	          _this8._editNode = newPoints; // this._array = x;
 
-	          var rPoints = _this7._changeToPoints(newPoints);
+	          var rPoints = _this8._changeToPoints(newPoints);
 
-	          _this7.handlers['_onEditNodeDrag'] && _this7.handlers['_onEditNodeDrag'][0](e, objectSpread2(objectSpread2({}, group.bound.data), {}, {
+	          _this8.handlers['_onEditNodeDrag'] && _this8.handlers['_onEditNodeDrag'][0](e, objectSpread2(objectSpread2({}, group.bound.data), {}, {
 	            coordinates: rPoints
 	          }));
-	          _this7._onEditNodeDrag && _this7._onEditNodeDrag(e, objectSpread2(objectSpread2({}, group.bound.data), {}, {
+	          _this8._onEditNodeDrag && _this8._onEditNodeDrag(e, objectSpread2(objectSpread2({}, group.bound.data), {}, {
 	            coordinates: rPoints
 	          }));
 
-	          _this7._createEditPoint(newPoints, group);
+	          _this8._createEditPoint(newPoints, group);
 	        }
 	      });
 	      editNode.on('dragend', function (e) {
@@ -29555,23 +29564,23 @@
 	        //双击框会消失
 
 
-	        if (_this7._editNode.length > 0) {
+	        if (_this8._editNode.length > 0) {
 	          //拖拽完之后，删除原有框,重新创建一个框，原有框在拖拽完之后拖拽事件没有同步
-	          _this7._reCreatePoints(_this7._editNode); // let shapePoints = this._toGlobal(this._editNode, this._option.currentShape);
+	          _this8._reCreatePoints(_this8._editNode); // let shapePoints = this._toGlobal(this._editNode, this._option.currentShape);
 
 
-	          var rPoints = _this7._changeToPoints(_this7._editNode);
+	          var rPoints = _this8._changeToPoints(_this8._editNode);
 
-	          _this7._option.exportData.forEach(function (item) {
+	          _this8._option.exportData.forEach(function (item) {
 	            if (item.id === group.bound.data.id) {
 	              item.coordinates = rPoints;
 	            }
 	          });
 
-	          _this7.handlers['_onEditNodeDragComplete'] && _this7.handlers['_onEditNodeDragComplete'][0](e, objectSpread2(objectSpread2({}, group.bound.data), {}, {
+	          _this8.handlers['_onEditNodeDragComplete'] && _this8.handlers['_onEditNodeDragComplete'][0](e, objectSpread2(objectSpread2({}, group.bound.data), {}, {
 	            coordinates: rPoints
 	          }));
-	          _this7._onEditNodeDragComplete && _this7._onEditNodeDragComplete(e, objectSpread2(objectSpread2({}, group.bound.data), {}, {
+	          _this8._onEditNodeDragComplete && _this8._onEditNodeDragComplete(e, objectSpread2(objectSpread2({}, group.bound.data), {}, {
 	            coordinates: rPoints
 	          }));
 	        }
@@ -29584,7 +29593,7 @@
 	  }, {
 	    key: "_createEditPoint",
 	    value: function _createEditPoint(points, group) {
-	      var _this8 = this;
+	      var _this9 = this;
 
 	      var editPoint = [];
 	      editPoint.push({
@@ -29604,7 +29613,7 @@
 	        points: points[3]
 	      });
 	      editPoint.forEach(function (item) {
-	        var width = _this8._editWidth / _this8.group.scale[0];
+	        var width = _this9._editWidth / _this9.group.scale[0];
 	        var editNode = new zrender$3.Rect(merge$1(EditRect, {
 	          shape: {
 	            x: item.points[0] - width / 2,
@@ -29615,10 +29624,10 @@
 	          data: {
 	            _side: item._side
 	          },
-	          zlevel: _this8.zlevel + 1
+	          zlevel: _this9.zlevel + 1
 	        }));
 
-	        _this8._editElementEvent(editNode, group);
+	        _this9._editElementEvent(editNode, group);
 
 	        group.add(editNode);
 	      });
@@ -29633,7 +29642,7 @@
 	  }, {
 	    key: "setOptionStyle",
 	    value: function setOptionStyle(style, selectedStyle) {
-	      var _this9 = this;
+	      var _this10 = this;
 
 	      this.DIYStyle = style;
 
@@ -29644,7 +29653,7 @@
 	      this._areaShapes.forEach(function (item) {
 	        if (item.data.type === 'Rectangle') {
 	          item.attr({
-	            style: objectSpread2(objectSpread2({}, _this9._styleConfig["default"]), style)
+	            style: objectSpread2(objectSpread2({}, _this10._styleConfig["default"]), style)
 	          });
 	        }
 	      });
@@ -29656,12 +29665,12 @@
 	  }, {
 	    key: "resetShapeStyle",
 	    value: function resetShapeStyle() {
-	      var _this10 = this;
+	      var _this11 = this;
 
 	      this._areaShapes.forEach(function (item) {
 	        if (item.data.type === 'Rectangle') {
 	          item.attr({
-	            style: objectSpread2(objectSpread2({}, _this10._styleConfig["default"]), _this10.DIYStyle),
+	            style: objectSpread2(objectSpread2({}, _this11._styleConfig["default"]), _this11.DIYStyle),
 	            draggable: false
 	          });
 	          item.bound && item.bound.eachChild(function (x) {
@@ -29678,9 +29687,9 @@
 	  }, {
 	    key: "removeAnnotation",
 	    value: function removeAnnotation() {
-	      var _this11 = this;
+	      var _this12 = this;
 
-	      var sub = this.getSelectedSub(this._option.id);
+	      var sub = this.getSelectedSub();
 
 	      if (sub) {
 	        var obj;
@@ -29689,7 +29698,7 @@
 	          if (item.data.id === sub.data.id) {
 	            obj = item;
 
-	            _this11._areaShapes.splice(index, 1);
+	            _this12._areaShapes.splice(index, 1);
 	          }
 	        });
 
@@ -29697,7 +29706,7 @@
 	          this.graphic.remove(obj.bound);
 	          obj.bound = null;
 	          this.graphic.remove(sub);
-	          this.setSelectedSub(this._option.id, null);
+	          this.setSelectedSub(null);
 	        }
 
 	        this._option.removeItem = obj;
@@ -29738,18 +29747,18 @@
 	  }, {
 	    key: "removeAll",
 	    value: function removeAll() {
-	      var _this12 = this;
+	      var _this13 = this;
 
 	      if (this._areaShapes.length > 0) {
 	        // debugger;
 	        this._areaShapes.forEach(function (item) {
 	          if (item.bound) {
-	            _this12.graphic.remove(item.bound);
+	            _this13.graphic.remove(item.bound);
 
 	            item.bound = null;
 	          }
 
-	          _this12.graphic.remove(item);
+	          _this13.graphic.remove(item);
 
 	          item = null;
 	        });
@@ -29774,12 +29783,12 @@
 	  }, {
 	    key: "_calculateToRelationpix",
 	    value: function _calculateToRelationpix(points) {
-	      var _this13 = this;
+	      var _this14 = this;
 
 	      var array = [];
 	      points.forEach(function (item) {
-	        var x = item[0] * _this13._option.setRate + _this13._option.offsetX;
-	        var y = item[1] * _this13._option.setRate + _this13._option.offsetY;
+	        var x = item[0] * _this14._option.setRate + _this14._option.offsetX;
+	        var y = item[1] * _this14._option.setRate + _this14._option.offsetY;
 	        array.push([x, y]);
 	      });
 	      return array;
@@ -29805,7 +29814,7 @@
 	  }, {
 	    key: "_changeToPoints",
 	    value: function _changeToPoints(points) {
-	      var _this14 = this;
+	      var _this15 = this;
 
 	      // const pointsData = [
 	      //     (points[0][0] - this._option.offsetX) / this._option.setRate,
@@ -29815,7 +29824,7 @@
 	      // ]
 	      var array = [];
 	      points.forEach(function (item) {
-	        array.push([(item[0] - _this14._option.offsetX) / _this14._option.setRate, (item[1] - _this14._option.offsetY) / _this14._option.setRate]);
+	        array.push([(item[0] - _this15._option.offsetX) / _this15._option.setRate, (item[1] - _this15._option.offsetY) / _this15._option.setRate]);
 	      });
 	      return array;
 	    }
@@ -29904,6 +29913,9 @@
 	        }
 	      }
 	    }
+	  }, {
+	    key: "reset",
+	    value: function reset() {}
 	  }]);
 
 	  return RectOverlay;
@@ -29925,13 +29937,12 @@
 	    classCallCheck(this, Polygon);
 
 	    _this = _super.call(this, opts);
+	    _this.group = _this.getGroup();
+	    _this.image = _this.getImage();
 	    _this.type = 'POLYGON';
-	    var key = Object.keys(_this.inMarkOption);
-	    _this._option = _this.getOption(opts.id || key[0]);
-	    _this.group = _this.getGroup(opts.id || key[0]);
-	    _this.image = _this.getImage(opts.id || key[0]);
+	    _this._option = _this.getOption();
 
-	    var mode = _this.getRenderMode(opts.id || key[0]);
+	    var mode = _this.getRenderMode();
 
 	    _this._option.mode = mode || 'auto';
 	    _this._option.currentShape = null; //是否开启绘制模式
@@ -30242,7 +30253,7 @@
 	            coordinates: points
 	          }));
 
-	          this.setSelectedSub(this._option.id, e.target);
+	          this.setSelectedSub(e.target);
 	          this._onCreateComplete && this._onCreateComplete(e, objectSpread2(objectSpread2({}, data), {}, {
 	            coordinates: points
 	          }));
@@ -30739,7 +30750,7 @@
 	          _this5._option.currentShape = e.target;
 	          _this5.tempShape = e.target;
 
-	          _this5.setSelectedSub(_this5._option.id, shape);
+	          _this5.setSelectedSub(shape);
 
 	          _this5.resetAllStyle();
 
@@ -30768,7 +30779,7 @@
 	        } //开启编辑，选中某个框
 
 
-	        var sub = _this5.getSelectedSub(_this5._option.id);
+	        var sub = _this5.getSelectedSub();
 
 	        if (_this5._option.isOpen && sub && e.which === 1) {
 	          _this5._option.currentShape.bound && _this5._option.currentShape.bound.eachChild(function (item) {
@@ -30800,7 +30811,7 @@
 
 	      this._createEditGroup(points, shape);
 
-	      this.setSelectedSub(this._option.id, shape);
+	      this.setSelectedSub(shape);
 
 	      this._areaShapes.push(shape);
 
@@ -31024,7 +31035,7 @@
 	    value: function removeAnnotation() {
 	      var _this11 = this;
 
-	      var sub = this.getSelectedSub(this._option.id);
+	      var sub = this.getSelectedSub();
 
 	      if (sub) {
 	        var obj;
@@ -31041,7 +31052,7 @@
 	          this.graphic.remove(obj.bound);
 	          obj.bound = null;
 	          this.graphic.remove(sub);
-	          this.setSelectedSub(this._option.id, null);
+	          this.setSelectedSub(null);
 	        }
 
 	        this._option.removeItem = obj;
@@ -31181,6 +31192,9 @@
 	        }
 	      }
 	    }
+	  }, {
+	    key: "reset",
+	    value: function reset() {}
 	  }]);
 
 	  return Polygon;
@@ -31229,14 +31243,13 @@
 	    classCallCheck(this, TextOverlay);
 
 	    _this = _super.call(this);
+	    _this.group = _this.getGroup();
+	    _this.image = _this.getImage();
 	    _this.type = 'TextOverlay'; //是否开启绘制模式
 
-	    var key = Object.keys(_this.inMarkOption);
-	    _this._option = _this.getOption(opts.id || key[0]);
-	    _this.group = _this.getGroup(opts.id || key[0]);
-	    _this.image = _this.getImage(opts.id || key[0]);
+	    _this._option = _this.getOption();
 
-	    var mode = _this.getRenderMode(opts.id || key[0]);
+	    var mode = _this.getRenderMode();
 
 	    _this._option.mode = mode || 'auto';
 	    _this._option.isOpen = opts.isOpen || false;
@@ -31517,7 +31530,7 @@
 
 	// rollup编译入口
 
-	var version$1 = "1.2.5";
+	var version$1 = "1.2.3-rc.1";
 	console.log("inMark v".concat(version$1));
 	var inMark = {
 	  version: version$1,
