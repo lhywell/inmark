@@ -2,12 +2,6 @@ import zrender from 'zrender';
 import { merge } from '../common/utils.js';
 import Tools from '../common/Tools';
 
-let inMarkGroup = {};
-let inMarkMode = {};
-let inMarkImage = {};
-let inMarkSelectedSub = {};
-let inMarkOption = {};
-Tools.prototype.inMarkOption = {};
 
 export default class AbstractRender extends Tools {
     /**
@@ -143,8 +137,6 @@ export default class AbstractRender extends Tools {
         this.image = null;
         this.group = null;
         this.polygon = null;
-
-        Tools.prototype.inMarkOption = {};
     }
     clear() {
         // 清除所有对象和画布。
@@ -167,37 +159,42 @@ export default class AbstractRender extends Tools {
     getZrender() {
         return AbstractRender.prototype.zr;
     }
-    setRenderMode(id, mode) {
-        inMarkMode[id] = mode;
+    setRenderMode(mode) {
+        AbstractRender.prototype.mode = mode;
     }
-    getRenderMode(id) {
-        return inMarkMode[id];
+    getRenderMode() {
+        return AbstractRender.prototype.mode;
     }
-    setGroup(id) {
-        let group = new zrender.Group();
-        inMarkGroup[id] = group;
+    setGroup() {
+        this.group = new zrender.Group();
+        AbstractRender.prototype.group = this.group;
     }
-    getGroup(id) {
-        return inMarkGroup[id];
+    getGroup() {
+        return AbstractRender.prototype.group;
     }
-    setImage(id, image) {
-        inMarkImage[id] = image;
+    setImage(image) {
+        AbstractRender.prototype.image = image;
     }
-    getImage(id) {
-        // 注意：在loadComplete里执行
-        return inMarkImage[id];
+    getImage() {
+        return AbstractRender.prototype.image;
     }
-    setSelectedSub(id, selectedSub) {
-        inMarkSelectedSub[id] = selectedSub;
+    setSelectedSub(selectedSub) {
+        AbstractRender.prototype.selectedSub = selectedSub;
     }
-    getSelectedSub(id) {
-        return inMarkSelectedSub[id];
+    getSelectedSub() {
+        return AbstractRender.prototype.selectedSub;
     }
-    setOption(id, option) {
-        Tools.prototype.inMarkOption[id] = option;
+    setDragPosition(dragPosition) {
+        AbstractRender.prototype.dragPosition = dragPosition;
     }
-    getOption(id) {
-        return Tools.prototype.inMarkOption[id];
+    getDragPosition() {
+        return AbstractRender.prototype.dragPosition;
+    }
+    setOption(option) {
+        AbstractRender.prototype.option = option;
+    }
+    getOption() {
+        return AbstractRender.prototype.option;
     }
 
 }

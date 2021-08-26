@@ -18,17 +18,14 @@ export default class RectOverlay extends AbstractRender {
     constructor(opts) {
         super();
 
+        this.group = this.getGroup();
+        this.image = this.getImage();
+
         this.type = 'RECTANGLE';
 
-        let key = Object.keys(this.inMarkOption);
+        this._option = this.getOption();
 
-        this._option = this.getOption(opts.id || key[0]);
-
-        this.group = this.getGroup(opts.id || key[0]);
-        this.image = this.getImage(opts.id || key[0]);
-
-        let mode = this.getRenderMode(opts.id || key[0]);
-
+        let mode = this.getRenderMode();
         this._option.mode = mode || 'auto';
 
         this._option.currentShape = null;
@@ -79,6 +76,7 @@ export default class RectOverlay extends AbstractRender {
         this.handlers = {}; //存储事件的对象 
         this.zlevel = this._styleConfig.default.zlevel;
         this.DIYStyle = {};
+        this.setPostionXY = []
 
         if (this.image) {
             this.image.on('drag', (e) => {
@@ -234,7 +232,7 @@ export default class RectOverlay extends AbstractRender {
 
             if (xLong < this._createLimit && yLong < this._createLimit) {
                 this._canDrawShape = false;
-                this.setSelectedSub(this._option.id, null);
+                this.setSelectedSub(null);
 
                 return;
             }
@@ -311,7 +309,7 @@ export default class RectOverlay extends AbstractRender {
                     coordinates: points
                 });
 
-                this.setSelectedSub(this._option.id, e.target);
+                this.setSelectedSub(e.target);
 
                 this._onCreateComplete && this._onCreateComplete(e, {
                     ...data,
@@ -446,9 +444,16 @@ export default class RectOverlay extends AbstractRender {
         });
     }
     setPosition(item) {
-        if (this._option.isOpen) {
-            return;
-        }
+        // if (this._option.isOpen) {
+        //     // this.close();
+        //     // this.setDrag(true);
+        //     return;
+        // }
+
+        // this.group.attr({
+        //     position: [0,0],
+        //     origin: this.getOrigin()
+        // });
         if (item.coordinates.length !== 4) {
             return;
         }
@@ -468,8 +473,11 @@ export default class RectOverlay extends AbstractRender {
             bgDragX = this.bgDrag[0];
             bgDragY = this.bgDrag[1];
         }
+
+        this.setPostionXY = [(-point_center[0] - bgDragX) * scale + canvas_width / 2 * scale, (-point_center[1] - bgDragY) * scale + canvas_height / 2 * scale];
+
         this.group.attr({
-            position: [(-point_center[0] - bgDragX) * scale + canvas_width / 2 * scale, (-point_center[1] - bgDragY) * scale + canvas_height / 2 * scale]
+            position: this.setPostionXY,
         });
     }
     _createEditGroup(points, shape) {
@@ -511,6 +519,8 @@ export default class RectOverlay extends AbstractRender {
 
         let offsetM = this.getOffsetM();
         let offsetN = this.getOffsetN();
+        // let positionX = this.setPostionXY[0]
+        // let positionY = this.setPostionXY[1]
         // console.log('m', m, bgDragX, bgDragY, points, offsetM, offsetN)
         points.forEach(item => {
             let x;
@@ -527,7 +537,7 @@ export default class RectOverlay extends AbstractRender {
                 }
             }
 
-            x = [item[0] - bgDragX, item[1] - bgDragY];
+            x = [item[0] - bgDragX - this.setPostionXY[0], item[1] - bgDragY - this.setPostionXY[1]];
             array.push(x);
         });
         return array;
@@ -625,8 +635,7 @@ export default class RectOverlay extends AbstractRender {
             }
             if (e.which === 1) {
                 let shape = e.target;
-
-                this.position = zrender.util.clone(shape.position);
+                // this.position = zrender.util.clone(shape.position);
                 //拖动后点坐标
                 let shapePoints = this._toShapeDragEnd(e, shape);
 
@@ -750,7 +759,7 @@ export default class RectOverlay extends AbstractRender {
                 this.tempShape = e.target;
                 // console.log(this._option.currentShape, JSON.stringify(this._option.currentShape.shape.points))
 
-                this.setSelectedSub(this._option.id, shape);
+                this.setSelectedSub(shape);
 
                 this.resetAllStyle();
 
@@ -813,7 +822,7 @@ export default class RectOverlay extends AbstractRender {
             }
             //开启编辑，选中某个框
             // console.log('shap-mouseup', this._option.currentShape, this._option.isOpen, this.selectedSub, this.tempShape.id, this._option.currentShape.id)
-            let sub = this.getSelectedSub(this._option.id);
+            let sub = this.getSelectedSub();
             if (this._option.isOpen && sub && e.which === 1) {
                 this._startPoint = [];
 
@@ -857,7 +866,7 @@ export default class RectOverlay extends AbstractRender {
 
         this._createEditGroup(points, shape);
 
-        this.setSelectedSub(this._option.id, shape);
+        this.setSelectedSub(shape);
 
         this._areaShapes.push(shape);
         this.graphic.add(shape);
@@ -973,15 +982,17 @@ export default class RectOverlay extends AbstractRender {
                 let offsetM = this.getOffsetM();
                 let offsetN = this.getOffsetN();
 
+                let setPostionX = this.setPostionXY[0]
+                let setPostionY = this.setPostionXY[1]
                 switch (_side) {
                     case 'tl':
                         offsetX = e.event.offsetX;
                         offsetY = e.event.offsetY;
                         newPoints = [
-                            [(offsetX - offsetM) / m[0] - bgDragX, (offsetY - offsetN) / m[0] - bgDragY],
-                            [oldPoints[1][0], (offsetY - offsetN) / m[0] - bgDragY],
+                            [(offsetX - offsetM) / m[0] - bgDragX - setPostionX, (offsetY - offsetN) / m[0] - bgDragY - setPostionY],
+                            [oldPoints[1][0], (offsetY - offsetN) / m[0] - bgDragY - setPostionY],
                             oldPoints[2],
-                            [(offsetX - offsetM) / m[0] - bgDragX, oldPoints[3][1]],
+                            [(offsetX - offsetM) / m[0] - bgDragX - setPostionX, oldPoints[3][1]],
                         ];
                         break;
                         // case 't':
@@ -998,9 +1009,9 @@ export default class RectOverlay extends AbstractRender {
                         offsetY = e.event.offsetY;
 
                         newPoints = [
-                            [oldPoints[0][0], (offsetY - offsetN) / m[0] - bgDragY],
-                            [(offsetX - offsetM) / m[0] - bgDragX, (offsetY - offsetN) / m[0] - bgDragY],
-                            [(offsetX - offsetM) / m[0] - bgDragX, oldPoints[3][1]],
+                            [oldPoints[0][0], (offsetY - offsetN) / m[0] - bgDragY - setPostionY],
+                            [(offsetX - offsetM) / m[0] - bgDragX - setPostionX, (offsetY - offsetN) / m[0] - bgDragY - setPostionY],
+                            [(offsetX - offsetM) / m[0] - bgDragX - setPostionX, oldPoints[3][1]],
                             oldPoints[3]
                         ];
                         break;
@@ -1025,9 +1036,9 @@ export default class RectOverlay extends AbstractRender {
                         // ]
                         newPoints = [
                             oldPoints[0],
-                            [(offsetX - offsetM) / m[0] - bgDragX, oldPoints[0][1]],
-                            [(offsetX - offsetM) / m[0] - bgDragX, (offsetY - offsetN) / m[0] - bgDragY],
-                            [oldPoints[0][0], (offsetY - offsetN) / m[0] - bgDragY]
+                            [(offsetX - offsetM) / m[0] - bgDragX - setPostionX, oldPoints[0][1]],
+                            [(offsetX - offsetM) / m[0] - bgDragX - setPostionX, (offsetY - offsetN) / m[0] - bgDragY - setPostionY],
+                            [oldPoints[0][0], (offsetY - offsetN) / m[0] - bgDragY - setPostionY]
                         ];
                         break;
                         // case 'b':
@@ -1044,10 +1055,10 @@ export default class RectOverlay extends AbstractRender {
                         offsetY = e.event.offsetY;
 
                         newPoints = [
-                            [(offsetX - offsetM) / m[0] - bgDragX, oldPoints[0][1]],
+                            [(offsetX - offsetM) / m[0] - bgDragX - setPostionX, oldPoints[0][1]],
                             oldPoints[1],
                             [oldPoints[2][0], (offsetY - offsetN) / m[0] - bgDragY],
-                            [(offsetX - offsetM) / m[0] - bgDragX, (offsetY - offsetN) / m[0] - bgDragY]
+                            [(offsetX - offsetM) / m[0] - bgDragX - setPostionX, (offsetY - offsetN) / m[0] - bgDragY]
                         ];
                         break;
                         // case 'l':
@@ -1220,7 +1231,7 @@ export default class RectOverlay extends AbstractRender {
      * @return {Object} 删除的对象
      */
     removeAnnotation() {
-        let sub = this.getSelectedSub(this._option.id);
+        let sub = this.getSelectedSub();
         if (sub) {
             let obj;
             this._areaShapes.forEach((item, index) => {
@@ -1233,7 +1244,7 @@ export default class RectOverlay extends AbstractRender {
                 this.graphic.remove(obj.bound);
                 obj.bound = null;
                 this.graphic.remove(sub);
-                this.setSelectedSub(this._option.id, null);
+                this.setSelectedSub(null);
             }
 
             this._option.removeItem = obj;
@@ -1413,4 +1424,5 @@ export default class RectOverlay extends AbstractRender {
             }
         }
     }
+    reset() {}
 }

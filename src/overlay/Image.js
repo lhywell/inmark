@@ -24,7 +24,7 @@ export default class BImage extends AbstractRender {
             this._option.imgUrl = opts && opts.imgUrl;
 
             let mode = opts && opts.mode || 'auto';
-            this.setRenderMode(opts.id, mode);
+            this.setRenderMode(mode);
 
             if (mode === 'auto') {
                 this._option.offsetX = 0; //auto模式图片等比例缩放后在画布中横轴位移
@@ -80,7 +80,7 @@ export default class BImage extends AbstractRender {
         this._onRotate = opts && opts.event && opts.event.onRotate;
 
         this.initialize();
-        this.setOption(this._option.id, this._option);
+        this.setOption(this._option);
     }
     initialize() {
         this.renderImg(this.imgUrl);
@@ -94,14 +94,14 @@ export default class BImage extends AbstractRender {
             return;
         }
         // 创建组
-        this.setGroup(this._option.id);
+        this.setGroup();
 
         //加载图片
         let img = new Image();
         img.setAttribute('crossorigin', 'anonymous');
         img.src = url;
         img.onload = () => {
-            let mode = this.getRenderMode(this._option.id);
+            let mode = this.getRenderMode();
             if (mode === 'auto') {
                 //auto模式图片自动适应屏幕大小
                 const xRate = this.ctx.canvasWidth / img.width;
@@ -253,9 +253,8 @@ export default class BImage extends AbstractRender {
             this.image = image;
             // this.image.setAttribute('data-name', 'sssss');
 
-            this.setImage(this._option.id, image);
-
-            this.group = this.getGroup(this._option.id);
+            this.setImage(image);
+            this.group = this.getGroup();
             this.group.add(image);
 
             // zrender渲染group
@@ -276,7 +275,7 @@ export default class BImage extends AbstractRender {
             this._bindEvent();
 
             // 设置默认为'手势'可拖动
-            this.setDrag(this._option.draggable);
+            this.setDrag(true);
         };
 
     }
@@ -365,7 +364,7 @@ export default class BImage extends AbstractRender {
     }
     _zrMouseDown(e) {}
     _zrMouseUp(e) {
-        let mode = this.getRenderMode(this._option.id);
+        let mode = this.getRenderMode();
         if (mode === 'auto-rotate') {
             this.image.attr({
                 cursor: 'default'

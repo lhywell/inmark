@@ -4,18 +4,11 @@ let degree_out = 0,
     remainder = 0, //余数
     remainder_h = 0; //余数弧度
 export default class Tools {
-    constructor() {
+    constructor(opts, type) {
         /**
          * 定义常量, 绘制的模式
          * @final {String} DrawingType
          */
-        this.times = 1;
-        count = 0;
-        degree_out = 0;
-        radian_out = 0;
-        remainder = 0;
-        remainder_h = 0;
-
         window.INMARK_DRAWING_RECTANGLE = 'rectangle'; // 鼠标画矩形模式
         window.INMARK_DRAWING_POLYGON = 'polygon'; // 鼠标画多边形模式
 
@@ -47,15 +40,12 @@ export default class Tools {
 
         return { x, y, scale };
     }
-    zoomIn() {
-        this.times += 0.01;
-
+    zoomIn(times = 1.109) {
         // zoomOut取0.8,zoomIn取1.25，执行出错，先放大再缩小，拖动图片会触发无限放大或缩小
-        this.zoomStage(this.times);
+        this.zoomStage(times);
     }
-    zoomOut() {
-        this.times -= 0.01;
-        this.zoomStage(this.times);
+    zoomOut(times = 0.9) {
+        this.zoomStage(times);
     }
     zoomStage(scaleBy) {
         this.setDrawingMode('hander');
@@ -227,7 +217,7 @@ export default class Tools {
         const origin = this.getOrigin();
         let scale = this.getScale();
 
-        let mode = this.getRenderMode(this._option.id);
+        let mode = this.getRenderMode();
         if (mode === 'auto' || mode === 'auto-rotate') {
             return [0, 0];
         } else {
@@ -240,7 +230,7 @@ export default class Tools {
     _reSetPosition() {
         const offset = this._getOffset();
 
-        let mode = this.getRenderMode(this._option.id);
+        let mode = this.getRenderMode();
         let offsetM = this.getOffsetM();
         let offsetN = this.getOffsetN();
 
@@ -300,7 +290,7 @@ export default class Tools {
         }
     }
     getOrigin() {
-        let mode = this.getRenderMode(this._option.id);
+        let mode = this.getRenderMode();
         if (mode === 'auto' || mode === 'auto-rotate') {
             this._option.widthImg = this._option.widthImg * this.group.scale[0];
             this._option.heightImg = this._option.heightImg * this.group.scale[0];
@@ -469,7 +459,7 @@ export default class Tools {
                 Tools.prototype.recOverlay && Tools.prototype.recOverlay.resetShapeStyle();
                 Tools.prototype.recOverlay && Tools.prototype.recOverlay.close();
 
-                this.setDrag(this._option.draggable);
+                this.setDrag(true);
                 break;
         }
     }
