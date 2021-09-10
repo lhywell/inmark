@@ -348,7 +348,7 @@ function initImage() {
 
     $('#markNoteList').html(str);
 
-    $('#markNoteList .item').on('mouseenter', function(e) {
+    $('#markNoteList .item').on('click', function(e) {
         let index = $(this).parent().attr('data-index');
         let obj = markNoteList[index]
         seletedSub(obj)
@@ -576,7 +576,8 @@ function deleteSub(item) {
 }
 
 function seletedSub(item) {
-    console.log(item)
+    // 开启编辑模式高亮
+    // rect.open();
     // rect && rect.setPosition(item);
 
     rect && rect.selected(item);

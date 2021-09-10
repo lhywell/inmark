@@ -76,7 +76,7 @@ export default class RectOverlay extends AbstractRender {
         this.handlers = {}; //存储事件的对象 
         this.zlevel = this._styleConfig.default.zlevel;
         this.DIYStyle = {};
-        this.setPostionXY = []
+        this.setPostionXY = [0, 0]
 
         if (this.image) {
             this.image.on('drag', (e) => {
@@ -427,9 +427,6 @@ export default class RectOverlay extends AbstractRender {
         }
     }
     selected(item, options = {}) {
-        if (this._option.isOpen) {
-            return;
-        }
         this.resetAllStyle();
         this._areaShapes.forEach(x => {
             if (x.data.id === item.id) {
@@ -536,7 +533,6 @@ export default class RectOverlay extends AbstractRender {
                     item[1] = item[1] - (Math.abs(m[5] - offsetN) / m[0]);
                 }
             }
-
             x = [item[0] - bgDragX - this.setPostionXY[0], item[1] - bgDragY - this.setPostionXY[1]];
             array.push(x);
         });
