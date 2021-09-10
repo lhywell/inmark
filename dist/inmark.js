@@ -28511,7 +28511,7 @@
 
 	    _this.zlevel = _this._styleConfig["default"].zlevel;
 	    _this.DIYStyle = {};
-	    _this.setPostionXY = [];
+	    _this.setPostionXY = [0, 0];
 
 	    if (_this.image) {
 	      _this.image.on('drag', function (e) {
@@ -28906,11 +28906,6 @@
 	      var _this4 = this;
 
 	      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-	      if (this._option.isOpen) {
-	        return;
-	      }
-
 	      this.resetAllStyle();
 
 	      this._areaShapes.forEach(function (x) {
@@ -31530,7 +31525,7 @@
 
 	// rollup编译入口
 
-	var version$1 = "1.2.3-rc.1";
+	var version$1 = "1.2.3-rc.2";
 	console.log("inMark v".concat(version$1));
 	var inMark = {
 	  version: version$1,
