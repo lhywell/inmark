@@ -76,7 +76,7 @@ export default class RectOverlay extends AbstractRender {
         this.handlers = {}; //存储事件的对象 
         this.zlevel = this._styleConfig.default.zlevel;
         this.DIYStyle = {};
-        this.setPostionXY = [0, 0]
+        this.setPositionXY([0, 0])
 
         if (this.image) {
             this.image.on('drag', (e) => {
@@ -470,11 +470,10 @@ export default class RectOverlay extends AbstractRender {
             bgDragX = this.bgDrag[0];
             bgDragY = this.bgDrag[1];
         }
-
-        this.setPostionXY = [(-point_center[0] - bgDragX) * scale + canvas_width / 2 * scale, (-point_center[1] - bgDragY) * scale + canvas_height / 2 * scale];
-
+        let setPositionXY = [(-point_center[0] - bgDragX) * scale + canvas_width / 2 * scale, (-point_center[1] - bgDragY) * scale + canvas_height / 2 * scale];
+        this.setPositionXY(setPositionXY)
         this.group.attr({
-            position: this.setPostionXY,
+            position: setPositionXY,
         });
     }
     _createEditGroup(points, shape) {
@@ -516,8 +515,10 @@ export default class RectOverlay extends AbstractRender {
 
         let offsetM = this.getOffsetM();
         let offsetN = this.getOffsetN();
-        // let positionX = this.setPostionXY[0]
-        // let positionY = this.setPostionXY[1]
+
+        let scale = this.group.scale[0]
+        let positionX = this.getPositionXY()[0] / scale
+        let positionY = this.getPositionXY()[1] / scale
         // console.log('m', m, bgDragX, bgDragY, points, offsetM, offsetN)
         points.forEach(item => {
             let x;
@@ -533,7 +534,7 @@ export default class RectOverlay extends AbstractRender {
                     item[1] = item[1] - (Math.abs(m[5] - offsetN) / m[0]);
                 }
             }
-            x = [item[0] - bgDragX - this.setPostionXY[0], item[1] - bgDragY - this.setPostionXY[1]];
+            x = [item[0] - bgDragX - positionX, item[1] - bgDragY - positionY];
             array.push(x);
         });
         return array;
@@ -978,17 +979,19 @@ export default class RectOverlay extends AbstractRender {
                 let offsetM = this.getOffsetM();
                 let offsetN = this.getOffsetN();
 
-                let setPostionX = this.setPostionXY[0]
-                let setPostionY = this.setPostionXY[1]
+                let scale = this.group.scale[0]
+                let setPositionX = this.getPositionXY()[0] / scale
+                let setPositionY = this.getPositionXY()[1] / scale
+
                 switch (_side) {
                     case 'tl':
                         offsetX = e.event.offsetX;
                         offsetY = e.event.offsetY;
                         newPoints = [
-                            [(offsetX - offsetM) / m[0] - bgDragX - setPostionX, (offsetY - offsetN) / m[0] - bgDragY - setPostionY],
-                            [oldPoints[1][0], (offsetY - offsetN) / m[0] - bgDragY - setPostionY],
+                            [(offsetX - offsetM) / m[0] - bgDragX - setPositionX, (offsetY - offsetN) / m[0] - bgDragY - setPositionY],
+                            [oldPoints[1][0], (offsetY - offsetN) / m[0] - bgDragY - setPositionY],
                             oldPoints[2],
-                            [(offsetX - offsetM) / m[0] - bgDragX - setPostionX, oldPoints[3][1]],
+                            [(offsetX - offsetM) / m[0] - bgDragX - setPositionX, oldPoints[3][1]],
                         ];
                         break;
                         // case 't':
@@ -1005,9 +1008,9 @@ export default class RectOverlay extends AbstractRender {
                         offsetY = e.event.offsetY;
 
                         newPoints = [
-                            [oldPoints[0][0], (offsetY - offsetN) / m[0] - bgDragY - setPostionY],
-                            [(offsetX - offsetM) / m[0] - bgDragX - setPostionX, (offsetY - offsetN) / m[0] - bgDragY - setPostionY],
-                            [(offsetX - offsetM) / m[0] - bgDragX - setPostionX, oldPoints[3][1]],
+                            [oldPoints[0][0], (offsetY - offsetN) / m[0] - bgDragY - setPositionY],
+                            [(offsetX - offsetM) / m[0] - bgDragX - setPositionX, (offsetY - offsetN) / m[0] - bgDragY - setPositionY],
+                            [(offsetX - offsetM) / m[0] - bgDragX - setPositionX, oldPoints[3][1]],
                             oldPoints[3]
                         ];
                         break;
@@ -1032,9 +1035,9 @@ export default class RectOverlay extends AbstractRender {
                         // ]
                         newPoints = [
                             oldPoints[0],
-                            [(offsetX - offsetM) / m[0] - bgDragX - setPostionX, oldPoints[0][1]],
-                            [(offsetX - offsetM) / m[0] - bgDragX - setPostionX, (offsetY - offsetN) / m[0] - bgDragY - setPostionY],
-                            [oldPoints[0][0], (offsetY - offsetN) / m[0] - bgDragY - setPostionY]
+                            [(offsetX - offsetM) / m[0] - bgDragX - setPositionX, oldPoints[0][1]],
+                            [(offsetX - offsetM) / m[0] - bgDragX - setPositionX, (offsetY - offsetN) / m[0] - bgDragY - setPositionY],
+                            [oldPoints[0][0], (offsetY - offsetN) / m[0] - bgDragY - setPositionY]
                         ];
                         break;
                         // case 'b':
@@ -1051,10 +1054,10 @@ export default class RectOverlay extends AbstractRender {
                         offsetY = e.event.offsetY;
 
                         newPoints = [
-                            [(offsetX - offsetM) / m[0] - bgDragX - setPostionX, oldPoints[0][1]],
+                            [(offsetX - offsetM) / m[0] - bgDragX - setPositionX, oldPoints[0][1]],
                             oldPoints[1],
                             [oldPoints[2][0], (offsetY - offsetN) / m[0] - bgDragY],
-                            [(offsetX - offsetM) / m[0] - bgDragX - setPostionX, (offsetY - offsetN) / m[0] - bgDragY]
+                            [(offsetX - offsetM) / m[0] - bgDragX - setPositionX, (offsetY - offsetN) / m[0] - bgDragY]
                         ];
                         break;
                         // case 'l':

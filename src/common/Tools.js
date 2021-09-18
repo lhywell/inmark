@@ -120,6 +120,7 @@ export default class Tools {
         this.setOffsetN(d[5]);
 
         // this._option.scale = scale;
+        this.setPositionXY([0,0]);
         this.setScale(scale);
 
         return this;
@@ -503,6 +504,12 @@ export default class Tools {
     }
     getOffsetN() {
         return Tools.prototype.OffsetN;
+    }
+    setPositionXY(positionXY) {
+        Tools.prototype.positionXY = positionXY;
+    }
+    getPositionXY() {
+        return Tools.prototype.positionXY;
     }
     getRotate() {
         //返回弧度制，角度制
