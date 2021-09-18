@@ -428,6 +428,7 @@ export default class RectOverlay extends AbstractRender {
     }
     selected(item, options = {}) {
         this.resetAllStyle();
+
         this._areaShapes.forEach(x => {
             if (x.data.id === item.id) {
                 this._option.currentShape = x;
@@ -436,6 +437,7 @@ export default class RectOverlay extends AbstractRender {
                 const points = this._changeToPoints(shapePoints);
                 this._editNode = points;
 
+                this.setSelectedSub(x)
                 this.setSelectedStyle(x, options);
             }
         });
