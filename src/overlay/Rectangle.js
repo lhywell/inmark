@@ -1058,8 +1058,8 @@ export default class RectOverlay extends AbstractRender {
                         newPoints = [
                             [(offsetX - offsetM) / m[0] - bgDragX - setPositionX, oldPoints[0][1]],
                             oldPoints[1],
-                            [oldPoints[2][0], (offsetY - offsetN) / m[0] - bgDragY],
-                            [(offsetX - offsetM) / m[0] - bgDragX - setPositionX, (offsetY - offsetN) / m[0] - bgDragY]
+                            [oldPoints[2][0], (offsetY - offsetN) / m[0] - bgDragY - setPositionY],
+                            [(offsetX - offsetM) / m[0] - bgDragX - setPositionX, (offsetY - offsetN) / m[0] - bgDragY - setPositionY]
                         ];
                         break;
                         // case 'l':
