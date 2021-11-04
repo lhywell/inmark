@@ -56,12 +56,14 @@ let img = image.getImage(id);//返回zrender图片实例
 ```
 #### 配置属性
 
-| 参数  |  说明 |  类型  |  是否必填  |
-| ------------ | ------------ | ------------ | ------------ |
-|  id |  Dom依赖唯一的名称id,用来生成canvas容器 | String  | 必填  |
-|  mode | 设置渲染模式，默认为‘auto’。<br> 'auto'进行图片大小等比例缩放适应canvas容器；<br>'original'不进行图片缩放，加载原图片大小；<br>'auto-rotate' 旋转模式，支持图片旋转 | String  |  必填 |
-| imgUrl  | 设置图片的url访问地址，可以是http,https,cdn方式。如果需要图片强制刷新，可在图片url后增加时间戳  |  String |  必填 |
-| event  | 参见回调方法  |  Object |  选填 |
+| 参数  |  说明 |  类型  |  默认值  |是否必填  |
+| ------------ | ------------ | ------------ | ------------ | ------------ |
+|  id |  Dom依赖唯一的名称id,用来生成canvas容器 | String  | | 必填  |
+|  mode | 设置渲染模式。<br> 'auto'进行图片大小等比例缩放适应canvas容器；<br>'original'不进行图片缩放，加载原图片大小；<br>'auto-rotate' 旋转模式，支持图片旋转 | String | 'auto' |  必填 |
+| imgUrl  | 设置图片的url访问地址，可以是http,https,cdn方式。如果需要图片强制刷新，可在图片url后增加时间戳  |  String |  | 必填 |
+| canvasWidth  | 画布宽度  |  Number | 'auto' | 选填 |
+| canvasHeight  | 画布高度  |  Number | 'auto' | 选填 |
+| event  | 参见回调方法  |  Object | | 选填 |
 
 
 #### 回调方法 or 事件监听方法
