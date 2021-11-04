@@ -11,7 +11,7 @@ export default class AbstractRender extends Tools {
     constructor(opts) {
         super();
         if (opts) {
-            this.setZrender(opts.id)
+            this.setZrender(opts)
 
             this._option = opts;
         } else {
@@ -150,9 +150,12 @@ export default class AbstractRender extends Tools {
         this.reset();
     }
     // get,set方法
-    setZrender(id) {
-        if (id) {
-            this.zr = zrender.init(document.getElementById(id));
+    setZrender(opts) {
+        if (opts.id) {
+            this.zr = zrender.init(document.getElementById(opts.id), {
+                width: opts.canvasWidth,
+                height: opts.canvasHeight,
+            });
             AbstractRender.prototype.zr = this.zr;
         }
     }

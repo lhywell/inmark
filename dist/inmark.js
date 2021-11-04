@@ -27629,7 +27629,7 @@
 	    _this = _super.call(this);
 
 	    if (opts) {
-	      _this.setZrender(opts.id);
+	      _this.setZrender(opts);
 
 	      _this._option = opts;
 	    } else {
@@ -27817,9 +27817,12 @@
 
 	  }, {
 	    key: "setZrender",
-	    value: function setZrender(id) {
-	      if (id) {
-	        this.zr = zrender$3.init(document.getElementById(id));
+	    value: function setZrender(opts) {
+	      if (opts.id) {
+	        this.zr = zrender$3.init(document.getElementById(opts.id), {
+	          width: opts.canvasWidth,
+	          height: opts.canvasHeight
+	        });
 	        AbstractRender.prototype.zr = this.zr;
 	      }
 	    }
@@ -31540,7 +31543,7 @@
 
 	// rollup编译入口
 
-	var version$1 = "1.2.3-rc.3";
+	var version$1 = "1.2.3-rc.4";
 	console.log("inMark v".concat(version$1));
 	var inMark = {
 	  version: version$1,
