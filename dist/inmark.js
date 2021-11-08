@@ -27339,7 +27339,16 @@
 	        var box = this.image.getBoundingRect();
 	        this._option.widthImg = box.width * this.group.scale[0];
 	        this._option.heightImg = box.height * this.group.scale[0];
-	        this._option.origin = [this.ctx.canvasWidth / 2, this.ctx.canvasHeight / 2];
+
+	        if (this._option.canvasWidth) {
+	          var id = this._option.id;
+	          var dom = document.getElementById(id);
+	          var domWidth = dom.getBoundingClientRect().width;
+	          var domHeight = dom.getBoundingClientRect().height;
+	          this._option.origin = [domWidth / 2, domHeight / 2];
+	        } else {
+	          this._option.origin = [this.ctx.canvasWidth / 2, this.ctx.canvasHeight / 2];
+	        }
 	      }
 
 	      return this._option.origin;
@@ -28016,6 +28025,8 @@
 	      _this._option = {};
 	      _this._option.id = opts && opts.id;
 	      _this._option.imgUrl = opts && opts.imgUrl;
+	      _this._option.canvasWidth = opts && opts.canvasWidth;
+	      _this._option.canvasHeight = opts && opts.canvasHeight;
 	      var mode = opts && opts.mode || 'auto';
 
 	      _this.setRenderMode(mode);
@@ -28957,6 +28968,8 @@
 	      var point = this._calculateToRelationpix(item.coordinates);
 
 	      var point_center = [(point[0][0] + point[1][0]) / 2, (point[0][1] + point[3][1]) / 2];
+	      var point_w = Math.abs(point[0][0] - point[1][0]);
+	      var point_h = Math.abs(point[0][1] - point[3][1]);
 	      var scale = this.group.scale[0];
 	      var canvas_width = this.zr.painter._width;
 	      var canvas_height = this.zr.painter._height;
@@ -28971,10 +28984,24 @@
 	        bgDragY = this.bgDrag[1];
 	      }
 
-	      var setPositionXY = [(-point_center[0] - bgDragX) * scale + canvas_width / 2 * scale, (-point_center[1] - bgDragY) * scale + canvas_height / 2 * scale];
+	      var setPositionXY;
+	      var offsetM = this.getOffsetM();
+	      var offsetN = this.getOffsetN();
+
+	      if (this._option.canvasWidth && this._option.canvasHeight) {
+	        var id = this._option.id;
+	        var dom = document.getElementById(id);
+	        var domWidth = dom.getBoundingClientRect().width;
+	        var domHeight = dom.getBoundingClientRect().height;
+	        setPositionXY = [(domWidth / 2 - point_center[0] - bgDragX) * scale, (domHeight / 2 - point_center[1] - bgDragY) * scale];
+	      } else {
+	        setPositionXY = [(-point_center[0] - bgDragX) * scale + canvas_width / 2 * scale, (-point_center[1] - bgDragY) * scale + canvas_height / 2 * scale];
+	      }
+
 	      this.setPositionXY(setPositionXY);
 	      this.group.attr({
-	        position: setPositionXY
+	        position: setPositionXY,
+	        origin: this.getOrigin()
 	      });
 	    }
 	  }, {
@@ -31543,7 +31570,7 @@
 
 	// rollup编译入口
 
-	var version$1 = "1.2.3-rc.4";
+	var version$1 = "1.3.0";
 	console.log("inMark v".concat(version$1));
 	var inMark = {
 	  version: version$1,
