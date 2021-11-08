@@ -27343,8 +27343,8 @@
 	        if (this._option.canvasWidth) {
 	          var id = this._option.id;
 	          var dom = document.getElementById(id);
-	          var domWidth = dom.getBoundingClientRect().width;
-	          var domHeight = dom.getBoundingClientRect().height;
+	          var domWidth = dom && dom.getBoundingClientRect().width;
+	          var domHeight = dom && dom.getBoundingClientRect().height;
 	          this._option.origin = [domWidth / 2, domHeight / 2];
 	        } else {
 	          this._option.origin = [this.ctx.canvasWidth / 2, this.ctx.canvasHeight / 2];
@@ -28991,8 +28991,8 @@
 	      if (this._option.canvasWidth && this._option.canvasHeight) {
 	        var id = this._option.id;
 	        var dom = document.getElementById(id);
-	        var domWidth = dom.getBoundingClientRect().width;
-	        var domHeight = dom.getBoundingClientRect().height;
+	        var domWidth = dom && dom.getBoundingClientRect().width;
+	        var domHeight = dom && dom.getBoundingClientRect().height;
 	        setPositionXY = [(domWidth / 2 - point_center[0] - bgDragX) * scale, (domHeight / 2 - point_center[1] - bgDragY) * scale];
 	      } else {
 	        setPositionXY = [(-point_center[0] - bgDragX) * scale + canvas_width / 2 * scale, (-point_center[1] - bgDragY) * scale + canvas_height / 2 * scale];
@@ -31570,7 +31570,7 @@
 
 	// rollup编译入口
 
-	var version$1 = "1.3.0";
+	var version$1 = "1.3.1";
 	console.log("inMark v".concat(version$1));
 	var inMark = {
 	  version: version$1,
