@@ -120,7 +120,7 @@ export default class Tools {
         this.setOffsetN(d[5]);
 
         // this._option.scale = scale;
-        this.setPositionXY([0,0]);
+        this.setPositionXY([0, 0]);
         this.setScale(scale);
 
         return this;
@@ -302,10 +302,20 @@ export default class Tools {
             this._option.origin = [(this.ctx.canvasWidth / 2), (this.ctx.canvasHeight / 2)];
         } else if (mode === 'original') {
             const box = this.image.getBoundingRect();
+
             this._option.widthImg = box.width * this.group.scale[0];
             this._option.heightImg = box.height * this.group.scale[0];
 
-            this._option.origin = [(this.ctx.canvasWidth / 2), (this.ctx.canvasHeight / 2)];
+            if (this._option.canvasWidth) {
+                let id = this._option.id
+                let dom = document.getElementById(id)
+                let domWidth = dom.getBoundingClientRect().width
+                let domHeight = dom.getBoundingClientRect().height
+                this._option.origin = [(domWidth / 2), (domHeight / 2)];
+            } else {
+                this._option.origin = [(this.ctx.canvasWidth / 2), (this.ctx.canvasHeight / 2)];
+            }
+
         }
         return this._option.origin;
     }

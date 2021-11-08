@@ -453,11 +453,15 @@ export default class RectOverlay extends AbstractRender {
         //     position: [0,0],
         //     origin: this.getOrigin()
         // });
+
         if (item.coordinates.length !== 4) {
             return;
         }
+
         let point = this._calculateToRelationpix(item.coordinates);
         let point_center = [(point[0][0] + point[1][0]) / 2, (point[0][1] + point[3][1]) / 2];
+        let point_w = Math.abs(point[0][0] - point[1][0])
+        let point_h = Math.abs(point[0][1] - point[3][1])
 
         let scale = this.group.scale[0];
         let canvas_width = this.zr.painter._width;
@@ -472,10 +476,28 @@ export default class RectOverlay extends AbstractRender {
             bgDragX = this.bgDrag[0];
             bgDragY = this.bgDrag[1];
         }
-        let setPositionXY = [(-point_center[0] - bgDragX) * scale + canvas_width / 2 * scale, (-point_center[1] - bgDragY) * scale + canvas_height / 2 * scale];
+
+        let setPositionXY
+        let offsetM = this.getOffsetM();
+        let offsetN = this.getOffsetN();
+
+        if (this._option.canvasWidth && this._option.canvasHeight) {
+
+            let id = this._option.id
+            let dom = document.getElementById(id)
+            let domWidth = dom.getBoundingClientRect().width
+            let domHeight = dom.getBoundingClientRect().height
+
+            setPositionXY = [(domWidth / 2 - point_center[0] - bgDragX) * scale, (domHeight / 2 - point_center[1] - bgDragY) * scale];
+        } else {
+
+            setPositionXY = [(-point_center[0] - bgDragX) * scale + canvas_width / 2 * scale, (-point_center[1] - bgDragY) * scale + canvas_height / 2 * scale];
+        }
+        
         this.setPositionXY(setPositionXY)
         this.group.attr({
             position: setPositionXY,
+            origin: this.getOrigin()
         });
     }
     _createEditGroup(points, shape) {

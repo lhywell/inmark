@@ -12,7 +12,6 @@ export default class AbstractRender extends Tools {
         super();
         if (opts) {
             this.setZrender(opts)
-
             this._option = opts;
         } else {
             this.zr = this.getZrender();

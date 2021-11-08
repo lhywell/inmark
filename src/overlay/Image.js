@@ -22,6 +22,8 @@ export default class BImage extends AbstractRender {
             this._option = {};
             this._option.id = opts && opts.id;
             this._option.imgUrl = opts && opts.imgUrl;
+            this._option.canvasWidth = opts && opts.canvasWidth;
+            this._option.canvasHeight = opts && opts.canvasHeight;
 
             let mode = opts && opts.mode || 'auto';
             this.setRenderMode(mode);
@@ -80,6 +82,7 @@ export default class BImage extends AbstractRender {
         this._onRotate = opts && opts.event && opts.event.onRotate;
 
         this.initialize();
+
         this.setOption(this._option);
     }
     initialize() {
