@@ -485,8 +485,8 @@ export default class RectOverlay extends AbstractRender {
 
             let id = this._option.id
             let dom = document.getElementById(id)
-            let domWidth = dom.getBoundingClientRect().width
-            let domHeight = dom.getBoundingClientRect().height
+            let domWidth = dom && dom.getBoundingClientRect().width
+            let domHeight = dom && dom.getBoundingClientRect().height
 
             setPositionXY = [(domWidth / 2 - point_center[0] - bgDragX) * scale, (domHeight / 2 - point_center[1] - bgDragY) * scale];
         } else {

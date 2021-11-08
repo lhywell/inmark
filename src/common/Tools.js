@@ -309,8 +309,8 @@ export default class Tools {
             if (this._option.canvasWidth) {
                 let id = this._option.id
                 let dom = document.getElementById(id)
-                let domWidth = dom.getBoundingClientRect().width
-                let domHeight = dom.getBoundingClientRect().height
+                let domWidth = dom && dom.getBoundingClientRect().width
+                let domHeight = dom && dom.getBoundingClientRect().height
                 this._option.origin = [(domWidth / 2), (domHeight / 2)];
             } else {
                 this._option.origin = [(this.ctx.canvasWidth / 2), (this.ctx.canvasHeight / 2)];
